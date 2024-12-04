@@ -36,7 +36,7 @@ SwerveModule::SwerveModule(const int driveMotorCanId, const int turningMotorCanI
   m_logDriveNewSpeed = wpi::log::DoubleLogEntry(log, logHeader + "newSpeed");
   m_logDriveNormalizedSpeed = wpi::log::DoubleLogEntry(log, logHeader + "normalizedNewSpeed");
 
-  //m_turningEncoder.SetInverted(true);               // SDS Mk4i motors are mounted upside down compared to the Mk4
+  // m_turningEncoder.SetInverted(true);               // SDS Mk4i motors are mounted upside down compared to the Mk4
   m_turningEncoder.SetPositionConversionFactor(2.0 * std::numbers::pi); //<! Converts from wheel rotations to radians
 
   double initPosition = VoltageToRadians(m_absEnc.GetVoltage());
