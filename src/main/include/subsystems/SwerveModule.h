@@ -74,7 +74,18 @@ private:
     static constexpr double kDriveGearRatioL1 = 8.14;    //!< MK4i swerve modules L1 gearing w/Falcon 13.5 ft/sec
     static constexpr double kDriveGearRatioL2 = 6.75;    //!< MK4i swerve modules L2 gearing w/Falcon 16.3 ft/sec
     static constexpr double kDriveGearRatioL3 = 6.12;    //!< MK4i swerve modules L3 gearing w/Falcon 18.0 ft/sec
-    static constexpr double kDriveGearRatio = kDriveGearRatioL3;
+
+
+    static constexpr double kDriveGearRatio2ndStage18P12 = 6.75; //!< Thrifty Swerve modules 18T 12P gearing w/Kraken 15.5 ft/s
+    static constexpr double kDriveGearRatio2ndStage18P13 = 6.23; //!< Thrifty Swerve modules 18T 13P gearing w/Kraken 16.8 ft/s
+    static constexpr double kDriveGearRatio2ndStage18P14 = 5.79; //!< Thrifty Swerve modules 18T 14P gearing w/Kraken 18.1 ft/s
+    static constexpr double kDriveGearRatio2ndStage16P12 = 6.00; //!< Thrifty Swerve modules 16T 12P gearing w/Kraken 17/5 ft/s
+    static constexpr double kDriveGearRatio2ndStage16P13 = 5.54; //!< Thrifty Swerve modules 16T 13P gearing w/Kraken 18.9 ft/s
+    static constexpr double kDriveGearRatio2ndStage16P14 = 5.14; //!< Thrifty Swerve modules 16T 14P gearing w/Kraken 20.4 ft/s
+
+    // static constexpr double kDriveGearRatio = kDriveGearRatioL3; | Old Gear Ratios
+
+    static constexpr double kDriveGearRatio = kDriveGearRatio2ndStage16P13;
     /// Assumes the encoders are mounted on the motor shaft
     /// ticks / 100 ms -> ticks / s -> motor rev / s -> wheel rev / s -> m / s
     // static constexpr units::meters_per_second_t kDriveEncoderMetersPerSec = kEncoderRevPerSec / kDriveGearRatio * kWheelCircumfMeters;
@@ -91,12 +102,15 @@ private:
 //    rev::SparkRelativeEncoder m_turningEncoder = m_turningMotor.GetEncoder(rev::SparkRelativeEncoder::Type::kHallSensor, 7168);
     // Use CPR 42 due to DS error "countsPerRev must be 42 when using the hall sensor"
 
-    rev::SparkRelativeEncoder m_turningEncoder = m_turningMotor.GetEncoder(rev::SparkRelativeEncoder::Type::kHallSensor, 42); 
+    rev::SparkRelativeEncoder m_turningEncoder = m_turningMotor.GetEncoder(rev::SparkRelativeEncoder::Type::kQuadrature, 7168); 
 
     frc::AnalogInput m_absEnc;
     double m_offset = 0.0;
     
     SparkPIDController m_turningPIDController = m_turningMotor.GetPIDController();
+    double m_turnP;
+    double m_turnI;
+    double m_turnD;
 
     frc::SimpleMotorFeedforward<units::meters> m_driveFeedforward{1_V, 3_V / 1_mps};
 

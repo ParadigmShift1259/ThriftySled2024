@@ -38,7 +38,8 @@ SwerveModule::SwerveModule(const int driveMotorCanId, const int turningMotorCanI
 
   // m_turningEncoder.SetInverted(true);               // SDS Mk4i motors are mounted upside down compared to the Mk4
   m_turningEncoder.SetPositionConversionFactor(2.0 * std::numbers::pi); //<! Converts from wheel rotations to radians
-
+  //m_turningEncoder.SetPositionConversionFactor(25.0); //<! Converts from wheel rotations to radians
+//0.25132741228718345907701147066236
   double initPosition = VoltageToRadians(m_absEnc.GetVoltage());
   printf("Swerve %s m_turningEncoder.SetPosition(initPosition)\n", m_id.c_str());
   m_turningEncoder.SetPosition(initPosition);
@@ -84,13 +85,21 @@ SwerveModule::SwerveModule(const int driveMotorCanId, const int turningMotorCanI
   // to be continuous.
   printf("Swerve %s m_turningPIDController.SetOutputRange(-1.0, 1.0)\n", m_id.c_str());
   m_turningPIDController.SetOutputRange(-1.0, 1.0);
-  constexpr double kTurnP = 1.0;
+  //m_turningPIDController.SetOutputRange(-25.0 * std::numbers::pi, 25.0 * std::numbers::pi);
+  //m_turningPIDController.SetOutputRange(-1.0, 1.0);
+  constexpr double kTurnP = 0.03;
   //constexpr double kTurnI = 0.000001;
   constexpr double kTurnI = 0.0;
   constexpr double kTurnD = 0.0;
-  m_turningPIDController.SetP(kTurnP);
-  m_turningPIDController.SetI(kTurnI);
-  m_turningPIDController.SetD(kTurnD);
+  m_turnP = kTurnP;
+  m_turnI = kTurnI;
+  m_turnD = kTurnD;
+  frc::SmartDashboard::PutNumber("SwrvP", m_turnP);
+  frc::SmartDashboard::PutNumber("SwrvI", m_turnI);
+  frc::SmartDashboard::PutNumber("SwrvD", m_turnD);
+  m_turningPIDController.SetP(m_turnP);
+  m_turningPIDController.SetI(m_turnI);
+  m_turningPIDController.SetD(m_turnD);
   // frc::SmartDashboard::PutBoolean("Load Turn PID", false);
   // frc::SmartDashboard::PutNumber("Turn P", kTurnP);
   // frc::SmartDashboard::PutNumber("Turn I", kTurnI);
@@ -123,6 +132,7 @@ SwerveModule::SwerveModule(const int driveMotorCanId, const int turningMotorCanI
     .WithWidget(frc::BuiltInWidgets::kVoltageView)
     .GetEntry();
 #endif
+  frc::SmartDashboard::PutNumber("NewRef", 0.0);
 }
 
 void SwerveModule::Periodic()
@@ -138,6 +148,24 @@ void SwerveModule::Periodic()
   // {
   //   ResyncAbsRelEnc();
   // }
+  double turnP = frc::SmartDashboard::GetNumber("SwrvP", m_turnP);
+  double turnI = frc::SmartDashboard::GetNumber("SwrvI", m_turnI);
+  double turnD = frc::SmartDashboard::GetNumber("SwrvD", m_turnD);
+  if (turnP != m_turnP)
+  {
+    m_turnP = turnP;
+    m_turningPIDController.SetP(m_turnP);
+  }
+  if (turnI != m_turnI)
+  {
+    m_turnI = turnI;
+    m_turningPIDController.SetI(m_turnI);
+  }
+  if (turnD != m_turnD)
+  {
+    m_turnD = turnD;
+    m_turningPIDController.SetD(m_turnD);
+  }
 
   // Log relative encoder and absolute encoder positions (radians)
   double absPos = VoltageToRadians(m_absEnc.GetVoltage());
@@ -254,8 +282,9 @@ void SwerveModule::SetDesiredState(const frc::SwerveModuleState& referenceState)
   // Calculate the turning motor output from the turning PID controller.
   //frc::SmartDashboard::PutNumber("Turn Ref Opt" + m_id, state.angle.Radians().to<double>());
   //frc::SmartDashboard::PutNumber("Turn Ref" + m_id, referenceState.angle.Radians().to<double>());
-  double newRef = state.angle.Radians().to<double>();
- 
+  double newRef = 25.0 * state.angle.Radians().to<double>();
+  //newRef = frc::SmartDashboard::GetNumber("NewRef", 0.0);
+
   m_logTurningRefSpeed.Append(referenceState.speed.to<double>());
   m_logTurningRefAngle.Append(referenceState.angle.Degrees().to<double>());
   m_logTurningNewAngle.Append(state.angle.Degrees().to<double>());
