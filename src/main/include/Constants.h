@@ -15,6 +15,9 @@
  * command-specific namespaces within this header, which can then be used where
  * they are needed.
  */
+
+constexpr double c_turnGearRatio = 25.0;
+
 namespace DriveConstants
 {
     inline constexpr double kTurnVoltageToRadians = 2.0 * std::numbers::pi / 4.93;    // Absolute encoder runs 0 to 4.93V

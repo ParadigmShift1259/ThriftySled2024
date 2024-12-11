@@ -37,7 +37,7 @@ SwerveModule::SwerveModule(const int driveMotorCanId, const int turningMotorCanI
   m_logDriveNormalizedSpeed = wpi::log::DoubleLogEntry(log, logHeader + "normalizedNewSpeed");
 
   // m_turningEncoder.SetInverted(true);               // SDS Mk4i motors are mounted upside down compared to the Mk4
-  m_turningEncoder.SetPositionConversionFactor(2.0 * std::numbers::pi); //<! Converts from wheel rotations to radians
+  m_turningEncoder.SetPositionConversionFactor(c_turnGearRatio * 2.0 * std::numbers::pi); //<! Converts from wheel rotations to radians
   //m_turningEncoder.SetPositionConversionFactor(25.0); //<! Converts from wheel rotations to radians
 //0.25132741228718345907701147066236
   double initPosition = VoltageToRadians(m_absEnc.GetVoltage());
@@ -248,7 +248,9 @@ units::meter_t SwerveModule::CalcMeters()
 void SwerveModule::SetDesiredState(const frc::SwerveModuleState& referenceState)
 {
   // Optimize the reference state to avoid spinning further than 90 degrees
-  double currPosition = -1.0 * m_turningEncoder.GetPosition();
+  // double currPosition = -1.0 * m_turningEncoder.GetPosition();
+     double currPosition = m_turningEncoder.GetPosition()/ -c_turnGearRatio;
+
   const auto state = frc::SwerveModuleState::Optimize(referenceState, frc::Rotation2d{ units::radian_t(currPosition) });
   //frc::SmartDashboard::PutNumber("Turn Enc Pos" + m_id, currPosition);
   //frc::SmartDashboard::PutNumber("Turn Mot Pos" + m_id, currPosition * kTurnMotorRevsPerWheelRev / (2 * std::numbers::pi));
@@ -282,8 +284,9 @@ void SwerveModule::SetDesiredState(const frc::SwerveModuleState& referenceState)
   // Calculate the turning motor output from the turning PID controller.
   //frc::SmartDashboard::PutNumber("Turn Ref Opt" + m_id, state.angle.Radians().to<double>());
   //frc::SmartDashboard::PutNumber("Turn Ref" + m_id, referenceState.angle.Radians().to<double>());
+  // double newRef = -c_turnGearRatio * state.angle.Radians().to<double>();
   double newRef = 25.0 * state.angle.Radians().to<double>();
-  //newRef = frc::SmartDashboard::GetNumber("NewRef", 0.0);
+  // newRef = frc::SmartDashboard::GetNumber("NewRef", 0.0);
 
   m_logTurningRefSpeed.Append(referenceState.speed.to<double>());
   m_logTurningRefAngle.Append(referenceState.angle.Degrees().to<double>());
@@ -292,7 +295,9 @@ void SwerveModule::SetDesiredState(const frc::SwerveModuleState& referenceState)
   m_logDriveNormalizedSpeed.Append((state.speed / m_currentMaxSpeed).to<double>());
 
   frc::SmartDashboard::PutNumber("Turn Ref Motor" + m_id, newRef);
-  m_turningPIDController.SetReference(-1.0 * newRef, CANSparkBase::ControlType::kPosition);
+  // m_turningPIDController.SetReference(-1.0 * newRef, CANSparkBase::ControlType::kPosition);
+    m_turningPIDController.SetReference(newRef, CANSparkBase::ControlType::kPosition);
+
 }
 
 double SwerveModule::VoltageToRadians(double Voltage)
