@@ -8,8 +8,6 @@
 
 #include <numbers>
 
-#include <frc/geometry/Rotation2d.h>
-
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <frc/shuffleboard/Shuffleboard.h>
 #include <frc/shuffleboard/ShuffleboardWidget.h>
@@ -36,14 +34,9 @@ SwerveModule::SwerveModule(const int driveMotorCanId, const int turningMotorCanI
   m_logDriveNewSpeed = wpi::log::DoubleLogEntry(log, logHeader + "newSpeed");
   m_logDriveNormalizedSpeed = wpi::log::DoubleLogEntry(log, logHeader + "normalizedNewSpeed");
 
-  // m_turningEncoder.SetInverted(true);               // SDS Mk4i motors are mounted upside down compared to the Mk4
-  m_turningEncoder.SetPositionConversionFactor(c_turnGearRatio * 2.0 * std::numbers::pi); //<! Converts from wheel rotations to radians
-  //m_turningEncoder.SetPositionConversionFactor(25.0); //<! Converts from wheel rotations to radians
-//0.25132741228718345907701147066236
+  m_turningEncoder.SetPositionConversionFactor(2.0 * std::numbers::pi); //<! Converts from wheel rotations to radians
   double initPosition = VoltageToRadians(m_absEnc.GetVoltage());
-  printf("Swerve %s m_turningEncoder.SetPosition(initPosition)\n", m_id.c_str());
   m_turningEncoder.SetPosition(initPosition);
-  printf("Swerve %s initPosition %.3f offset %.3f\n", m_id.c_str(), initPosition, m_offset);
 
   ctre::phoenix6::configs::CurrentLimitsConfigs currentLimitConfigs;
   currentLimitConfigs.WithStatorCurrentLimit(60);
@@ -84,9 +77,7 @@ SwerveModule::SwerveModule(const int driveMotorCanId, const int turningMotorCanI
   // Limit the PID Controller's input range between -pi and pi and set the input
   // to be continuous.
   printf("Swerve %s m_turningPIDController.SetOutputRange(-1.0, 1.0)\n", m_id.c_str());
-  m_turningPIDController.SetOutputRange(-1.0, 1.0);
-  //m_turningPIDController.SetOutputRange(-25.0 * std::numbers::pi, 25.0 * std::numbers::pi);
-  //m_turningPIDController.SetOutputRange(-1.0, 1.0);
+  m_turningPIDController.SetOutputRange(-1.0, 1.0); // -1 to 1 means full power
   constexpr double kTurnP = 0.03;
   //constexpr double kTurnI = 0.000001;
   constexpr double kTurnI = 0.0;
@@ -133,6 +124,7 @@ SwerveModule::SwerveModule(const int driveMotorCanId, const int turningMotorCanI
     .GetEntry();
 #endif
   frc::SmartDashboard::PutNumber("NewRef", 0.0);
+  frc::SmartDashboard::PutNumber("Offset" + m_id, 0.0);
 }
 
 void SwerveModule::Periodic()
@@ -171,9 +163,9 @@ void SwerveModule::Periodic()
   double absPos = VoltageToRadians(m_absEnc.GetVoltage());
   frc::SmartDashboard::PutNumber("Abs Pos" + m_id, absPos);
   frc::SmartDashboard::PutNumber("Abs Pos Offset" + m_id, m_offset);  
-  m_logTurningEncoderPosition.Append(m_turningEncoder.GetPosition());
+  m_logTurningEncoderPosition.Append(GetTurnPosition().to<double>());
   //m_logAbsoluteEncoderPosition.Append(absPos * 2 * std::numbers::pi);
-  m_logAbsoluteEncoderPosition.Append(((1 + m_offset - absPos) * 2 * std::numbers::pi) - (m_turningEncoder.GetPosition()));
+  m_logAbsoluteEncoderPosition.Append(((1 + m_offset - absPos) * 2 * std::numbers::pi) - (GetTurnPosition().to<double>()));
   m_logAbsoluteEncoderPositionWithOffset.Append((1 + m_offset - absPos) * 2 * std::numbers::pi);
 
   // bool bLoadPID = frc::SmartDashboard::GetBoolean("Load Turn PID", false);
@@ -196,38 +188,40 @@ void SwerveModule::Periodic()
   // frc::SmartDashboard::PutNumber("Abs Pos plus Offset" + m_id, angle);
   // frc::SmartDashboard::PutNumber("Offset" + m_id, m_offset);
 
-  frc::SmartDashboard::PutNumber("Turn Enc Pos" + m_id, -1.0 * m_turningEncoder.GetPosition());
+  frc::SmartDashboard::PutNumber("Turn Enc Pos" + m_id, GetTurnPosition().to<double>());
   // frc::SmartDashboard::PutNumber("Turn Mot Pos" + m_id, -1.0 * m_turningEncoder.GetPosition() * kTurnMotorRevsPerWheelRev / (2 * std::numbers::pi));
 }
 
-// void SwerveModule::ResyncAbsRelEnc()
-// {
+void SwerveModule::ResyncAbsRelEnc()
+{
+  auto angleInRad = VoltageToRadians(m_absEnc.GetVoltage());         // Returns rotations between 0 and 1
+  // if (angleInRad > std::numbers::pi)                    // If angle is between pi and 2pi, put it between -pi and pi
+  //     angleInRad -= 2 * std::numbers::pi;
 
-//   auto absPos = m_absEnc.GetAbsolutePosition();         // Returns rotations between 0 and 1
-//   auto angleInRot = fmod(1 + m_offset - absPos, 1.0);   // Returns rotations between 0 and 1
-//   auto angleInRad = angleInRot * 2 * std::numbers::pi;  // Changes rotations to radians
-//   if (angleInRad > std::numbers::pi)                    // If angle is between pi and 2pi, put it between -pi and 0
-//       angleInRad -= 2 * std::numbers::pi;
-
-//   m_turningEncoder.SetPosition(angleInRad);
-// //#define PRINT_ABS_RESYNC
-// #ifdef PRINT_ABS_RESYNC
-//   auto time = m_timer.Get();
-//   printf("Module %s %.3f AbsPos %.3f offset %.3f Set abs enc %.3f [rot] %.3f [rad] to rel enc %.3f [rad] mot pos %.3f [rot]\n"
-//         , m_id.c_str()
-//         , time.to<double>()
-//         , absPos
-//         , m_offset
-//         , angleInRot
-//         , angleInRad
-//         , -1.0 * m_turningEncoder.GetPosition()
-//         , -1.0 * m_turningEncoder.GetPosition() * kTurnMotorRevsPerWheelRev / (2 * std::numbers::pi));
-// #endif
-// }
+  m_turningEncoder.SetPosition(angleInRad);
+//#define PRINT_ABS_RESYNC
+#ifdef PRINT_ABS_RESYNC
+  auto time = m_timer.Get();
+  printf("Module %s %.3f AbsPos %.3f offset %.3f Set abs enc %.3f [rot] %.3f [rad] to rel enc %.3f [rad] mot pos %.3f [rot]\n"
+        , m_id.c_str()
+        , time.to<double>()
+        , absPos
+        , m_offset
+        , angleInRot
+        , angleInRad
+        , -1.0 * m_turningEncoder.GetPosition()
+        , -1.0 * m_turningEncoder.GetPosition() * kTurnMotorRevsPerWheelRev / (2 * std::numbers::pi));
+#endif
+}
 
 frc::SwerveModuleState SwerveModule::GetState()
 {
-  return { CalcMetersPerSec(), units::radian_t{ -1.0 * m_turningEncoder.GetPosition() } };
+  return { CalcMetersPerSec(), GetTurnPosition() };
+}
+
+units::radian_t SwerveModule::GetTurnPosition()
+{
+  return units::radian_t{ m_turningEncoder.GetPosition() / -c_turnGearRatio} + units::radian_t{frc::SmartDashboard::GetNumber("Offset" + m_id, 0.0) };
 }
 
 units::meters_per_second_t SwerveModule::CalcMetersPerSec()
@@ -237,7 +231,7 @@ units::meters_per_second_t SwerveModule::CalcMetersPerSec()
 
 frc::SwerveModulePosition SwerveModule::GetPosition()
 {
-  return {CalcMeters(), units::radian_t{ -1.0 * m_turningEncoder.GetPosition() } };
+  return {CalcMeters(), GetTurnPosition() };
 }
 
 units::meter_t SwerveModule::CalcMeters()
@@ -249,9 +243,10 @@ void SwerveModule::SetDesiredState(const frc::SwerveModuleState& referenceState)
 {
   // Optimize the reference state to avoid spinning further than 90 degrees
   // double currPosition = -1.0 * m_turningEncoder.GetPosition();
-     double currPosition = m_turningEncoder.GetPosition()/ -c_turnGearRatio;
+     double currPosition = GetTurnPosition().to<double>();
 
   const auto state = frc::SwerveModuleState::Optimize(referenceState, frc::Rotation2d{ units::radian_t(currPosition) });
+  frc::SmartDashboard::PutNumber("Turn Enc Pos" + m_id, GetTurnPosition().to<double>());
   //frc::SmartDashboard::PutNumber("Turn Enc Pos" + m_id, currPosition);
   //frc::SmartDashboard::PutNumber("Turn Mot Pos" + m_id, currPosition * kTurnMotorRevsPerWheelRev / (2 * std::numbers::pi));
 
@@ -284,8 +279,8 @@ void SwerveModule::SetDesiredState(const frc::SwerveModuleState& referenceState)
   // Calculate the turning motor output from the turning PID controller.
   //frc::SmartDashboard::PutNumber("Turn Ref Opt" + m_id, state.angle.Radians().to<double>());
   //frc::SmartDashboard::PutNumber("Turn Ref" + m_id, referenceState.angle.Radians().to<double>());
-  // double newRef = -c_turnGearRatio * state.angle.Radians().to<double>();
-  double newRef = 25.0 * state.angle.Radians().to<double>();
+  double newRef = -c_turnGearRatio * state.angle.Radians().to<double>();
+  // double newRef = 25.0 * state.angle.Radians().to<double>();
   // newRef = frc::SmartDashboard::GetNumber("NewRef", 0.0);
 
   m_logTurningRefSpeed.Append(referenceState.speed.to<double>());

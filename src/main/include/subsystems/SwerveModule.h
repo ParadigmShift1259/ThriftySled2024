@@ -22,6 +22,7 @@
 #include <rev/CANSparkFlex.h>
 #include <ctre/phoenix6/TalonFX.hpp>
 
+#include <units/angle.h>
 #include <units/angular_velocity.h>
 #include <units/length.h>
 #include <units/time.h>
@@ -40,13 +41,14 @@ public:
     frc::SwerveModulePosition GetPosition();
     void SetDesiredState(const frc::SwerveModuleState& state);
     void Periodic();
-    //void ResyncAbsRelEnc();
+    void ResyncAbsRelEnc();
     void SetMaxSpeed(units::meters_per_second_t newMaxSpeed) { m_currentMaxSpeed = newMaxSpeed; }
     TalonFX& GetTalon() { return m_driveMotor; };
 
 private:
     units::meters_per_second_t CalcMetersPerSec();
     units::meter_t CalcMeters();
+    units::radian_t GetTurnPosition();
     double VoltageToRadians(double Voltage);
 
     //static constexpr double kWheelRadius = 0.0508;

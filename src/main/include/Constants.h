@@ -20,8 +20,8 @@ constexpr double c_turnGearRatio = 25.0;
 
 namespace DriveConstants
 {
-    inline constexpr double kTurnVoltageToRadians = 2.0 * std::numbers::pi / 4.93;    // Absolute encoder runs 0 to 4.93V
-    inline constexpr double KTurnVoltageToDegrees = 360 / 4.93;
+    inline constexpr double kTurnVoltageToRadians = 2.0 * std::numbers::pi / 4.78;    // Absolute encoder runs 0 to 4.78V
+    inline constexpr double KTurnVoltageToDegrees = 360 / 4.78;
 }
 
 namespace OperatorConstants
