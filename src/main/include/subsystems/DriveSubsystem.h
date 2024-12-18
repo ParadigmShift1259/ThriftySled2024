@@ -112,25 +112,6 @@ private:
   const double kBLoffset = frc::Preferences::GetDouble("Offset4", 0.0);
   const double kBRoffset = frc::Preferences::GetDouble("Offset3", 0.0);
 
-/* Valid Offsets
-//#define ZERO_OFFSETS
-#ifdef ZERO_OFFSETS
-  static constexpr double kFLoffset = 0.0;    static constexpr double kFRoffset = 0.0;
-  static constexpr double kBLoffset = 0.0;    static constexpr double kBRoffset = 0.0;
-#else
-#define THING1
-#ifdef THING1
-  // *************************************************************************************THING 1 Mk4i swerve modules with L3 gear set
-  static constexpr double kFLoffset = 0.983;    static constexpr double kFRoffset = 0.742;
-  static constexpr double kBLoffset = 0.194;    static constexpr double kBRoffset = 0.880;
-#else
-  // *************************************************************************************THING 2 Mk4i swerve modules with L2 gear set
-  static constexpr double kFLoffset = 0.221;   static constexpr double kFRoffset = 0.360;
-  static constexpr double kBLoffset = 0.334;   static constexpr double kBRoffset = 0.920;
-#endif
-#endif
-*/
-
   SwerveModule m_frontLeft  { kFrontLeftDriveCANID, kFrontLeftTurningCANID, kFLoffset, true };     // 1
   SwerveModule m_frontRight { kFrontRightDriveCANID, kFrontRightTurningCANID, kFRoffset, false };  // 2
   SwerveModule m_rearLeft   { kRearLeftDriveCANID, kRearLeftTurningCANID, kBLoffset, true };       // 4
