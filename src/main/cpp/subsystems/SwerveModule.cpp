@@ -94,8 +94,8 @@ SwerveModule::SwerveModule(const int driveMotorCanId, const int turningMotorCanI
   // frc::SmartDashboard::PutNumber("Turn I", kTurnI);
   // frc::SmartDashboard::PutNumber("Turn D", kTurnD);
   m_turningMotor.SetSmartCurrentLimit(20);
-  // m_turningMotor.SetIdleMode(CANSparkBase::IdleMode::kBrake);
-  m_turningMotor.SetIdleMode(CANSparkBase::IdleMode::kCoast);
+  m_turningMotor.SetIdleMode(CANSparkBase::IdleMode::kBrake);
+  // m_turningMotor.SetIdleMode(CANSparkBase::IdleMode::kCoast);
   
   m_timer.Reset();
   m_timer.Start();
@@ -126,6 +126,13 @@ SwerveModule::SwerveModule(const int driveMotorCanId, const int turningMotorCanI
 
 void SwerveModule::Periodic()
 {
+
+  auto time = m_timer.Get();
+  
+  if(time < 5.0_s)
+  {
+    ResyncAbsRelEnc();
+  }
   // auto time = m_timer.Get();
   // if (time < 2.0_s)
   // {
@@ -292,6 +299,8 @@ double SwerveModule::VoltageToRadians(double Voltage)
     double angle = Voltage * DriveConstants::kTurnVoltageToRadians;
     angle -= m_offset;
     angle = fmod(angle + 2 * std::numbers::pi, 2 * std::numbers::pi);
+    // angle = fmod(1.0 + angle , 1.0) * (2 * std::numbers::pi);
+
 // #ifndef ZERO_OFFSETS
 //     // angle ranges from 0 to 2pi
 //     // This reverses it from 2pi to 0 

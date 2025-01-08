@@ -207,10 +207,10 @@ frc::ChassisSpeeds DriveSubsystem::GetChassisSpeeds()
 
 void DriveSubsystem::ResyncAbsRelEnc()
 {
-  // m_frontLeft.ResyncAbsRelEnc();
-  // m_frontRight.ResyncAbsRelEnc();
-  // m_rearLeft.ResyncAbsRelEnc();
-  // m_rearRight.ResyncAbsRelEnc();
+  m_frontLeft.ResyncAbsRelEnc();
+  m_frontRight.ResyncAbsRelEnc();
+  m_rearLeft.ResyncAbsRelEnc();
+  m_rearRight.ResyncAbsRelEnc();
 }
 
 void DriveSubsystem::UpdateOdometry()
