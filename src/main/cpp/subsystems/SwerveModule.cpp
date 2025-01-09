@@ -35,7 +35,9 @@ SwerveModule::SwerveModule(const int driveMotorCanId, const int turningMotorCanI
   m_logDriveNormalizedSpeed = wpi::log::DoubleLogEntry(log, logHeader + "normalizedNewSpeed");
 
   m_turningEncoder.SetPositionConversionFactor(2.0 * std::numbers::pi); //<! Converts from wheel rotations to radians
-  double initPosition = VoltageToRadians(m_absEnc.GetVoltage());
+  // Absolute encoders are on the wheel shaft, convert to the motor shaft via the gear ratio
+  // Negative sign is because turning motor rotates opposite wheel
+  double initPosition = -c_turnGearRatio * VoltageToRadians(m_absEnc.GetVoltage());
   m_turningEncoder.SetPosition(initPosition);
 
   ctre::phoenix6::configs::CurrentLimitsConfigs currentLimitConfigs;
@@ -126,20 +128,13 @@ SwerveModule::SwerveModule(const int driveMotorCanId, const int turningMotorCanI
 
 void SwerveModule::Periodic()
 {
-
-  auto time = m_timer.Get();
-  
-  if(time < 5.0_s)
-  {
-    ResyncAbsRelEnc();
-  }
   // auto time = m_timer.Get();
-  // if (time < 2.0_s)
+  // if (time < 5.0_s)
   // {
   //   ResyncAbsRelEnc();
   // }
 
-  static int count = 0;
+  //static int count = 0;
   // if (count++ % 50)
   // {
   //   ResyncAbsRelEnc();
@@ -196,20 +191,18 @@ void SwerveModule::Periodic()
 
 void SwerveModule::ResyncAbsRelEnc()
 {
-  auto angleInRad = VoltageToRadians(m_absEnc.GetVoltage());         // Returns rotations between 0 and 1
-  // if (angleInRad > std::numbers::pi)                    // If angle is between pi and 2pi, put it between -pi and pi
-  //     angleInRad -= 2 * std::numbers::pi;
-
+  // Absolute encoders are on the wheel shaft, convert to the motor shaft via the gear ratio
+  // Negative sign is because turning motor rotates opposite wheel
+  auto angleInRad = -c_turnGearRatio * VoltageToRadians(m_absEnc.GetVoltage());         // Returns rotations between 0 and 1
   m_turningEncoder.SetPosition(angleInRad);
+
 //#define PRINT_ABS_RESYNC
 #ifdef PRINT_ABS_RESYNC
   auto time = m_timer.Get();
-  printf("Module %s %.3f AbsPos %.3f offset %.3f Set abs enc %.3f [rot] %.3f [rad] to rel enc %.3f [rad] mot pos %.3f [rot]\n"
+  printf("Module %s %.3f offset %.3f Set abs enc %.3f [rad] to rel enc %.3f [rad] mot pos %.3f [rot]\n"
         , m_id.c_str()
         , time.to<double>()
-        , absPos
         , m_offset
-        , angleInRot
         , angleInRad
         , -1.0 * m_turningEncoder.GetPosition()
         , -1.0 * m_turningEncoder.GetPosition() * kTurnMotorRevsPerWheelRev / (2 * std::numbers::pi));
@@ -223,6 +216,7 @@ frc::SwerveModuleState SwerveModule::GetState()
 
 units::radian_t SwerveModule::GetTurnPosition()
 {
+  // Negative sign is because turning motor rotates opposite wheel
   return units::radian_t{ m_turningEncoder.GetPosition() / -c_turnGearRatio};
        //+ units::radian_t{frc::SmartDashboard::GetNumber("Offset" + m_id, 0.0) };
 }
@@ -278,6 +272,7 @@ void SwerveModule::SetDesiredState(const frc::SwerveModuleState& referenceState)
   // Calculate the turning motor output from the turning PID controller.
   //frc::SmartDashboard::PutNumber("Turn Ref Opt" + m_id, state.angle.Radians().to<double>());
   //frc::SmartDashboard::PutNumber("Turn Ref" + m_id, referenceState.angle.Radians().to<double>());
+  // Negative sign is because turning motor rotates opposite wheel
   double newRef = -c_turnGearRatio * state.angle.Radians().to<double>();
   // double newRef = 25.0 * state.angle.Radians().to<double>();
   // newRef = frc::SmartDashboard::GetNumber("NewRef", 0.0);
@@ -299,7 +294,6 @@ double SwerveModule::VoltageToRadians(double Voltage)
     double angle = Voltage * DriveConstants::kTurnVoltageToRadians;
     angle -= m_offset;
     angle = fmod(angle + 2 * std::numbers::pi, 2 * std::numbers::pi);
-    // angle = fmod(1.0 + angle , 1.0) * (2 * std::numbers::pi);
 
 // #ifndef ZERO_OFFSETS
 //     // angle ranges from 0 to 2pi

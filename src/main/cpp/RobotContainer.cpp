@@ -52,7 +52,7 @@ void RobotContainer::SetDefaultCommands()
       {
         // const double kDeadband = 0.02;
         const double kDeadband = 0.1;
-		const double direction = -1.0;
+		    const double direction = 1.0;
         const auto xInput = direction* ApplyDeadband(m_primaryController.GetLeftY(), kDeadband);
         const auto yInput = direction * ApplyDeadband(m_primaryController.GetLeftX(), kDeadband);
         const auto rotInput = ApplyDeadband(m_primaryController.GetRightX(), kDeadband);      
