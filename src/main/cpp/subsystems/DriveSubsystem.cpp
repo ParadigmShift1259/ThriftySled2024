@@ -15,8 +15,6 @@ DriveSubsystem::DriveSubsystem()
   m_logRobotPoseX = wpi::log::DoubleLogEntry(log, "/odometry/robotPoseX");
   m_logRobotPoseY = wpi::log::DoubleLogEntry(log, "/odometry/robotPoseY");
   m_logRobotPoseTheta = wpi::log::DoubleLogEntry(log, "/odometry/robotPoseTheta");   
-  //m_logRobotSpeed = wpi::log::DoubleLogEntry(log, "/odometry/robotSpeed");
-  //m_logRobotAccel = wpi::log::DoubleLogEntry(log, "/odometry/robotAccel");
   m_logGyroPitch = wpi::log::DoubleLogEntry(log, "/drivegyro/pitch");
 
   m_logDriveInputX = wpi::log::DoubleLogEntry(log, "/input/X");
@@ -71,6 +69,7 @@ void DriveSubsystem::Drive(units::meters_per_second_t xSpeed,
   }
 }
 
+//Field Relative, Changes rotation to match the field
 void DriveSubsystem::RotationDrive(units::meters_per_second_t xSpeed
                                  , units::meters_per_second_t ySpeed
                                  , units::radian_t rot
@@ -154,22 +153,10 @@ void DriveSubsystem::Periodic()
 
   // Log Odometry Values
   frc::Pose2d pose = m_odometry.GetPose();
-  // frc::Trajectory::State state;
-  // state.t = m_timer.GetFPGATimestamp();
-  // state.pose = pose;
-	// auto& prevState = m_StateHist.back();
-  // state.velocity = (pose - prevState.pose).Translation().Norm() / (state.t - prevState.t);
-  // state.acceleration = (state.velocity - prevState.velocity) / (state.t - prevState.t);
-  //m_StateHist.push_back(state);
-
-  // m_velocity = (double)state.velocity;
-  // m_acceleration = (double)state.acceleration;
 
   m_logRobotPoseX.Append(pose.X().to<double>());
   m_logRobotPoseY.Append(pose.Y().to<double>());
   m_logRobotPoseTheta.Append(pose.Rotation().Degrees().to<double>());
-  // m_logRobotSpeed.Append(m_velocity);
-  // m_logRobotAccel.Append(m_acceleration);
   m_logGyroPitch.Append(m_gyro.GetPitch()); 
   frc::SmartDashboard::PutNumber("currPoseRadians", GetGyroAzimuth().value());
 
@@ -233,7 +220,6 @@ void DriveSubsystem::ResetOdometry(frc::Pose2d pose)
   printf("m_gyro.GetRotation2d().Degrees %.3f pose.Rotation().Degrees %.3f\n", m_gyro.GetRotation2d().Degrees().value(), pose.Rotation().Degrees().value());
   m_gyro.Set(pose.Rotation().Degrees());
   m_odometry.ResetPosition(pose.Rotation(), modulePositions, pose);
-  //m_odometry.ResetPosition(m_gyro.GetRotation2d(), modulePositions, pose);
 }
 
 void DriveSubsystem::SetHeading(units::degree_t heading)
@@ -283,7 +269,7 @@ void DriveSubsystem::SetAllDesiredState(const frc::SwerveModuleState& sms)
 
 void DriveSubsystem::SetModuleStates(SwerveModuleStates desiredStates)
 {
-  m_kinematics.DesaturateWheelSpeeds(&desiredStates, m_currentMaxSpeed);//kMaxSpeed);
+  m_kinematics.DesaturateWheelSpeeds(&desiredStates, m_currentMaxSpeed);
   m_frontLeft.SetDesiredState(desiredStates[0]);
   m_frontRight.SetDesiredState(desiredStates[1]);
   m_rearRight.SetDesiredState(desiredStates[3]);

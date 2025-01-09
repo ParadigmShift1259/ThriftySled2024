@@ -47,8 +47,6 @@ SwerveModule::SwerveModule(const int driveMotorCanId, const int turningMotorCanI
   currentLimitConfigs.WithSupplyCurrentLimitEnable(true);
   currentLimitConfigs.WithSupplyCurrentThreshold(70);
   currentLimitConfigs.WithSupplyTimeThreshold(0.85);
-//  m_driveMotor.SetInverted(driveMotorReversed);
-  // m_driveMotor.ConfigSelectedFeedbackSensor(TalonFXFeedbackDevice::IntegratedSensor);
   m_driveMotor.SetPosition(units::angle::turn_t(0.0));
   m_driveMotor.SetNeutralMode(ctre::phoenix6::signals::NeutralModeValue::Brake);
 
@@ -79,7 +77,6 @@ SwerveModule::SwerveModule(const int driveMotorCanId, const int turningMotorCanI
   // to be continuous.
   m_turningPIDController.SetOutputRange(-1.0, 1.0); // -1 to 1 means full power
   constexpr double kTurnP = 0.03;
-  //constexpr double kTurnI = 0.000001;
   constexpr double kTurnI = 0.0;
   constexpr double kTurnD = 0.0;
   m_turnP = kTurnP;
@@ -91,13 +88,8 @@ SwerveModule::SwerveModule(const int driveMotorCanId, const int turningMotorCanI
   m_turningPIDController.SetP(m_turnP);
   m_turningPIDController.SetI(m_turnI);
   m_turningPIDController.SetD(m_turnD);
-  // frc::SmartDashboard::PutBoolean("Load Turn PID", false);
-  // frc::SmartDashboard::PutNumber("Turn P", kTurnP);
-  // frc::SmartDashboard::PutNumber("Turn I", kTurnI);
-  // frc::SmartDashboard::PutNumber("Turn D", kTurnD);
   m_turningMotor.SetSmartCurrentLimit(20);
   m_turningMotor.SetIdleMode(CANSparkBase::IdleMode::kBrake);
-  // m_turningMotor.SetIdleMode(CANSparkBase::IdleMode::kCoast);
   
   m_timer.Reset();
   m_timer.Start();
@@ -162,31 +154,11 @@ void SwerveModule::Periodic()
   double absPos = VoltageToRadians(m_absEnc.GetVoltage());
   frc::SmartDashboard::PutNumber("Abs Pos" + m_id, absPos);
   frc::SmartDashboard::PutNumber("Abs Pos Offset" + m_id, m_offset);  
-  //auto angle = fmod(1 + m_offset - absPos, 1.0);
-  // frc::SmartDashboard::PutNumber("Abs Pos plus Offset" + m_id, angle);
-  // frc::SmartDashboard::PutNumber("Offset" + m_id, m_offset);
   frc::SmartDashboard::PutNumber("Turn Enc Pos" + m_id, GetTurnPosition().to<double>());
-  // frc::SmartDashboard::PutNumber("Turn Mot Pos" + m_id, -1.0 * m_turningEncoder.GetPosition() * kTurnMotorRevsPerWheelRev / (2 * std::numbers::pi));
-
+  
   m_logTurningEncoderPosition.Append(GetTurnPosition().to<double>());
-  //m_logAbsoluteEncoderPosition.Append(absPos * 2 * std::numbers::pi);
-  m_logAbsoluteEncoderPosition.Append(((1 + m_offset - absPos) * 2 * std::numbers::pi) - (GetTurnPosition().to<double>()));
-  m_logAbsoluteEncoderPositionWithOffset.Append((1 + m_offset - absPos) * 2 * std::numbers::pi);
-
-  // bool bLoadPID = frc::SmartDashboard::GetBoolean("Load Turn PID", false);
-  // if (bLoadPID)
-  // {
-  //   double kTurnP = frc::SmartDashboard::GetNumber("Turn P", 0.5);
-  //   double kTurnI = frc::SmartDashboard::GetNumber("Turn I", 0.00001);
-  //   double kTurnD = frc::SmartDashboard::GetNumber("Turn D", 0.05);
-  //   m_turningPIDController.SetP(kTurnP);
-  //   m_turningPIDController.SetI(kTurnI);
-  //   m_turningPIDController.SetD(kTurnD);
-  //   frc::SmartDashboard::PutNumber("Turn P echo", kTurnP);
-  //   frc::SmartDashboard::PutNumber("Turn I echo", kTurnI);
-  //   frc::SmartDashboard::PutNumber("Turn D echo", kTurnD);
-  //   printf("Loaded Turn PID values P %.3f I %.3f D %.3f\n", kTurnP, kTurnI, kTurnD);
-  // }
+  m_logAbsoluteEncoderPosition.Append(absPos);
+  
 }
 
 void SwerveModule::ResyncAbsRelEnc()
@@ -218,7 +190,6 @@ units::radian_t SwerveModule::GetTurnPosition()
 {
   // Negative sign is because turning motor rotates opposite wheel
   return units::radian_t{ m_turningEncoder.GetPosition() / -c_turnGearRatio};
-       //+ units::radian_t{frc::SmartDashboard::GetNumber("Offset" + m_id, 0.0) };
 }
 
 units::meters_per_second_t SwerveModule::CalcMetersPerSec()
@@ -248,20 +219,9 @@ void SwerveModule::SetDesiredState(const frc::SwerveModuleState& referenceState)
 #ifdef DISABLE_DRIVE
     m_driveMotor.Set(TalonFXControlMode::Velocity, 0.0);
 #else
-    // TODO Change how the speed to the drive motor is calculated
-    // m_driveMotor.Set(TalonFXControlMode::Velocity, CalcTicksPer100Ms(state.speed));
-    // if (m_id == "1")
-    // {
-    //   m_driveMotor.Set(1.0);
-    // }
-    // else
-    {
-      auto spd = (state.speed / m_currentMaxSpeed).to<double>();
-      spd *= m_driveMotorReversed ? -1.0 : 1.0;
-      //frc::SmartDashboard::PutNumber("Drive Speed" + m_id, spd);
-      m_driveMotor.Set(spd);
-      //m_driveMotor.Set((state.speed / m_currentMaxSpeed).to<double>());
-    }
+    auto spd = (state.speed / m_currentMaxSpeed).to<double>();
+    spd *= m_driveMotorReversed ? -1.0 : 1.0;
+    m_driveMotor.Set(spd);  
 #endif
   }
   else
@@ -270,12 +230,8 @@ void SwerveModule::SetDesiredState(const frc::SwerveModuleState& referenceState)
   }
 
   // Calculate the turning motor output from the turning PID controller.
-  //frc::SmartDashboard::PutNumber("Turn Ref Opt" + m_id, state.angle.Radians().to<double>());
-  //frc::SmartDashboard::PutNumber("Turn Ref" + m_id, referenceState.angle.Radians().to<double>());
   // Negative sign is because turning motor rotates opposite wheel
   double newRef = -c_turnGearRatio * state.angle.Radians().to<double>();
-  // double newRef = 25.0 * state.angle.Radians().to<double>();
-  // newRef = frc::SmartDashboard::GetNumber("NewRef", 0.0);
 
   m_logTurningRefSpeed.Append(referenceState.speed.to<double>());
   m_logTurningRefAngle.Append(referenceState.angle.Degrees().to<double>());
@@ -284,7 +240,6 @@ void SwerveModule::SetDesiredState(const frc::SwerveModuleState& referenceState)
   m_logDriveNormalizedSpeed.Append((state.speed / m_currentMaxSpeed).to<double>());
 
   frc::SmartDashboard::PutNumber("Turn Ref Motor" + m_id, newRef);
-  // m_turningPIDController.SetReference(-1.0 * newRef, CANSparkBase::ControlType::kPosition);
   m_turningPIDController.SetReference(newRef, CANSparkBase::ControlType::kPosition);
 }
 
@@ -294,12 +249,6 @@ double SwerveModule::VoltageToRadians(double Voltage)
     double angle = Voltage * DriveConstants::kTurnVoltageToRadians;
     angle -= m_offset;
     angle = fmod(angle + 2 * std::numbers::pi, 2 * std::numbers::pi);
-
-// #ifndef ZERO_OFFSETS
-//     // angle ranges from 0 to 2pi
-//     // This reverses it from 2pi to 0 
-//     angle = 2 * std::numbers::pi - angle;
-// #endif
 
     return angle;
 }
