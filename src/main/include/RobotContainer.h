@@ -10,6 +10,7 @@
 #include <frc2/command/button/CommandXboxController.h>
 #include <frc2/command/CommandPtr.h>
 #include <frc2/command/RunCommand.h>
+#include <frc2/command/InstantCommand.h>
 
 #include "Constants.h"
 
@@ -48,4 +49,15 @@ private:
   // TODO Make sure field relative starts how the drive team wants
   bool m_fieldRelative = false; //true;
   bool m_isAutoRunning = false;
+
+  frc2::InstantCommand m_toggleFieldRelative{[this] { m_fieldRelative = !m_fieldRelative; }, {}};
+
+//#define TEST_WHEEL_CONTROL
+#ifdef TEST_WHEEL_CONTROL
+#define DISABLE_DRIVING
+  frc2::InstantCommand m_wheelsForward{[this] { GetDrive().WheelsForward(); }, {&m_drive} };
+  frc2::InstantCommand m_wheelsLeft{[this] { GetDrive().WheelsLeft(); }, {&m_drive} };
+  frc2::InstantCommand m_wheelsBackward{[this] { GetDrive().WheelsBackward(); }, {&m_drive} };
+  frc2::InstantCommand m_wheelsRight{[this] { GetDrive().WheelsRight(); }, {&m_drive} };
+#endif  // TEST_WHEEL_CONTROL
 };

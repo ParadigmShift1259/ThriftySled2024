@@ -21,6 +21,18 @@ DriveSubsystem::DriveSubsystem()
   m_logDriveInputY = wpi::log::DoubleLogEntry(log, "/input/Y");
   m_logDriveInputRot = wpi::log::DoubleLogEntry(log, "/input/Rot");
 
+// This block of code is to remove last season's constants stored in preferences
+//#define REMOVE_OLD_PREFERENCES
+#ifdef REMOVE_OLD_PREFERENCES
+  auto keys = frc::Preferences::GetKeys();
+  for (const auto& key : keys)
+  {
+    if (!key.empty() && key[0] == 'k')
+    {
+      frc::Preferences::Remove(key);
+    }
+  }
+#endif  // REMOVE_OLD_PREFERENCES
   frc::Preferences::SetString("BuildDate", __DATE__);
   frc::Preferences::SetString("BuildTime", __TIME__);
 
@@ -165,7 +177,6 @@ void DriveSubsystem::Periodic()
   static int count = 0;
   if (count++ % 25 == 0)
   {
-    
     frc::SmartDashboard::PutBoolean("SlowSpeed", m_currentMaxSpeed == kLowSpeed);
   }
 }

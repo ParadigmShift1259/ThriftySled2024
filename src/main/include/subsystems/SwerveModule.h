@@ -78,12 +78,12 @@ private:
     static constexpr double kDriveGearRatioL3 = 6.12;    //!< MK4i swerve modules L3 gearing w/Falcon 18.0 ft/sec
 
 
-    static constexpr double kDriveGearRatio2ndStage18P12 = 6.75; //!< Thrifty Swerve modules 18T 12P gearing w/Kraken 15.5 ft/s
-    static constexpr double kDriveGearRatio2ndStage18P13 = 6.23; //!< Thrifty Swerve modules 18T 13P gearing w/Kraken 16.8 ft/s
-    static constexpr double kDriveGearRatio2ndStage18P14 = 5.79; //!< Thrifty Swerve modules 18T 14P gearing w/Kraken 18.1 ft/s
-    static constexpr double kDriveGearRatio2ndStage16P12 = 6.00; //!< Thrifty Swerve modules 16T 12P gearing w/Kraken 17/5 ft/s
-    static constexpr double kDriveGearRatio2ndStage16P13 = 5.54; //!< Thrifty Swerve modules 16T 13P gearing w/Kraken 18.9 ft/s
-    static constexpr double kDriveGearRatio2ndStage16P14 = 5.14; //!< Thrifty Swerve modules 16T 14P gearing w/Kraken 20.4 ft/s
+    static constexpr double kDriveGearRatio2ndStage18P12 = 6.75; //!< Thrifty Swerve modules 18T 12P gearing w/Kraken 15.5 ft/s (4.72 m/s)
+    static constexpr double kDriveGearRatio2ndStage18P13 = 6.23; //!< Thrifty Swerve modules 18T 13P gearing w/Kraken 16.8 ft/s (5.12 m/s)
+    static constexpr double kDriveGearRatio2ndStage18P14 = 5.79; //!< Thrifty Swerve modules 18T 14P gearing w/Kraken 18.1 ft/s (5.52 m/s)
+    static constexpr double kDriveGearRatio2ndStage16P12 = 6.00; //!< Thrifty Swerve modules 16T 12P gearing w/Kraken 17.5 ft/s (5.21 m/s)
+    static constexpr double kDriveGearRatio2ndStage16P13 = 5.54; //!< Thrifty Swerve modules 16T 13P gearing w/Kraken 18.9 ft/s (5.76 m/s)
+    static constexpr double kDriveGearRatio2ndStage16P14 = 5.14; //!< Thrifty Swerve modules 16T 14P gearing w/Kraken 20.4 ft/s (6.22 m/s)
 
     // static constexpr double kDriveGearRatio = kDriveGearRatioL3; | Old Gear Ratios
 

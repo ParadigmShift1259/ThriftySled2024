@@ -40,7 +40,13 @@ RobotContainer::RobotContainer()
 void RobotContainer::Periodic()
 {
   m_drive.Periodic();
+  //static int count = 0;
+  //if (count++ % 25 == 0)
+  {
+    frc::SmartDashboard::PutBoolean("FieldRelative", m_fieldRelative);
+  }
 }
+
 void RobotContainer::SetDefaultCommands()
 {
   m_drive.SetDefaultCommand(RunCommand
@@ -105,6 +111,7 @@ void RobotContainer::ConfigPrimaryButtonBindings()
   }.ToPtr());*/
 
   //primary.X().OnTrue(&m_trapRPM);
+  primary.LeftBumper().OnTrue(&m_toggleFieldRelative);
 }
 
 void RobotContainer::ConfigSecondaryButtonBindings()
@@ -114,4 +121,10 @@ void RobotContainer::ConfigSecondaryButtonBindings()
   // Keep the bindings in this order
   // A, B, X, Y, Left Bumper, Right Bumper, Back, Start
 //  secondary.A().OnTrue(frc2::SequentialCommandGroup{
+
+#ifdef TEST_WHEEL_CONTROL
+  auto loop = CommandScheduler::GetInstance().GetDefaultButtonLoop();
+  secondary.POVUp(loop).Rising().IfHigh([this] { m_wheelsLeft.Schedule(); });
+  secondary.POVRight(loop).Rising().IfHigh([this] { m_wheelsForward.Schedule(); });
+#endif  //  TEST_WHEEL_CONTROL
 }

@@ -76,7 +76,7 @@ SwerveModule::SwerveModule(const int driveMotorCanId, const int turningMotorCanI
   // Limit the PID Controller's input range between -pi and pi and set the input
   // to be continuous.
   m_turningPIDController.SetOutputRange(-1.0, 1.0); // -1 to 1 means full power
-  constexpr double kTurnP = 0.03;
+  constexpr double kTurnP = 1.0;
   constexpr double kTurnI = 0.0;
   constexpr double kTurnD = 0.0;
   m_turnP = kTurnP;
