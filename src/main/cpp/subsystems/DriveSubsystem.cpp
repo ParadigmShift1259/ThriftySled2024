@@ -270,7 +270,7 @@ void DriveSubsystem::WheelsRight()
   SetAllDesiredState(sms);
 }
 
-void DriveSubsystem::SetAllDesiredState(const frc::SwerveModuleState& sms)
+void DriveSubsystem::SetAllDesiredState(frc::SwerveModuleState& sms)
 {
   m_frontLeft.SetDesiredState(sms);
   m_frontRight.SetDesiredState(sms);

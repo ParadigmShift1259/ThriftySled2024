@@ -98,7 +98,7 @@ public:
 
 private:
 
-  void SetAllDesiredState(const frc::SwerveModuleState& sms);
+  void SetAllDesiredState(frc::SwerveModuleState& sms);
 
   static constexpr auto kTrackWidth = 24_in;
   static constexpr auto kWheelBase = 24_in;

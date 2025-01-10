@@ -16,7 +16,7 @@
 
 SwerveModule::SwerveModule(const int driveMotorCanId, const int turningMotorCanId, double offset, bool driveMotorReversed)
   : m_driveMotor(driveMotorCanId)
-  , m_turningMotor(turningMotorCanId, rev::CANSparkLowLevel::MotorType::kBrushless)
+  , m_turningMotor(turningMotorCanId, SparkLowLevel::MotorType::kBrushless)
   , m_id(std::to_string(turningMotorCanId / 2))
   , m_driveMotorReversed(driveMotorReversed)
   , m_absEnc((turningMotorCanId / 2) - 1)
@@ -34,19 +34,20 @@ SwerveModule::SwerveModule(const int driveMotorCanId, const int turningMotorCanI
   m_logDriveNewSpeed = wpi::log::DoubleLogEntry(log, logHeader + "newSpeed");
   m_logDriveNormalizedSpeed = wpi::log::DoubleLogEntry(log, logHeader + "normalizedNewSpeed");
 
-  m_turningEncoder.SetPositionConversionFactor(2.0 * std::numbers::pi); //<! Converts from wheel rotations to radians
+  m_turningConfig.encoder.PositionConversionFactor(2.0 * std::numbers::pi); //<! Converts from wheel rotations to radians
+  m_turningConfig.Inverted(true);
   // Absolute encoders are on the wheel shaft, convert to the motor shaft via the gear ratio
   // Negative sign is because turning motor rotates opposite wheel
   double initPosition = -c_turnGearRatio * VoltageToRadians(m_absEnc.GetVoltage());
   m_turningEncoder.SetPosition(initPosition);
 
   ctre::phoenix6::configs::CurrentLimitsConfigs currentLimitConfigs;
-  currentLimitConfigs.WithStatorCurrentLimit(60);
+  currentLimitConfigs.WithStatorCurrentLimit(60_A);
   currentLimitConfigs.WithStatorCurrentLimitEnable(true);
-  currentLimitConfigs.WithSupplyCurrentLimit(60);
+  currentLimitConfigs.WithSupplyCurrentLimit(60_A);
   currentLimitConfigs.WithSupplyCurrentLimitEnable(true);
-  currentLimitConfigs.WithSupplyCurrentThreshold(70);
-  currentLimitConfigs.WithSupplyTimeThreshold(0.85);
+  currentLimitConfigs.WithSupplyCurrentLowerLimit(70_A); //Will do nothing right now, larger than SupplyCurrentLimit
+  currentLimitConfigs.WithSupplyCurrentLowerTime(0.85_s);
   m_driveMotor.SetPosition(units::angle::turn_t(0.0));
   m_driveMotor.SetNeutralMode(ctre::phoenix6::signals::NeutralModeValue::Brake);
 
@@ -71,12 +72,12 @@ SwerveModule::SwerveModule(const int driveMotorCanId, const int turningMotorCanI
   m_driveMotor.GetConfigurator().Apply(slot0Configs);
   m_driveMotor.GetConfigurator().Apply(motorOutputConfigs);
 
-  m_turningPIDController.SetFeedbackDevice(m_turningEncoder);
+  m_turningConfig.closedLoop.SetFeedbackSensor(ClosedLoopConfig::FeedbackSensor::kPrimaryEncoder);
 
   // Limit the PID Controller's input range between -pi and pi and set the input
   // to be continuous.
-  m_turningPIDController.SetOutputRange(-1.0, 1.0); // -1 to 1 means full power
-  constexpr double kTurnP = 1.0;
+  m_turningConfig.closedLoop.OutputRange(-1.0, 1.0); // -1 to 1 means full power
+  constexpr double kTurnP = 0.03;
   constexpr double kTurnI = 0.0;
   constexpr double kTurnD = 0.0;
   m_turnP = kTurnP;
@@ -85,12 +86,10 @@ SwerveModule::SwerveModule(const int driveMotorCanId, const int turningMotorCanI
   frc::SmartDashboard::PutNumber("SwrvP", m_turnP);
   frc::SmartDashboard::PutNumber("SwrvI", m_turnI);
   frc::SmartDashboard::PutNumber("SwrvD", m_turnD);
-  m_turningPIDController.SetP(m_turnP);
-  m_turningPIDController.SetI(m_turnI);
-  m_turningPIDController.SetD(m_turnD);
-  m_turningMotor.SetSmartCurrentLimit(20);
-  m_turningMotor.SetIdleMode(CANSparkBase::IdleMode::kBrake);
+  m_turningConfig.closedLoop.Pid(m_turnP, m_turnI, m_turnD);
+  m_turningConfig.SmartCurrentLimit(20).SetIdleMode(SparkBaseConfig::IdleMode::kBrake);
   
+  m_turningMotor.Configure(m_turningConfig, SparkFlex::ResetMode::kNoResetSafeParameters, SparkFlex::PersistMode::kPersistParameters); // TODO: VERIFY CONFIGURATION
   m_timer.Reset();
   m_timer.Start();
 
@@ -134,20 +133,28 @@ void SwerveModule::Periodic()
   double turnP = frc::SmartDashboard::GetNumber("SwrvP", m_turnP);
   double turnI = frc::SmartDashboard::GetNumber("SwrvI", m_turnI);
   double turnD = frc::SmartDashboard::GetNumber("SwrvD", m_turnD);
+  bool updateConfig = false;
   if (turnP != m_turnP)
   {
     m_turnP = turnP;
-    m_turningPIDController.SetP(m_turnP);
+    m_turningConfig.closedLoop.P(m_turnP);
+    updateConfig = true;
   }
   if (turnI != m_turnI)
   {
     m_turnI = turnI;
-    m_turningPIDController.SetI(m_turnI);
+    m_turningConfig.closedLoop.I(m_turnI);
+    updateConfig = true;
   }
   if (turnD != m_turnD)
   {
     m_turnD = turnD;
-    m_turningPIDController.SetD(m_turnD);
+    m_turningConfig.closedLoop.D(m_turnD);
+    updateConfig = true;
+  }
+  if (updateConfig)
+  {
+    m_turningMotor.Configure(m_turningConfig, SparkFlex::ResetMode::kNoResetSafeParameters, SparkFlex::PersistMode::kPersistParameters); // TODO: VERIFY CONFIGURATION
   }
 
   // Log relative encoder and absolute encoder positions (radians)
@@ -158,7 +165,6 @@ void SwerveModule::Periodic()
   
   m_logTurningEncoderPosition.Append(GetTurnPosition().to<double>());
   m_logAbsoluteEncoderPosition.Append(absPos);
-  
 }
 
 void SwerveModule::ResyncAbsRelEnc()
@@ -207,19 +213,23 @@ units::meter_t SwerveModule::CalcMeters()
   return kWheelCircumfMeters * m_driveMotor.GetPosition().GetValue() / units::angle::turn_t(1.0);
 }
 
-void SwerveModule::SetDesiredState(const frc::SwerveModuleState& referenceState)
+void SwerveModule::SetDesiredState(frc::SwerveModuleState& referenceState)
 {
+  // Need to log before referenceState is optimized
+  m_logTurningRefSpeed.Append(referenceState.speed.to<double>());
+  m_logTurningRefAngle.Append(referenceState.angle.Degrees().to<double>());
+
   // Optimize the reference state to avoid spinning further than 90 degrees
   double currPosition = GetTurnPosition().to<double>();
-  const auto state = frc::SwerveModuleState::Optimize(referenceState, frc::Rotation2d{ units::radian_t(currPosition) });
+  referenceState.Optimize(frc::Rotation2d{ units::radian_t(currPosition) });
   frc::SmartDashboard::PutNumber("Turn Enc Pos" + m_id, currPosition);
 
-  if (state.speed != 0_mps)
+  if (referenceState.speed != 0_mps)
   {
 #ifdef DISABLE_DRIVE
     m_driveMotor.Set(TalonFXControlMode::Velocity, 0.0);
 #else
-    auto spd = (state.speed / m_currentMaxSpeed).to<double>();
+    auto spd = (referenceState.speed / m_currentMaxSpeed).to<double>();
     spd *= m_driveMotorReversed ? -1.0 : 1.0;
     m_driveMotor.Set(spd);  
 #endif
@@ -231,16 +241,14 @@ void SwerveModule::SetDesiredState(const frc::SwerveModuleState& referenceState)
 
   // Calculate the turning motor output from the turning PID controller.
   // Negative sign is because turning motor rotates opposite wheel
-  double newRef = -c_turnGearRatio * state.angle.Radians().to<double>();
+  double newRef = -c_turnGearRatio * referenceState.angle.Radians().to<double>();
 
-  m_logTurningRefSpeed.Append(referenceState.speed.to<double>());
-  m_logTurningRefAngle.Append(referenceState.angle.Degrees().to<double>());
-  m_logTurningNewAngle.Append(state.angle.Degrees().to<double>());
-  m_logDriveNewSpeed.Append(state.speed.to<double>());
-  m_logDriveNormalizedSpeed.Append((state.speed / m_currentMaxSpeed).to<double>());
+  m_logTurningNewAngle.Append(referenceState.angle.Degrees().to<double>());
+  m_logDriveNewSpeed.Append(referenceState.speed.to<double>());
+  m_logDriveNormalizedSpeed.Append((referenceState.speed / m_currentMaxSpeed).to<double>());
 
   frc::SmartDashboard::PutNumber("Turn Ref Motor" + m_id, newRef);
-  m_turningPIDController.SetReference(newRef, CANSparkBase::ControlType::kPosition);
+  m_turningPIDController.SetReference(newRef, SparkBase::ControlType::kPosition);
 }
 
 double SwerveModule::VoltageToRadians(double Voltage)

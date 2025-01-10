@@ -19,7 +19,8 @@
 
 #include <networktables/NetworkTableEntry.h>
 
-#include <rev/CANSparkFlex.h>
+#include <rev/SparkFlex.h>
+#include <rev/config/SparkFlexConfig.h>
 #include <ctre/phoenix6/TalonFX.hpp>
 
 #include <units/angle.h>
@@ -31,7 +32,7 @@
 
 // using namespace ctre::phoenix6::hardware::can;
 using namespace ctre::phoenix6::hardware;
-using namespace rev;
+using namespace rev::spark;
 
 class SwerveModule
 {
@@ -39,7 +40,7 @@ public:
     SwerveModule(int driveMotorCanId, int turningMotorCanId, double offset, bool driveMotorReversed);
     frc::SwerveModuleState GetState();
     frc::SwerveModulePosition GetPosition();
-    void SetDesiredState(const frc::SwerveModuleState& state);
+    void SetDesiredState(frc::SwerveModuleState& state);
     void Periodic();
     void ResyncAbsRelEnc();
     void SetMaxSpeed(units::meters_per_second_t newMaxSpeed) { m_currentMaxSpeed = newMaxSpeed; }
@@ -95,7 +96,7 @@ private:
     units::meters_per_second_t m_currentMaxSpeed = 1.0_mps;
 
     TalonFX m_driveMotor;
-    CANSparkFlex m_turningMotor;
+    SparkFlex m_turningMotor;
 
     std::string m_id;
     bool m_driveMotorReversed = false;
@@ -104,12 +105,13 @@ private:
 //    rev::SparkRelativeEncoder m_turningEncoder = m_turningMotor.GetEncoder(rev::SparkRelativeEncoder::Type::kHallSensor, 7168);
     // Use CPR 42 due to DS error "countsPerRev must be 42 when using the hall sensor"
 
-    rev::SparkRelativeEncoder m_turningEncoder = m_turningMotor.GetEncoder(rev::SparkRelativeEncoder::Type::kQuadrature, 7168); 
+    SparkRelativeEncoder m_turningEncoder = m_turningMotor.GetEncoder(); 
+    SparkFlexConfig m_turningConfig;
 
     frc::AnalogInput m_absEnc;
     double m_offset = 0.0;
     
-    SparkPIDController m_turningPIDController = m_turningMotor.GetPIDController();
+    SparkClosedLoopController  m_turningPIDController = m_turningMotor.GetClosedLoopController();
     double m_turnP;
     double m_turnI;
     double m_turnD;
