@@ -49,7 +49,6 @@ SwerveModule::SwerveModule(const int driveMotorCanId, const int turningMotorCanI
   currentLimitConfigs.WithSupplyCurrentLowerLimit(70_A); //Will do nothing right now, larger than SupplyCurrentLimit
   currentLimitConfigs.WithSupplyCurrentLowerTime(0.85_s);
   m_driveMotor.SetPosition(units::angle::turn_t(0.0));
-  m_driveMotor.SetNeutralMode(ctre::phoenix6::signals::NeutralModeValue::Brake);
 
   constexpr double kDriveP = 0.0025; // 0.1;
   constexpr double kDriveI = 0;
@@ -67,6 +66,7 @@ SwerveModule::SwerveModule(const int driveMotorCanId, const int turningMotorCanI
   ctre::phoenix6::configs::MotorOutputConfigs motorOutputConfigs;
   motorOutputConfigs.WithPeakForwardDutyCycle(m_max);
   motorOutputConfigs.WithPeakReverseDutyCycle(m_min);
+  motorOutputConfigs.WithNeutralMode(ctre::phoenix6::signals::NeutralModeValue::Brake);
 
   m_driveMotor.GetConfigurator().Apply(currentLimitConfigs);
   m_driveMotor.GetConfigurator().Apply(slot0Configs);

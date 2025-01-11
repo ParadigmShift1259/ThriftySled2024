@@ -58,8 +58,8 @@ void RobotContainer::SetDefaultCommands()
       {
         // const double kDeadband = 0.02;
         const double kDeadband = 0.1;
+        const double kRotDeadband = 0.42;
 		    const double direction = 1.0;
-#define USE_XBOX
 #ifdef USE_XBOX      
         const auto xInput = direction* ApplyDeadband(m_primaryController.GetLeftY(), kDeadband);
         const auto yInput = direction * ApplyDeadband(m_primaryController.GetLeftX(), kDeadband);
@@ -71,7 +71,8 @@ void RobotContainer::SetDefaultCommands()
 #else
         const auto xInput = direction* ApplyDeadband(m_primaryController.GetHID().GetY(), kDeadband);
         const auto yInput = direction * ApplyDeadband(m_primaryController.GetHID().GetX(), kDeadband);
-        const auto rotInput = ApplyDeadband(m_primaryController.GetHID().GetTwist(), kDeadband);      
+        const auto rotInput = ApplyDeadband(m_secondaryController.GetHID().GetX(), kRotDeadband);
+        // rotInput *= fabs(rotInput);      
 #endif
         const auto xSpeed = m_xspeedLimiter.Calculate(xInput) * m_drive.m_currentMaxSpeed; //kMaxSpeed;
         auto ySpeed = m_yspeedLimiter.Calculate(yInput) * m_drive.m_currentMaxSpeed; //kMaxSpeed;
@@ -119,6 +120,8 @@ void RobotContainer::ConfigPrimaryButtonBindings()
   //primary.X().OnTrue(&m_trapRPM);
 #ifdef USE_XBOX
   primary.LeftBumper().OnTrue(&m_toggleFieldRelative);
+#else
+  primary.Button(7).OnTrue(&m_toggleFieldRelative);
 #endif
 }
 
