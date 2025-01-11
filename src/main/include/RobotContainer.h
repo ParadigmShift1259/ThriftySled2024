@@ -40,7 +40,7 @@ private:
 
   // The robot's subsystems and commands are defined here...
   DriveSubsystem m_drive;
-// #define USE_XBOX
+#define USE_XBOX
 #ifdef USE_XBOX
   CommandXboxController m_primaryController{0};
   CommandXboxController m_secondaryController{1};
@@ -56,7 +56,10 @@ private:
   bool m_fieldRelative = true;
   bool m_isAutoRunning = false;
 
-  frc2::InstantCommand m_toggleFieldRelative{[this] { m_fieldRelative = !m_fieldRelative; }, {}};
+  frc2::InstantCommand m_toggleFieldRelative{[this] { 
+    m_fieldRelative = !m_fieldRelative; 
+    frc::SmartDashboard::PutBoolean("FieldRelative", m_fieldRelative);
+    }, {}};
 
 //#define TEST_WHEEL_CONTROL
 #ifdef TEST_WHEEL_CONTROL

@@ -42,9 +42,9 @@ void RobotContainer::Periodic()
   m_drive.Periodic();
   //static int count = 0;
   //if (count++ % 25 == 0)
-  {
+  //{
     frc::SmartDashboard::PutBoolean("FieldRelative", m_fieldRelative);
-  }
+  //}
 }
 
 void RobotContainer::SetDefaultCommands()
@@ -59,7 +59,7 @@ void RobotContainer::SetDefaultCommands()
         // const double kDeadband = 0.02;
         const double kDeadband = 0.1;
 		    const double direction = 1.0;
-// #define USE_XBOX
+#define USE_XBOX
 #ifdef USE_XBOX      
         const auto xInput = direction* ApplyDeadband(m_primaryController.GetLeftY(), kDeadband);
         const auto yInput = direction * ApplyDeadband(m_primaryController.GetLeftX(), kDeadband);
