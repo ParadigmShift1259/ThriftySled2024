@@ -59,28 +59,33 @@ void RobotContainer::SetDefaultCommands()
         // const double kDeadband = 0.02;
         const double kDeadband = 0.1;
 		    const double direction = 1.0;
+#ifdef USE_XBOX      
         const auto xInput = direction* ApplyDeadband(m_primaryController.GetLeftY(), kDeadband);
         const auto yInput = direction * ApplyDeadband(m_primaryController.GetLeftX(), kDeadband);
         const auto rotInput = ApplyDeadband(m_primaryController.GetRightX(), kDeadband);      
         const auto rotXInput = ApplyDeadband(m_primaryController.GetRightY(), kDeadband);
         const auto rotYInput = ApplyDeadband(m_primaryController.GetRightX(), kDeadband);
-
+        const double rotX = m_rotLimiter.Calculate(rotXInput);
+        const double rotY = m_rotLimiter.Calculate(rotYInput);
+#else
+        const auto xInput = direction* ApplyDeadband(m_primaryController.GetHID().GetY(), kDeadband);
+        const auto yInput = direction * ApplyDeadband(m_primaryController.GetHID().GetX(), kDeadband);
+        const auto rotInput = ApplyDeadband(m_primaryController.GetHID().GetTwist(), kDeadband);      
+#endif
         const auto xSpeed = m_xspeedLimiter.Calculate(xInput) * m_drive.m_currentMaxSpeed; //kMaxSpeed;
         auto ySpeed = m_yspeedLimiter.Calculate(yInput) * m_drive.m_currentMaxSpeed; //kMaxSpeed;
         auto rot = m_rotLimiter.Calculate(rotInput) * kMaxAngularSpeed;      
-        const double rotX = m_rotLimiter.Calculate(rotXInput);
-        const double rotY = m_rotLimiter.Calculate(rotYInput);
 
 //#define DISABLE_DRIVING
 #ifndef DISABLE_DRIVING
-        if (m_fieldRelative)
-        {
-          GetDrive().RotationDrive(xSpeed, ySpeed, rotX, rotY, m_fieldRelative);
-        }
-        else
-        {
+        // if (m_fieldRelative)
+        // {
+        //   GetDrive().RotationDrive(xSpeed, ySpeed, rotX, rotY, m_fieldRelative);
+        // }
+        // else
+        // {
           GetDrive().Drive(xSpeed, ySpeed, rot, m_fieldRelative);
-        }
+        // }
 #endif// DISABLE_DRIVING
       }
     },
@@ -111,7 +116,9 @@ void RobotContainer::ConfigPrimaryButtonBindings()
   }.ToPtr());*/
 
   //primary.X().OnTrue(&m_trapRPM);
+#ifdef USE_XBOX
   primary.LeftBumper().OnTrue(&m_toggleFieldRelative);
+#endif
 }
 
 void RobotContainer::ConfigSecondaryButtonBindings()

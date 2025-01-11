@@ -8,6 +8,7 @@
 #include <frc/smartdashboard/SmartDashboard.h>
 
 #include <frc2/command/button/CommandXboxController.h>
+#include <frc2/command/button/CommandJoystick.h>
 #include <frc2/command/CommandPtr.h>
 #include <frc2/command/RunCommand.h>
 #include <frc2/command/InstantCommand.h>
@@ -40,14 +41,19 @@ private:
   // The robot's subsystems and commands are defined here...
   DriveSubsystem m_drive;
 
+#ifdef USE_XBOX
   CommandXboxController m_primaryController{0};
   CommandXboxController m_secondaryController{1};
+#else
+  frc2::CommandJoystick m_primaryController{0};
+  frc2::CommandJoystick m_secondaryController{1};
+#endif
   SlewRateLimiter<units::scalar> m_xspeedLimiter{3 / 1_s, -3 / 2_s};
   SlewRateLimiter<units::scalar> m_yspeedLimiter{3 / 1_s, -3 / 3_s};
   SlewRateLimiter<units::scalar> m_rotLimiter{3 / 1_s};
   SlewRateLimiter<units::scalar> m_yawRotationLimiter{3 / 1_s};
   // TODO Make sure field relative starts how the drive team wants
-  bool m_fieldRelative = false; //true;
+  bool m_fieldRelative = true;
   bool m_isAutoRunning = false;
 
   frc2::InstantCommand m_toggleFieldRelative{[this] { m_fieldRelative = !m_fieldRelative; }, {}};
