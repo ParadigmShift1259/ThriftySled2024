@@ -59,12 +59,13 @@ void RobotContainer::SetDefaultCommands()
         // const double kDeadband = 0.02;
         const double kDeadband = 0.1;
 		    const double direction = 1.0;
+// #define USE_XBOX
 #ifdef USE_XBOX      
         const auto xInput = direction* ApplyDeadband(m_primaryController.GetLeftY(), kDeadband);
         const auto yInput = direction * ApplyDeadband(m_primaryController.GetLeftX(), kDeadband);
         const auto rotInput = ApplyDeadband(m_primaryController.GetRightX(), kDeadband);      
-        const auto rotXInput = ApplyDeadband(m_primaryController.GetRightY(), kDeadband);
-        const auto rotYInput = ApplyDeadband(m_primaryController.GetRightX(), kDeadband);
+        const auto rotXInput = ApplyDeadband(m_primaryController.GetRightX(), kDeadband);
+        const auto rotYInput = ApplyDeadband(m_primaryController.GetRightY(), kDeadband);
         const double rotX = m_rotLimiter.Calculate(rotXInput);
         const double rotY = m_rotLimiter.Calculate(rotYInput);
 #else
