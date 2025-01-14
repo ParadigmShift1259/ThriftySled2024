@@ -3,6 +3,7 @@
 // the WPILib BSD license file in the root directory of this project.
 
 #include "RobotContainer.h"
+#include "commands/GoToPositionCommand.h"
 
 #include <frc/MathUtil.h>
 #include <frc/smartdashboard/SmartDashboard.h>
@@ -59,15 +60,15 @@ void RobotContainer::SetDefaultCommands()
         // const double kDeadband = 0.02;
         const double kDeadband = 0.1;
 		    const double direction = 1.0;
-#define USE_XBOX
+// define USE_XBOX in RobotContainer.h
 #ifdef USE_XBOX      
         const auto xInput = direction* ApplyDeadband(m_primaryController.GetLeftY(), kDeadband);
         const auto yInput = direction * ApplyDeadband(m_primaryController.GetLeftX(), kDeadband);
         const auto rotInput = ApplyDeadband(m_primaryController.GetRightX(), kDeadband);      
-        const auto rotXInput = ApplyDeadband(m_primaryController.GetRightX(), kDeadband);
-        const auto rotYInput = ApplyDeadband(m_primaryController.GetRightY(), kDeadband);
-        const double rotX = m_rotLimiter.Calculate(rotXInput);
-        const double rotY = m_rotLimiter.Calculate(rotYInput);
+        // const auto rotXInput = ApplyDeadband(m_primaryController.GetRightX(), kDeadband);
+        // const auto rotYInput = ApplyDeadband(m_primaryController.GetRightY(), kDeadband);
+        // const double rotX = m_rotLimiter.Calculate(rotXInput);
+        // const double rotY = m_rotLimiter.Calculate(rotYInput);
 #else
         const auto xInput = direction* ApplyDeadband(m_primaryController.GetHID().GetY(), kDeadband);
         const auto yInput = direction * ApplyDeadband(m_primaryController.GetHID().GetX(), kDeadband);
@@ -119,12 +120,13 @@ void RobotContainer::ConfigPrimaryButtonBindings()
   //primary.X().OnTrue(&m_trapRPM);
 #ifdef USE_XBOX
   primary.LeftBumper().OnTrue(&m_toggleFieldRelative);
+  primary.RightBumper().WhileTrue(GoToPositionCommand(*this, false).ToPtr());
 #endif
 }
 
 void RobotContainer::ConfigSecondaryButtonBindings()
 {
-  auto& secondary = m_secondaryController;
+  // auto& secondary = m_secondaryController;
 
   // Keep the bindings in this order
   // A, B, X, Y, Left Bumper, Right Bumper, Back, Start

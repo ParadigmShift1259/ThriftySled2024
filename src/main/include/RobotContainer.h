@@ -28,6 +28,7 @@ class RobotContainer : public ISubsystemAccess
   void Periodic();
   // ISubsystemAcces Implementation
   DriveSubsystem&        GetDrive() override { return m_drive; }
+  VisionSubsystem&       GetVision() override { return m_vision; }
   wpi::log::DataLog&         GetLogger() override { return DataLogManager::GetLog(); }
   frc2::CommandPtr GetAutonomousCommand();
 
@@ -39,7 +40,11 @@ private:
   void ConfigSecondaryButtonBindings();
 
   // The robot's subsystems and commands are defined here...
+  
   DriveSubsystem m_drive;
+  
+  VisionSubsystem m_vision;
+
 #define USE_XBOX
 #ifdef USE_XBOX
   CommandXboxController m_primaryController{0};
