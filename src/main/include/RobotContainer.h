@@ -64,6 +64,7 @@ private:
   frc2::InstantCommand m_toggleFieldRelative{[this] { 
     m_fieldRelative = !m_fieldRelative; 
     frc::SmartDashboard::PutBoolean("FieldRelative", m_fieldRelative);
+    printf("toggle FR %d\n", m_fieldRelative);
     }, {}};
 
 //#define TEST_WHEEL_CONTROL
