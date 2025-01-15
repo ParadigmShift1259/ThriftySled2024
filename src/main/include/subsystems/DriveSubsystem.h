@@ -18,6 +18,7 @@
 #include <frc/controller/PIDController.h>
 #include <frc2/command/SubsystemBase.h>
 #include <frc/Preferences.h>
+#include <frc/estimator/SwerveDrivePoseEstimator.h>
 
 #include <networktables/StructTopic.h>
 
@@ -25,6 +26,7 @@
 #include "ConstantsCANIDs.h"
 #include "subsystems/SwerveModule.h"
 #include "PigeonGyro.h"
+#include "LimelightHelpers.h"
 
 static constexpr units::meters_per_second_t kMaxSpeed = 18.0_fps;  // L3 Gear Ratio Falcon Max Speed
 static constexpr units::meters_per_second_t kLowSpeed = 4.0_fps;  // L3 Gear Ratio Falcon Max Speed
@@ -118,6 +120,8 @@ private:
   SwerveModule m_rearRight  { kRearRightDriveCANID, kRearRightTurningCANID, kBRoffset, false };    // 3
 
   PigeonGyro m_gyro;
+
+  // frc::SwerveDrivePoseEstimator<4> m_poseEstimator;
 
 public:
   frc::SwerveDriveKinematics<4> m_kinematics{

@@ -3,11 +3,14 @@
 // the WPILib BSD license file in the root directory of this project.
 
 #include "subsystems/DriveSubsystem.h"
+
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <units/math.h>
 
 DriveSubsystem::DriveSubsystem()
   : m_gyro(kDrivePigeonCANID)
+  // , m_poseEstimator(m_kinematics, m_gyro.GetRotation2d(), {m_frontLeft.GetPosition(), m_frontRight.GetPosition(),
+  //      m_rearLeft.GetPosition(), m_rearRight.GetPosition()}, m_gyro.)
 {
   m_gyro.Reset();
 
@@ -179,6 +182,21 @@ void DriveSubsystem::Periodic()
   {
     frc::SmartDashboard::PutBoolean("SlowSpeed", m_currentMaxSpeed == kLowSpeed);
   }
+
+  // Update limelight for megatag2
+  LimelightHelpers::SetRobotOrientation("limelight-reef", m_gyro.GetYaw().value(), 0.0, 0.0, 0.0, 0.0, 0.0);
+
+  // bool doUpdate = true;
+  // LimelightHelpers::SetRobotOrientation("limelight-reef", m_poseEstimator.GetEstimatedPosition().Rotation().Degrees().value(), 0.0, 0.0, 0.0, 0.0, 0.0);
+  // LimelightHelpers::PoseEstimate mt2 = LimelightHelpers::getBotPoseEstimate_wpiBlue_MegaTag2("limelight-reef");
+  // if(fabs(m_gyro.GetTurnRate().value()) > 720.0) {
+  //   doUpdate = false;
+  // }
+  // if(doUpdate){
+  //   const wpi::array<double, 3> stdDevs {.6, .6, 9999999};
+  //   m_poseEstimator.SetVisionMeasurementStdDevs(stdDevs);
+  //   m_poseEstimator.AddVisionMeasurement(mt2.pose, mt2.timestampSeconds);
+  // }
 }
 
 frc::Pose2d DriveSubsystem::GetPose()

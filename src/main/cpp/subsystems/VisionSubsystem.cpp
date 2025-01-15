@@ -92,7 +92,7 @@ void VisionSubsystem::PeriodicReef()
       m_logRobotPoseY.Append(m_netBufferField[eY]);
       m_logRobotPoseTheta.Append(m_netBufferField[eYaw]);
 
-      m_netBufferAlli = m_netTableReef->GetNumberArray("botpose_wpiblue", m_zero_vector);
+      m_netBufferAlli = m_netTableReef->GetNumberArray("botpose_orb_wpiblue", m_zero_vector);
       m_logRobotAlliPoseX.Append(m_netBufferAlli[eX]);
       m_logRobotAlliPoseY.Append(m_netBufferAlli[eY]);
       m_logRobotAlliPoseTheta.Append(m_netBufferAlli[eYaw]);
