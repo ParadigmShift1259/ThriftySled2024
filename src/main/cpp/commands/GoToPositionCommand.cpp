@@ -3,11 +3,16 @@
 
 #include <frc/smartdashboard/SmartDashboard.h>
 
-const units::length::meter_t c_halfRobotSize = 14.5_in + 3.0_in;  // Half robot width/length + bumper 29 / 2 = 14.5 + 3.0
+const units::length::meter_t c_halfRobotSize = 14.5_in + 3.0_in;  // Half robot width/length + bumper 29 / 2 = 14.5 + 3.0]
+#ifdef TAG_3
 const units::length::meter_t c_targetRedX = 455.15_in;//530.49_in;
 const units::length::meter_t c_targetRedY = 317.15_in;//130.17_in;
 const units::angle::degree_t c_targetRedRot = 90_deg;//120_deg;
-
+#else
+const units::length::meter_t c_targetRedX = 530.49_in;//530.49_in;
+const units::length::meter_t c_targetRedY = 130.17_in;
+const units::angle::degree_t c_targetRedRot = 120_deg;
+#endif
 const double c_targetPodiumX = (2.896_m - c_halfRobotSize).value();
 const double c_targetPodiumY = 4.106;
 const double c_tolerance = 0.02;
@@ -24,15 +29,18 @@ const double c_targetReefBlueX = (1.933_m - 0.050_m).value();  // 5cm bias on sh
 const double c_targetReefBlueY = (8.111_m - c_halfRobotSize).value();
 const double c_targetReefBlueRot = -90.0;
 
-// const int c_tagIdReefRed = 6;
-// const double c_targetReefRedX = (c_targetRedX + c_halfRobotSize * 0.5).value(); //0.5 is sin(30)
-// const double c_targetReefRedY = (c_targetRedY - c_halfRobotSize * sqrt(3) * 0.5).value(); //root(3)/2 is cos(30)
-// const double c_targetReefRedRot = c_targetRedRot.value();
-
+#ifdef TAG_3
 const int c_tagIdReefRed = 3;
 const double c_targetReefRedX = (c_targetRedX).value(); 
 const double c_targetReefRedY = (c_targetRedY - c_halfRobotSize).value(); 
 const double c_targetReefRedRot = c_targetRedRot.value();
+#else
+const int c_tagIdReefRed = 6;
+const double c_targetReefRedX = (c_targetRedX + c_halfRobotSize * 0.5).value(); //0.5 is sin(30)
+const double c_targetReefRedY = (c_targetRedY - c_halfRobotSize * sqrt(3) * 0.5).value(); //root(3)/2 is cos(30)
+const double c_targetReefRedRot = c_targetRedRot.value();
+#endif
+
 
 const units::velocity::meters_per_second_t c_defaultGoToReefMaxSpeed = 2.0_mps;
 

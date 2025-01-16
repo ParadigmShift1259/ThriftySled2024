@@ -9,8 +9,6 @@
 
 DriveSubsystem::DriveSubsystem()
   : m_gyro(kDrivePigeonCANID)
-  // , m_poseEstimator(m_kinematics, m_gyro.GetRotation2d(), {m_frontLeft.GetPosition(), m_frontRight.GetPosition(),
-  //      m_rearLeft.GetPosition(), m_rearRight.GetPosition()}, m_gyro.)
 {
   m_gyro.Reset();
 
@@ -167,7 +165,8 @@ void DriveSubsystem::Periodic()
   m_rearRight.Periodic();
 
   // Log Odometry Values
-  frc::Pose2d pose = m_odometry.GetPose();
+  frc::Pose2d pose = m_poseEstimator.GetEstimatedPosition();
+  //frc::Pose2d pose = m_odometry.GetPose();
 
   m_logRobotPoseX.Append(pose.X().to<double>());
   m_logRobotPoseY.Append(pose.Y().to<double>());
@@ -184,31 +183,26 @@ void DriveSubsystem::Periodic()
   }
 
   // Update limelight for megatag2
-  LimelightHelpers::SetRobotOrientation("limelight-reef", m_gyro.GetYaw().value(), 0.0, 0.0, 0.0, 0.0, 0.0);
+  //LimelightHelpers::SetRobotOrientation("limelight-reef", m_gyro.GetYaw().value(), 0.0, 0.0, 0.0, 0.0, 0.0);
 
-  // bool doUpdate = true;
-  // LimelightHelpers::SetRobotOrientation("limelight-reef", m_poseEstimator.GetEstimatedPosition().Rotation().Degrees().value(), 0.0, 0.0, 0.0, 0.0, 0.0);
-  // LimelightHelpers::PoseEstimate mt2 = LimelightHelpers::getBotPoseEstimate_wpiBlue_MegaTag2("limelight-reef");
-  // if(fabs(m_gyro.GetTurnRate().value()) > 720.0) {
-  //   doUpdate = false;
-  // }
-  // if(doUpdate){
-  //   const wpi::array<double, 3> stdDevs {.6, .6, 9999999};
-  //   m_poseEstimator.SetVisionMeasurementStdDevs(stdDevs);
-  //   m_poseEstimator.AddVisionMeasurement(mt2.pose, mt2.timestampSeconds);
-  // }
+  bool doUpdate = true;
+  LimelightHelpers::SetRobotOrientation("limelight-reef", m_poseEstimator.GetEstimatedPosition().Rotation().Degrees().value(), 0.0, 0.0, 0.0, 0.0, 0.0);
+  LimelightHelpers::PoseEstimate mt2 = LimelightHelpers::getBotPoseEstimate_wpiBlue_MegaTag2("limelight-reef");
+  if(fabs(m_gyro.GetTurnRate().value()) > 720.0) {
+    doUpdate = false;
+  }
+  if(doUpdate){
+    //const wpi::array<double, 3> stdDevs {.6, .6, 9999999};
+    //m_poseEstimator.SetVisionMeasurementStdDevs(stdDevs);
+    m_poseEstimator.AddVisionMeasurement(mt2.pose, mt2.timestampSeconds);
+  }
 }
 
 frc::Pose2d DriveSubsystem::GetPose()
 {
-  //auto pose = m_odometry.GetPose();
-  //printf("DriveSubsystem::GetPose x %.3f y %.3f rot %.3f\n", pose.X().value(), pose.Y().value(), pose.Rotation().Degrees().value());
+  return m_poseEstimator.GetEstimatedPosition();
+//  return m_odometry.GetPose();
 
-  // frc::SmartDashboard::PutNumber("X", pose.X().to<double>());
-  // frc::SmartDashboard::PutNumber("Y", pose.Y().to<double>());
-  // frc::SmartDashboard::PutNumber("Rot", pose.Rotation().Degrees().to<double>());
-
-  return m_odometry.GetPose();
 }
 
 frc::ChassisSpeeds DriveSubsystem::GetChassisSpeeds()
@@ -231,10 +225,16 @@ void DriveSubsystem::ResyncAbsRelEnc()
 
 void DriveSubsystem::UpdateOdometry()
 {
-  m_odometry.Update(m_gyro.GetRotation2d(),
-                   {m_frontLeft.GetPosition(), m_frontRight.GetPosition(),
-                    m_rearLeft.GetPosition(),  m_rearRight.GetPosition()});
-  m_publisher.Set(m_odometry.GetPose());
+   m_poseEstimator.Update(m_gyro.GetRotation2d(),
+                    {m_frontLeft.GetPosition(), m_frontRight.GetPosition(),
+                     m_rearLeft.GetPosition(),  m_rearRight.GetPosition()});
+
+  // m_odometry.Update(m_gyro.GetRotation2d(),
+  //                  {m_frontLeft.GetPosition(), m_frontRight.GetPosition(),
+  //                   m_rearLeft.GetPosition(),  m_rearRight.GetPosition()});
+
+  m_publisher.Set(m_poseEstimator.GetEstimatedPosition());
+  //m_publisher.Set(m_odometry.GetPose());
 }
 
 void DriveSubsystem::ResetOdometry(frc::Pose2d pose)
@@ -248,7 +248,8 @@ void DriveSubsystem::ResetOdometry(frc::Pose2d pose)
                                            m_rearLeft.GetPosition(), m_rearRight.GetPosition()};
   printf("m_gyro.GetRotation2d().Degrees %.3f pose.Rotation().Degrees %.3f\n", m_gyro.GetRotation2d().Degrees().value(), pose.Rotation().Degrees().value());
   m_gyro.Set(pose.Rotation().Degrees());
-  m_odometry.ResetPosition(pose.Rotation(), modulePositions, pose);
+  m_poseEstimator.ResetPosition(pose.Rotation(), modulePositions, pose);
+  //m_odometry.ResetPosition(pose.Rotation(), modulePositions, pose);
 }
 
 void DriveSubsystem::SetHeading(units::degree_t heading)

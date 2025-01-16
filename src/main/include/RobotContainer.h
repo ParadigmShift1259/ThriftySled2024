@@ -67,6 +67,11 @@ private:
     printf("toggle FR %d\n", m_fieldRelative);
     }, {}};
 
+
+  // Tag 3 coordinates
+  // frc2::InstantCommand m_resetOdo{[this] {m_drive.ResetOdometry({11.56_m, 8.12_m, 90_deg});}, {&m_drive}};
+  frc2::InstantCommand m_resetOdo{[this] {m_drive.ResetOdometry({530.49_in + 8.75_in, 130.17_in - 15.16_in, 120_deg});}, {&m_drive}};
+
 //#define TEST_WHEEL_CONTROL
 #ifdef TEST_WHEEL_CONTROL
 #define DISABLE_DRIVING

@@ -126,6 +126,7 @@ void RobotContainer::ConfigPrimaryButtonBindings()
 #else
   primary.Button(7).OnTrue(&m_toggleFieldRelative);
 #endif
+  primary.Back().OnTrue(&m_resetOdo);
 }
 
 void RobotContainer::ConfigSecondaryButtonBindings()

@@ -99,7 +99,6 @@ public:
   // static constexpr units::radians_per_second_t kMaxAngularSpeed{0.25 * std::numbers::pi};
 
 private:
-
   void SetAllDesiredState(frc::SwerveModuleState& sms);
 
   static constexpr auto kTrackWidth = 24_in;
@@ -121,19 +120,27 @@ private:
 
   PigeonGyro m_gyro;
 
-  // frc::SwerveDrivePoseEstimator<4> m_poseEstimator;
-
-public:
   frc::SwerveDriveKinematics<4> m_kinematics{
       m_frontLeftLocation, m_frontRightLocation, 
       m_rearLeftLocation, m_rearRightLocation};
 
-private:
-  frc::SwerveDriveOdometry<4> m_odometry{
-      m_kinematics,
-      m_gyro.GetRotation2d(),
-      {m_frontLeft.GetPosition(), m_frontRight.GetPosition(),
-       m_rearLeft.GetPosition(), m_rearRight.GetPosition()}};
+  // frc::SwerveDriveOdometry<4> m_odometry{
+  //     m_kinematics,
+  //     m_gyro.GetRotation2d(),
+  //     {m_frontLeft.GetPosition(), m_frontRight.GetPosition(),
+  //      m_rearLeft.GetPosition(), m_rearRight.GetPosition()}};
+
+  frc::SwerveDrivePoseEstimator<4> m_poseEstimator
+  {
+    m_kinematics
+    , m_gyro.GetRotation2d()
+    , {m_frontLeft.GetPosition()
+    , m_frontRight.GetPosition()
+    , m_rearLeft.GetPosition(), m_rearRight.GetPosition()}
+    , frc::Pose2d{}
+    , {0.1, 0.1, 0.1}
+    , {.7, .7, 9999999.0}
+  };
 
   frc::PIDController m_rotationPIDController{1, 0, 0.025};
 
