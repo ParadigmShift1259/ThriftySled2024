@@ -5,10 +5,17 @@
 
 #include "ISubsystemAccess.h"
 
+enum ELeftMiddleRight 
+{
+    eLeft
+    , eMiddle
+    , eRight
+} ;
+
 class GoToPositionCommand: public frc2::CommandHelper<frc2::Command, GoToPositionCommand>
 {
     public:
-        explicit GoToPositionCommand(ISubsystemAccess& subsystemAccess, bool bIsBlue);
+        explicit GoToPositionCommand(ISubsystemAccess& subsystemAccess, ELeftMiddleRight elmr);
         void Initialize() override;
         void Execute() override;
         bool IsFinished() override;

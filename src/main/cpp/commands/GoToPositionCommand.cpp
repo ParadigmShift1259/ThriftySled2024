@@ -4,6 +4,8 @@
 #include <frc/smartdashboard/SmartDashboard.h>
 
 const units::length::meter_t c_halfRobotSize = 14.5_in + 3.0_in;  // Half robot width/length + bumper 29 / 2 = 14.5 + 3.0]
+const units::length::meter_t c_reefPoleOffset = 6.5_in;  // reef poles are 13 inches apart, this is half
+const double c_cosine30 = sqrt(3) * 0.5;
 #ifdef TAG_3
 const units::length::meter_t c_targetRedX = 455.15_in;//530.49_in;
 const units::length::meter_t c_targetRedY = 317.15_in;//130.17_in;
@@ -39,19 +41,25 @@ const int c_tagIdReefRed = 6;
 const double c_targetReefRedX = (c_targetRedX + c_halfRobotSize * 0.5).value(); //0.5 is sin(30)
 const double c_targetReefRedY = (c_targetRedY - c_halfRobotSize * sqrt(3) * 0.5).value(); //root(3)/2 is cos(30)
 const double c_targetReefRedRot = c_targetRedRot.value();
+const double c_targetReefRedOffsetX = c_reefPoleOffset.value() * c_cosine30;
+const double c_targetReefRedOffsetY = c_reefPoleOffset.value() * 0.5;
+const double c_targetLeftReefRedX = c_targetReefRedX - c_targetReefRedOffsetX;
+const double c_targetLeftReefRedY = c_targetReefRedY - c_targetReefRedOffsetX;
+const double c_targetRightReefRedX = c_targetReefRedX + c_targetReefRedOffsetX;
+const double c_targetRightReefRedY = c_targetReefRedY + c_targetReefRedOffsetX;
 #endif
 
 
 const units::velocity::meters_per_second_t c_defaultGoToReefMaxSpeed = 2.0_mps;
 
-GoToPositionCommand::GoToPositionCommand(ISubsystemAccess& subsystemAccess, bool bIsBlue)
+GoToPositionCommand::GoToPositionCommand(ISubsystemAccess& subsystemAccess, ELeftMiddleRight elmr)
     : m_driveSubsystem(subsystemAccess.GetDrive())
     , m_visionSubsystem(subsystemAccess.GetVision())
     // , m_led(subsystemAccess.GetLED())
-    , m_targetX(bIsBlue ? c_targetReefBlueX : c_targetReefRedX)
-    , m_targetY(bIsBlue ? c_targetReefBlueY : c_targetReefRedY)
-    , m_targetRot(bIsBlue ? c_targetReefBlueRot : c_targetReefRedRot)
-    , m_bIsBlue(bIsBlue)
+    , m_targetX(elmr == eLeft ? c_targetReefBlueX : c_targetReefRedX)
+    , m_targetY(elmr == eLeft ? c_targetReefBlueY : c_targetReefRedY)
+    , m_targetRot(elmr == eLeft ? c_targetReefBlueRot : c_targetReefRedRot)
+    , m_bIsBlue(elmr == eLeft)
 {
     // AddRequirements(frc2::Requirements{&subsystemAccess.GetDrive(), &subsystemAccess.GetVision(), &subsystemAccess.GetLED()});
     AddRequirements(frc2::Requirements{&subsystemAccess.GetDrive(), &subsystemAccess.GetVision()});
@@ -65,6 +73,8 @@ GoToPositionCommand::GoToPositionCommand(ISubsystemAccess& subsystemAccess, bool
     frc::SmartDashboard::PutNumber("targetX", m_targetX);
     frc::SmartDashboard::PutNumber("targetY", m_targetY);
     frc::SmartDashboard::PutNumber("targetRot", m_targetRot);
+    frc::SmartDashboard::PutNumber("gotoMaxX", 3.0);
+    frc::SmartDashboard::PutNumber("gotoMaxY", 3.0);
 }
 
 void GoToPositionCommand::Initialize()
@@ -85,8 +95,11 @@ void GoToPositionCommand::Initialize()
 
 void GoToPositionCommand::Execute()
 {
-    const double c_maxX = 3.0;
-    const double c_maxY = 3.0;
+    //const double c_maxX = 3.0;
+    //const double c_maxY = 3.0;
+    double c_maxX = frc::SmartDashboard::GetNumber("gotoMaxX", 3.0);
+    double c_maxY = frc::SmartDashboard::GetNumber("gotoMaxY", 3.0);
+    
     const double c_maxRot = 45.0;
     auto x = m_visionSubsystem.GetX();
     auto y = m_visionSubsystem.GetY();
@@ -104,31 +117,24 @@ void GoToPositionCommand::Execute()
     if (m_visionSubsystem.IsValidReef())
     {
         // int tagId = m_visionSubsystem.GetTagId();
-        // bool bBlueAllianceFromTagId = (tagId == c_tagIdReefBlue);
-        // if (bBlueAllianceFromTagId != m_bIsBlue)
-        // {
-            //m_bIsBlue = bBlueAllianceFromTagId;
-            m_targetX = (m_bIsBlue ? c_targetReefBlueX : c_targetReefRedX);
-            m_targetY = (m_bIsBlue ? c_targetReefBlueY : c_targetReefRedY);
-            m_targetRot = (m_bIsBlue ? c_targetReefBlueRot : c_targetReefRedRot);
-        //     m_logGoToPositionCommandFlipped.Append(true);
-        // }
-        // else
-        // {
-        //     m_logGoToPositionCommandFlipped.Append(false);
-        // }
+        m_targetX = (m_bIsBlue ? c_targetReefBlueX : c_targetReefRedX);
+        m_targetY = (m_bIsBlue ? c_targetReefBlueY : c_targetReefRedY);
+        m_targetRot = (m_bIsBlue ? c_targetReefBlueRot : c_targetReefRedRot);
 
         if (xDiff >= c_tolerance && xDiff < c_maxX)
         {
             yInput = (m_targetX - x) / c_maxX;
 
-            if (yInput < 0.0)
+            if (fabs(yInput) < c_minInput)
             {
-                yInput = std::min(-c_minInput, yInput);
-            }
-            else
-            {
-                yInput = std::max(c_minInput, yInput);
+                if (yInput < 0.0)
+                {
+                    yInput = -c_minInput;
+                }
+                else
+                {
+                    yInput = c_minInput;
+                }
             }
         }
 
@@ -136,13 +142,16 @@ void GoToPositionCommand::Execute()
         {
             xInput = (y - m_targetY) / c_maxY;
             
-            if (xInput < 0.0)
+            if (fabs(xInput) < c_minInput)
             {
-                xInput = std::min(-c_minInput, xInput);
-            }
-            else
-            {
-                xInput = std::max(c_minInput, xInput);
+                if (xInput < 0.0)
+                {
+                    xInput = -c_minInput;
+                }
+                else
+                {
+                    xInput = c_minInput;
+                }
             }
         }
 
@@ -156,26 +165,25 @@ void GoToPositionCommand::Execute()
         xSpeed = xInput * maxSpeed; 
         ySpeed = yInput * maxSpeed; 
         units::angular_velocity::degrees_per_second_t maxAngularSpeed = units::angular_velocity::degrees_per_second_t{frc::SmartDashboard::GetNumber("GoReefMaxAnglSpd", 90.0)};
-        // units::angular_velocity::degrees_per_second_t maxAngularSpeed = units::angular_velocity::degrees_per_second_t{120.0};
         rotSpeed = rotInput * maxAngularSpeed;         
         
         m_driveSubsystem.Drive(xSpeed, ySpeed, rotSpeed, false);
     }
 
-    printf("tv %s x %.3f y %.3f rot %.3f xDiff %.3f yDiff %.3f rotDiff %.3f xInput %.3f yInput %.3f rotInput %.3f xSpeed %.3f yspeed %.3f rotSpeed %.3f\n"
-        , m_visionSubsystem.IsValidReef() ? "true" : "false"
-        , x
-        , y
-        , rotation
-        , xDiff
-        , yDiff
-        , rotDiff
-        , xInput
-        , yInput
-        , rotInput
-        , xSpeed.value()
-        , ySpeed.value()
-        , rotSpeed.value());
+    // printf("tv %s x %.3f y %.3f rot %.3f xDiff %.3f yDiff %.3f rotDiff %.3f xInput %.3f yInput %.3f rotInput %.3f xSpeed %.3f yspeed %.3f rotSpeed %.3f\n"
+    //     , m_visionSubsystem.IsValidReef() ? "true" : "false"
+    //     , x
+    //     , y
+    //     , rotation
+    //     , xDiff
+    //     , yDiff
+    //     , rotDiff
+    //     , xInput
+    //     , yInput
+    //     , rotInput
+    //     , xSpeed.value()
+    //     , ySpeed.value()
+    //     , rotSpeed.value());
 }
 
 bool GoToPositionCommand::IsFinished()
