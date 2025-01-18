@@ -70,6 +70,9 @@ public:
   frc::ChassisSpeeds GetChassisSpeeds() override;
   void SetModuleStates(SwerveModuleStates desiredStates) override;
 
+  double GetX() override { return m_poseEstimator.GetEstimatedPosition().X().value(); }
+  double GetY() override { return m_poseEstimator.GetEstimatedPosition().Y().value(); }
+
   void ResyncAbsRelEnc() override;
   void SetOverrideXboxInput(bool bOverride) override { m_bOverrideXboxInput = bOverride; }
   void WheelsForward() override;

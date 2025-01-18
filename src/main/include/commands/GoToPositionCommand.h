@@ -5,6 +5,11 @@
 
 #include "ISubsystemAccess.h"
 
+#include <pathplanner/lib/path/PathPlannerPath.h>
+#include <pathplanner/lib/auto/AutoBuilder.h>
+
+using namespace pathplanner;
+
 enum EMoveDirection
 {
     eLeft
@@ -27,6 +32,9 @@ class GoToPositionCommand: public frc2::CommandHelper<frc2::Command, GoToPositio
         void End(bool interrupted) override;
 
     private:
+        // PathPlannerPath m_path;
+        PathConstraints m_pathConstraints { 1.0_mps, 1.0_mps_sq, 1.0_rad_per_s, 1.0_rad_per_s_sq };
+
         DriveSubsystem&        m_driveSubsystem;
         VisionSubsystem&        m_visionSubsystem;
         // LEDSubsystem&           m_led;

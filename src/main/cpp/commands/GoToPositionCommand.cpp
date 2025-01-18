@@ -2,6 +2,7 @@
 #include "commands/GoToPositionCommand.h"
 
 #include <frc/smartdashboard/SmartDashboard.h>
+#include <frc/DriverStation.h>
 
 const units::length::meter_t c_halfRobotSize = 14.5_in + 3.0_in;  // Half robot width/length + bumper 29 / 2 = 14.5 + 3.0]
 const units::length::meter_t c_reefPoleOffset = 6.5_in;  // reef poles are 13 inches apart, this is half
@@ -102,8 +103,8 @@ void GoToPositionCommand::Execute()
     double c_maxY = frc::SmartDashboard::GetNumber("gotoMaxY", 3.0);
     
     const double c_maxRot = 45.0;
-    auto x = m_visionSubsystem.GetX();
-    auto y = m_visionSubsystem.GetY();
+    auto x = m_driveSubsystem.GetX();
+    auto y = m_driveSubsystem.GetY();
     auto rotation = m_driveSubsystem.GetGyroAzimuthDeg().value();
     auto xInput = 0.0;
     auto yInput = 0.0;
@@ -112,6 +113,12 @@ void GoToPositionCommand::Execute()
     auto ySpeed = 0.0_mps;
     auto rotSpeed = 0.0_deg_per_s;
     
+    double xDiff = 0;
+    double yDiff = 0;
+    double rotDiff = 0;
+
+    const units::length::meter_t c_jogLength = 5.0_in;
+
     if (m_visionSubsystem.IsValidReef())
     {
         // int tagId = m_visionSubsystem.GetTagId();
@@ -134,37 +141,85 @@ void GoToPositionCommand::Execute()
         }
         else if (m_elmr == eJogLeft && !m_bJogging)
         {
-            m_targetX = (units::length::meter_t{x} - 1.0_in).value();
+            m_targetX = (units::length::meter_t{x} - c_jogLength).value();
             m_targetY = y;
             m_bJogging = true;
         }
         else if (m_elmr == eJogRight && !m_bJogging)
         {
-            m_targetX = (units::length::meter_t{x} + 1.0_in).value();
+            m_targetX = (units::length::meter_t{x} + c_jogLength).value();
             m_targetY = y;
             m_bJogging = true;
         }
         else if (m_elmr == eJogForward && !m_bJogging)
         {
             m_targetX = x;
-            m_targetY = (units::length::meter_t{y} + 1.0_in).value();
+            m_targetY = (units::length::meter_t{y} + c_jogLength).value();
             m_bJogging = true;
         }
         else if (m_elmr == eJogBackward && !m_bJogging)
         {
             m_targetX = x;
-            m_targetY = (units::length::meter_t{y} - 1.0_in).value();
+            m_targetY = (units::length::meter_t{y} - c_jogLength).value();
             m_bJogging = true;
         }
 
-        auto xDiff = fabs(m_targetX - x);
-        auto yDiff = fabs(m_targetY - y);
-        auto rotDiff = fabs(m_targetRot - rotation);
+        xDiff = fabs(m_targetX - x);
+        yDiff = fabs(m_targetY - y);
+        rotDiff = fabs(m_targetRot - rotation);
 
         frc::SmartDashboard::PutNumber("targetX", m_targetX);
         frc::SmartDashboard::PutNumber("targetY", m_targetY);
         frc::SmartDashboard::PutNumber("targetRot", m_targetRot);
 
+#define USEPATHPLANNER 
+#ifdef USEPATHPLANNER
+        auto xM = units::length::meter_t {x};
+        auto yM = units::length::meter_t {y};
+        auto rotationDeg = frc::Rotation2d {units::angle::degree_t {rotation}};
+
+        auto xTarget = units::length::meter_t {m_targetX};
+        auto yTarget = units::length::meter_t {m_targetY};
+        auto rotationTarget = frc::Rotation2d {units::angle::degree_t {m_targetRot}};
+
+        std::vector<frc::Pose2d> waypoints {  frc::Pose2d { xM, yM, rotationDeg }
+                                            , frc::Pose2d { xTarget, yTarget, rotationTarget }
+        };
+
+        std::shared_ptr<PathPlannerPath> path = std::make_shared<PathPlannerPath>(
+            PathPlannerPath::bezierFromPoses(waypoints),
+            m_pathConstraints,
+            std::nullopt,
+            GoalEndState(0.0_mps, frc::Rotation2d{units::angle::degree_t{m_targetRot}})
+            );
+
+    static RobotConfig config { 60_kg, (60_kg * (0.7903212_m + 0.7903212_m)) / 12.0, }
+    AutoBuilder::configure(
+        [this]() { return m_driveSubsystem.GetPose(); }, // Function to supply current robot pose
+        [this](auto initPose) { m_driveSubsystem.ResetOdometry(initPose); }, // Function used to reset odometry at the beginning of auto
+        [this]() { return m_driveSubsystem.GetChassisSpeeds(); },
+        [this](frc::ChassisSpeeds speeds) { m_driveSubsystem.Drive(-speeds.vx, -speeds.vy, -speeds.omega, false); }, // Output function that accepts field relative ChassisSpeeds
+        std::make_shared<PPHolonomicDriveController>(PIDConstants(5.0, 0.0, 0.0), PIDConstants(5.0, 0.0, 0.0)),
+        HolonomicPathFollowerConfig(translationConstants
+                                    , rotationConstants
+                                    , maxModuleSpeed
+                                    , driveBaseRadius
+                                    , replanningConfig ),
+        [this]() 
+        {
+            auto alliance = DriverStation::GetAlliance();
+            if (alliance)
+            {
+            return alliance.value() == DriverStation::Alliance::kRed;
+            }
+            return false; 
+        }, // Should the path be automatically mirrored depending on alliance color. Optional, defaults to true
+        &m_driveSubsystem // Drive requirements, usually just a single drive subsystem
+    );
+
+        static auto pathCmd = AutoBuilder::followPath(path);
+        pathCmd.Schedule();
+#else
         if (xDiff >= c_tolerance && xDiff < c_maxX)
         {
             yInput = (m_targetX - x) / c_maxX;
@@ -212,6 +267,7 @@ void GoToPositionCommand::Execute()
         rotSpeed = rotInput * maxAngularSpeed;         
         
         m_driveSubsystem.Drive(xSpeed, ySpeed, rotSpeed, false);
+#endif
     }
 
     // printf("tv %s x %.3f y %.3f rot %.3f xDiff %.3f yDiff %.3f rotDiff %.3f xInput %.3f yInput %.3f rotInput %.3f xSpeed %.3f yspeed %.3f rotSpeed %.3f\n"
@@ -232,8 +288,11 @@ void GoToPositionCommand::Execute()
 
 bool GoToPositionCommand::IsFinished()
 {
-    auto x = m_visionSubsystem.GetX();
-    auto y = m_visionSubsystem.GetY();
+#ifdef USEPATHPLANNER
+    return true;
+#else
+    auto x = m_driveSubsystem.GetX();
+    auto y = m_driveSubsystem.GetY();
 
     bool finished = fabs(m_targetY - y) < c_tolerance && fabs(m_targetX - x) < c_tolerance;
 
@@ -251,12 +310,13 @@ bool GoToPositionCommand::IsFinished()
     }
 
     return finished;
+#endif
 }
 
 void GoToPositionCommand::End(bool interrupted)
 {
     // m_led.SetAnimation(c_colorWhite, LEDSubsystem::kStrobe);
-    m_driveSubsystem.Drive(0.0_mps, 0.0_mps, 0.0_rad_per_s, false);
+    //m_driveSubsystem.Drive(0.0_mps, 0.0_mps, 0.0_rad_per_s, false);
     m_visionSubsystem.SetPositionStarted(false);
     // m_visionSubsystem.DisableReefLEDs();
     m_bJogging = false;

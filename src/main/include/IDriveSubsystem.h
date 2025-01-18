@@ -42,6 +42,9 @@ public:
   virtual frc::ChassisSpeeds GetChassisSpeeds() = 0;
   virtual void SetModuleStates(SwerveModuleStates desiredStates) = 0;
 
+  virtual double GetX() = 0;
+  virtual double GetY() = 0;
+
   virtual void ResyncAbsRelEnc() = 0;
   virtual void SetOverrideXboxInput(bool bOverride) = 0;
   virtual void WheelsForward() = 0;
