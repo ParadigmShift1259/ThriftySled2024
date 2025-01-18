@@ -122,7 +122,9 @@ void RobotContainer::ConfigPrimaryButtonBindings()
   //primary.X().OnTrue(&m_trapRPM);
 #ifdef USE_XBOX
   primary.LeftBumper().OnTrue(&m_toggleFieldRelative);
-  primary.RightBumper().WhileTrue(GoToPositionCommand(*this, false).ToPtr());
+  primary.RightBumper().WhileTrue(GoToPositionCommand(*this, eMiddle).ToPtr());
+  primary.B().WhileTrue(GoToPositionCommand(*this, eRight).ToPtr());
+  primary.X().WhileTrue(GoToPositionCommand(*this, eLeft).ToPtr());
 #else
   primary.Button(7).OnTrue(&m_toggleFieldRelative);
 #endif

@@ -53,8 +53,8 @@ private:
   frc2::CommandJoystick m_primaryController{0};
   frc2::CommandJoystick m_secondaryController{1};
 #endif
-  SlewRateLimiter<units::scalar> m_xspeedLimiter{3 / 1_s, -3 / 2_s};
-  SlewRateLimiter<units::scalar> m_yspeedLimiter{3 / 1_s, -3 / 3_s};
+  SlewRateLimiter<units::scalar> m_xspeedLimiter{3 / 1_s, -3 / 1_s};
+  SlewRateLimiter<units::scalar> m_yspeedLimiter{3 / 1_s, -3 / 1_s};
   SlewRateLimiter<units::scalar> m_rotLimiter{3 / 1_s};
   SlewRateLimiter<units::scalar> m_yawRotationLimiter{3 / 1_s};
   // TODO Make sure field relative starts how the drive team wants

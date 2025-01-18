@@ -28,7 +28,7 @@ class GoToPositionCommand: public frc2::CommandHelper<frc2::Command, GoToPositio
         double m_targetX;
         double m_targetY;
         double m_targetRot;
-        bool m_bIsBlue = false;
+        ELeftMiddleRight m_elmr;
 
         frc::Timer m_timer;
 

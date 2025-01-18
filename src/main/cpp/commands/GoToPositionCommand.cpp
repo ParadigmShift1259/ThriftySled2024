@@ -56,10 +56,10 @@ GoToPositionCommand::GoToPositionCommand(ISubsystemAccess& subsystemAccess, ELef
     : m_driveSubsystem(subsystemAccess.GetDrive())
     , m_visionSubsystem(subsystemAccess.GetVision())
     // , m_led(subsystemAccess.GetLED())
-    , m_targetX(elmr == eLeft ? c_targetReefBlueX : c_targetReefRedX)
-    , m_targetY(elmr == eLeft ? c_targetReefBlueY : c_targetReefRedY)
-    , m_targetRot(elmr == eLeft ? c_targetReefBlueRot : c_targetReefRedRot)
-    , m_bIsBlue(elmr == eLeft)
+    , m_targetX(0)
+    , m_targetY(0)
+    , m_targetRot(0)
+    , m_elmr(elmr)
 {
     // AddRequirements(frc2::Requirements{&subsystemAccess.GetDrive(), &subsystemAccess.GetVision(), &subsystemAccess.GetLED()});
     AddRequirements(frc2::Requirements{&subsystemAccess.GetDrive(), &subsystemAccess.GetVision()});
@@ -117,9 +117,20 @@ void GoToPositionCommand::Execute()
     if (m_visionSubsystem.IsValidReef())
     {
         // int tagId = m_visionSubsystem.GetTagId();
-        m_targetX = (m_bIsBlue ? c_targetReefBlueX : c_targetReefRedX);
-        m_targetY = (m_bIsBlue ? c_targetReefBlueY : c_targetReefRedY);
-        m_targetRot = (m_bIsBlue ? c_targetReefBlueRot : c_targetReefRedRot);
+        m_targetX = c_targetReefRedX;
+        m_targetY = c_targetReefRedY;
+        if (m_elmr == eLeft)
+        {
+            m_targetX = c_targetLeftReefRedX;
+            m_targetY = c_targetLeftReefRedY;
+        } 
+        else if (m_elmr == eRight)
+        {
+            m_targetX = c_targetRightReefRedX;
+            m_targetY = c_targetRightReefRedY;
+        }
+        m_targetRot  = c_targetReefRedRot;
+        
 
         if (xDiff >= c_tolerance && xDiff < c_maxX)
         {
