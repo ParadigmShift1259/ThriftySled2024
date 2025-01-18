@@ -52,7 +52,7 @@ const double c_targetRightReefRedY = c_targetReefRedY + c_targetReefRedOffsetX;
 
 const units::velocity::meters_per_second_t c_defaultGoToReefMaxSpeed = 2.0_mps;
 
-GoToPositionCommand::GoToPositionCommand(ISubsystemAccess& subsystemAccess, ELeftMiddleRight elmr)
+GoToPositionCommand::GoToPositionCommand(ISubsystemAccess& subsystemAccess, EMoveDirection elmr)
     : m_driveSubsystem(subsystemAccess.GetDrive())
     , m_visionSubsystem(subsystemAccess.GetVision())
     // , m_led(subsystemAccess.GetLED())
@@ -60,6 +60,7 @@ GoToPositionCommand::GoToPositionCommand(ISubsystemAccess& subsystemAccess, ELef
     , m_targetY(0)
     , m_targetRot(0)
     , m_elmr(elmr)
+    , m_bJogging(false)
 {
     // AddRequirements(frc2::Requirements{&subsystemAccess.GetDrive(), &subsystemAccess.GetVision(), &subsystemAccess.GetLED()});
     AddRequirements(frc2::Requirements{&subsystemAccess.GetDrive(), &subsystemAccess.GetVision()});
@@ -107,9 +108,6 @@ void GoToPositionCommand::Execute()
     auto xInput = 0.0;
     auto yInput = 0.0;
     auto rotInput = 0.0;
-    auto xDiff = fabs(m_targetX - x);
-    auto yDiff = fabs(m_targetY - y);
-    auto rotDiff = fabs(m_targetRot - rotation);
     auto xSpeed = 0.0_mps;
     auto ySpeed = 0.0_mps;
     auto rotSpeed = 0.0_deg_per_s;
@@ -117,8 +115,14 @@ void GoToPositionCommand::Execute()
     if (m_visionSubsystem.IsValidReef())
     {
         // int tagId = m_visionSubsystem.GetTagId();
-        m_targetX = c_targetReefRedX;
-        m_targetY = c_targetReefRedY;
+        if (!m_bJogging) 
+        {
+            m_targetRot  = c_targetReefRedRot;
+            m_targetX = c_targetReefRedX;
+            m_targetY = c_targetReefRedY;            
+        }
+
+
         if (m_elmr == eLeft)
         {
             m_targetX = c_targetLeftReefRedX;
@@ -129,8 +133,38 @@ void GoToPositionCommand::Execute()
             m_targetX = c_targetRightReefRedX;
             m_targetY = c_targetRightReefRedY;
         }
-        m_targetRot  = c_targetReefRedRot;
-        
+        else if (m_elmr == eJogLeft && !m_bJogging)
+        {
+            m_targetX = (units::length::meter_t{x} - 1.0_in).value();
+            m_targetY = y;
+            m_bJogging = true;
+        }
+        else if (m_elmr == eJogRight && !m_bJogging)
+        {
+            m_targetX = (units::length::meter_t{x} + 1.0_in).value();
+            m_targetY = y;
+            m_bJogging = true;
+        }
+        else if (m_elmr == eJogForward && !m_bJogging)
+        {
+            m_targetX = x;
+            m_targetY = (units::length::meter_t{y} + 1.0_in).value();
+            m_bJogging = true;
+        }
+        else if (m_elmr == eJogBackward && !m_bJogging)
+        {
+            m_targetX = x;
+            m_targetY = (units::length::meter_t{y} - 1.0_in).value();
+            m_bJogging = true;
+        }
+
+        auto xDiff = fabs(m_targetX - x);
+        auto yDiff = fabs(m_targetY - y);
+        auto rotDiff = fabs(m_targetRot - rotation);
+
+        frc::SmartDashboard::PutNumber("targetX", m_targetX);
+        frc::SmartDashboard::PutNumber("targetY", m_targetY);
+        frc::SmartDashboard::PutNumber("targetRot", m_targetRot);
 
         if (xDiff >= c_tolerance && xDiff < c_maxX)
         {
@@ -226,4 +260,5 @@ void GoToPositionCommand::End(bool interrupted)
     m_driveSubsystem.Drive(0.0_mps, 0.0_mps, 0.0_rad_per_s, false);
     m_visionSubsystem.SetPositionStarted(false);
     // m_visionSubsystem.DisableReefLEDs();
+    m_bJogging = false;
 }

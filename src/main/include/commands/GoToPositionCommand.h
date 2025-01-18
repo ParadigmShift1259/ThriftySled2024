@@ -5,17 +5,22 @@
 
 #include "ISubsystemAccess.h"
 
-enum ELeftMiddleRight 
+enum EMoveDirection
 {
     eLeft
     , eMiddle
     , eRight
+    
+    , eJogLeft
+    , eJogRight
+    , eJogForward
+    , eJogBackward
 } ;
 
 class GoToPositionCommand: public frc2::CommandHelper<frc2::Command, GoToPositionCommand>
 {
     public:
-        explicit GoToPositionCommand(ISubsystemAccess& subsystemAccess, ELeftMiddleRight elmr);
+        explicit GoToPositionCommand(ISubsystemAccess& subsystemAccess, EMoveDirection elmr);
         void Initialize() override;
         void Execute() override;
         bool IsFinished() override;
@@ -28,7 +33,8 @@ class GoToPositionCommand: public frc2::CommandHelper<frc2::Command, GoToPositio
         double m_targetX;
         double m_targetY;
         double m_targetRot;
-        ELeftMiddleRight m_elmr;
+        EMoveDirection m_elmr;
+        bool m_bJogging;
 
         frc::Timer m_timer;
 

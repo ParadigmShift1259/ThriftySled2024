@@ -125,6 +125,10 @@ void RobotContainer::ConfigPrimaryButtonBindings()
   primary.RightBumper().WhileTrue(GoToPositionCommand(*this, eMiddle).ToPtr());
   primary.B().WhileTrue(GoToPositionCommand(*this, eRight).ToPtr());
   primary.X().WhileTrue(GoToPositionCommand(*this, eLeft).ToPtr());
+  primary.POVUp().OnTrue(GoToPositionCommand(*this, eJogForward).ToPtr());
+  primary.POVDown().OnTrue(GoToPositionCommand(*this, eJogBackward).ToPtr());
+  primary.POVRight().OnTrue(GoToPositionCommand(*this, eJogRight).ToPtr());
+  primary.POVLeft().OnTrue(GoToPositionCommand(*this, eJogLeft).ToPtr());
 #else
   primary.Button(7).OnTrue(&m_toggleFieldRelative);
 #endif
