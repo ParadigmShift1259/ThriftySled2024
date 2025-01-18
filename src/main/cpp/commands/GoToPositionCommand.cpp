@@ -122,7 +122,6 @@ void GoToPositionCommand::Execute()
             m_targetY = c_targetReefRedY;            
         }
 
-
         if (m_elmr == eLeft)
         {
             m_targetX = c_targetLeftReefRedX;
