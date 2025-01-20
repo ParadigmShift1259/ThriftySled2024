@@ -97,25 +97,28 @@ void GoToPositionCommand::Initialize()
 
 void GoToPositionCommand::Execute()
 {
+    auto x = m_driveSubsystem.GetX();
+    auto y = m_driveSubsystem.GetY();
+    auto rotation = m_driveSubsystem.GetGyroAzimuthDeg().value();
+
+#define USEPATHPLANNER 
+#ifndef USEPATHPLANNER
     //const double c_maxX = 3.0;
     //const double c_maxY = 3.0;
     double c_maxX = frc::SmartDashboard::GetNumber("gotoMaxX", 3.0);
     double c_maxY = frc::SmartDashboard::GetNumber("gotoMaxY", 3.0);
     
     const double c_maxRot = 45.0;
-    auto x = m_driveSubsystem.GetX();
-    auto y = m_driveSubsystem.GetY();
-    auto rotation = m_driveSubsystem.GetGyroAzimuthDeg().value();
     auto xInput = 0.0;
     auto yInput = 0.0;
     auto rotInput = 0.0;
     auto xSpeed = 0.0_mps;
     auto ySpeed = 0.0_mps;
     auto rotSpeed = 0.0_deg_per_s;
-    
     double xDiff = 0;
     double yDiff = 0;
     double rotDiff = 0;
+#endif
 
     const units::length::meter_t c_jogLength = 5.0_in;
 
@@ -124,9 +127,9 @@ void GoToPositionCommand::Execute()
         // int tagId = m_visionSubsystem.GetTagId();
         if (!m_bJogging) 
         {
-            m_targetRot  = c_targetReefRedRot;
             m_targetX = c_targetReefRedX;
             m_targetY = c_targetReefRedY;            
+            m_targetRot = c_targetReefRedRot;
         }
 
         if (m_elmr == eLeft)
@@ -164,15 +167,21 @@ void GoToPositionCommand::Execute()
             m_bJogging = true;
         }
 
+        if (m_bJogging) 
+        {
+            m_targetRot = rotation; // Keep the current robot rotation angle when jogging 
+        }
+  
+#ifndef USEPATHPLANNER
         xDiff = fabs(m_targetX - x);
         yDiff = fabs(m_targetY - y);
         rotDiff = fabs(m_targetRot - rotation);
+#endif
 
         frc::SmartDashboard::PutNumber("targetX", m_targetX);
         frc::SmartDashboard::PutNumber("targetY", m_targetY);
         frc::SmartDashboard::PutNumber("targetRot", m_targetRot);
 
-#define USEPATHPLANNER 
 #ifdef USEPATHPLANNER
         auto xM = units::length::meter_t {x};
         auto yM = units::length::meter_t {y};
@@ -187,35 +196,45 @@ void GoToPositionCommand::Execute()
         };
 
         std::shared_ptr<PathPlannerPath> path = std::make_shared<PathPlannerPath>(
-            PathPlannerPath::bezierFromPoses(waypoints),
+            PathPlannerPath::waypointsFromPoses(waypoints),
             m_pathConstraints,
             std::nullopt,
-            GoalEndState(0.0_mps, frc::Rotation2d{units::angle::degree_t{m_targetRot}})
-            );
+            GoalEndState(0.0_mps, frc::Rotation2d{ units::angle::degree_t{m_targetRot} } )
+        );
 
-    static RobotConfig config { 60_kg, (60_kg * (0.7903212_m + 0.7903212_m)) / 12.0, }
-    AutoBuilder::configure(
-        [this]() { return m_driveSubsystem.GetPose(); }, // Function to supply current robot pose
-        [this](auto initPose) { m_driveSubsystem.ResetOdometry(initPose); }, // Function used to reset odometry at the beginning of auto
-        [this]() { return m_driveSubsystem.GetChassisSpeeds(); },
-        [this](frc::ChassisSpeeds speeds) { m_driveSubsystem.Drive(-speeds.vx, -speeds.vy, -speeds.omega, false); }, // Output function that accepts field relative ChassisSpeeds
-        std::make_shared<PPHolonomicDriveController>(PIDConstants(5.0, 0.0, 0.0), PIDConstants(5.0, 0.0, 0.0)),
-        HolonomicPathFollowerConfig(translationConstants
-                                    , rotationConstants
-                                    , maxModuleSpeed
-                                    , driveBaseRadius
-                                    , replanningConfig ),
-        [this]() 
-        {
-            auto alliance = DriverStation::GetAlliance();
-            if (alliance)
+        static ModuleConfig moduleCfg {   SwerveModule::kWheelRadius
+                                        , 1.0_mps
+                                        , 1.0                           // wheelCOF coefficient of friction, unknown, docs suggest 1.0
+                                        , frc::DCMotor::KrakenX60(1)
+                                        , SwerveModule::kDriveGearRatio
+                                        , 60.0_A                        // driveCurrentLimit
+                                        , 1                             // numMotors
+        };
+
+        static RobotConfig config {   60_kg
+                                    , (60_kg * (0.7903212_sq_m + 0.7903212_sq_m)) / 12.0  // Moment of inertia
+                                    , moduleCfg
+                                    , m_driveSubsystem.GetModuleOffsets()
+        };
+
+        AutoBuilder::configure(
+            [this]() { return m_driveSubsystem.GetPose(); }, // Function to supply current robot pose
+            [this](auto initPose) { m_driveSubsystem.ResetOdometry(initPose); }, // Function used to reset odometry at the beginning of auto
+            [this]() { return m_driveSubsystem.GetChassisSpeeds(); },
+            [this](frc::ChassisSpeeds speeds) { m_driveSubsystem.Drive(-speeds.vx, -speeds.vy, -speeds.omega, false); }, // Output function that accepts field relative ChassisSpeeds
+            std::make_shared<PPHolonomicDriveController>(PIDConstants(5.0, 0.0, 0.0), PIDConstants(5.0, 0.0, 0.0)),
+            config,
+            [this]() 
             {
-            return alliance.value() == DriverStation::Alliance::kRed;
-            }
-            return false; 
-        }, // Should the path be automatically mirrored depending on alliance color. Optional, defaults to true
-        &m_driveSubsystem // Drive requirements, usually just a single drive subsystem
-    );
+                auto alliance = frc::DriverStation::GetAlliance();
+                if (alliance)
+                {
+                    return alliance.value() == frc::DriverStation::Alliance::kRed;
+                }
+                return false; 
+            }, // Should the path be automatically mirrored depending on alliance color. Optional, defaults to true
+            &m_driveSubsystem // Drive requirements, usually just a single drive subsystem
+        );
 
         static auto pathCmd = AutoBuilder::followPath(path);
         pathCmd.Schedule();

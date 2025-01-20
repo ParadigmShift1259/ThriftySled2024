@@ -85,6 +85,8 @@ public:
   units::angle::radian_t GetGyroAzimuth() { return m_gyro.GetRotation2d().Radians(); }
   units::angle::degree_t GetGyroAzimuthDeg() { return m_gyro.GetRotation2d().Degrees(); }
 
+  std::vector<frc::Translation2d> GetModuleOffsets() { return { m_frontLeftLocation , m_frontRightLocation, m_rearRightLocation, m_rearLeftLocation }; }
+
   void ToggleSlowSpeed() override
   { 
     m_currentMaxSpeed = (m_currentMaxSpeed == kMaxSpeed ? kLowSpeed : kMaxSpeed);
@@ -106,10 +108,10 @@ private:
 
   static constexpr auto kTrackWidth = 24_in;
   static constexpr auto kWheelBase = 24_in;
-  const frc::Translation2d m_frontLeftLocation{kWheelBase / 2, kTrackWidth / 2};
-  const frc::Translation2d m_frontRightLocation{kWheelBase / 2, -kTrackWidth / 2};
-  const frc::Translation2d m_rearLeftLocation{-kWheelBase / 2, kTrackWidth / 2};
-  const frc::Translation2d m_rearRightLocation{-kWheelBase / 2, -kTrackWidth / 2};
+  const frc::Translation2d m_frontLeftLocation{  kWheelBase / 2,  kTrackWidth / 2 };
+  const frc::Translation2d m_frontRightLocation{ kWheelBase / 2, -kTrackWidth / 2 };
+  const frc::Translation2d m_rearLeftLocation{  -kWheelBase / 2,  kTrackWidth / 2 };
+  const frc::Translation2d m_rearRightLocation{ -kWheelBase / 2, -kTrackWidth / 2 };
 
   const double kFLoffset = frc::Preferences::GetDouble("Offset1", 0.0);
   const double kFRoffset = frc::Preferences::GetDouble("Offset2", 0.0);
@@ -123,9 +125,11 @@ private:
 
   PigeonGyro m_gyro;
 
-  frc::SwerveDriveKinematics<4> m_kinematics{
+  frc::SwerveDriveKinematics<4> m_kinematics
+  {
       m_frontLeftLocation, m_frontRightLocation, 
-      m_rearLeftLocation, m_rearRightLocation};
+      m_rearLeftLocation, m_rearRightLocation
+  };
 
   // frc::SwerveDriveOdometry<4> m_odometry{
   //     m_kinematics,
@@ -135,26 +139,19 @@ private:
 
   frc::SwerveDrivePoseEstimator<4> m_poseEstimator
   {
-    m_kinematics
+      m_kinematics
     , m_gyro.GetRotation2d()
-    , {m_frontLeft.GetPosition()
-    , m_frontRight.GetPosition()
-    , m_rearLeft.GetPosition(), m_rearRight.GetPosition()}
+    , { m_frontLeft.GetPosition() , m_frontRight.GetPosition(), m_rearLeft.GetPosition(), m_rearRight.GetPosition() }
     , frc::Pose2d{}
-    , {0.1, 0.1, 0.1}
-    , {.7, .7, 9999999.0}
+    , { 0.1, 0.1, 0.1 }
+    , { 0.7, 0.7, 9999999.0 }
   };
 
-  frc::PIDController m_rotationPIDController{1, 0, 0.025};
+  frc::PIDController m_rotationPIDController{ 1.0, 0.0, 0.025 };
 
   bool m_bOverrideXboxInput = false;
 
   // Logging Member Variables
-  frc::Timer m_timer;
-  //std::vector<frc::Trajectory::State> m_StateHist;
-  // double m_velocity;
-  // double m_acceleration;
-
   wpi::log::DoubleLogEntry m_logRobotPoseX;
   wpi::log::DoubleLogEntry m_logRobotPoseY;
   wpi::log::DoubleLogEntry m_logRobotPoseTheta;

@@ -58,9 +58,8 @@ void RobotContainer::SetDefaultCommands()
       if (m_isAutoRunning == false)
       {
         // const double kDeadband = 0.02;
-        const double kDeadband = 0.1;
-        const double kRotDeadband = 0.42;
-		    const double direction = 1.0;
+        constexpr double kDeadband = 0.1;
+		    constexpr double direction = 1.0;
 // define USE_XBOX in RobotContainer.h
 #ifdef USE_XBOX      
         const auto xInput = direction* ApplyDeadband(m_primaryController.GetLeftY(), kDeadband);
@@ -71,13 +70,14 @@ void RobotContainer::SetDefaultCommands()
         // const double rotX = m_rotLimiter.Calculate(rotXInput);
         // const double rotY = m_rotLimiter.Calculate(rotYInput);
 #else
+        constexpr double kRotDeadband = 0.42;
         const auto xInput = direction* ApplyDeadband(m_primaryController.GetHID().GetY(), kDeadband);
         const auto yInput = direction * ApplyDeadband(m_primaryController.GetHID().GetX(), kDeadband);
         const auto rotInput = ApplyDeadband(m_secondaryController.GetHID().GetX(), kRotDeadband);
         // rotInput *= fabs(rotInput);      
 #endif
-        const auto xSpeed = m_xspeedLimiter.Calculate(xInput) * m_drive.m_currentMaxSpeed; //kMaxSpeed;
-        auto ySpeed = m_yspeedLimiter.Calculate(yInput) * m_drive.m_currentMaxSpeed; //kMaxSpeed;
+        const auto xSpeed = m_xspeedLimiter.Calculate(xInput) * m_drive.m_currentMaxSpeed;
+        auto ySpeed = m_yspeedLimiter.Calculate(yInput) * m_drive.m_currentMaxSpeed;
         auto rot = m_rotLimiter.Calculate(rotInput) * kMaxAngularSpeed;      
 
 //#define DISABLE_DRIVING

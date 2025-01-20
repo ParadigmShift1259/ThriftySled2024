@@ -42,11 +42,11 @@ SwerveModule::SwerveModule(const int driveMotorCanId, const int turningMotorCanI
   m_turningEncoder.SetPosition(initPosition);
 
   ctre::phoenix6::configs::CurrentLimitsConfigs currentLimitConfigs;
-  currentLimitConfigs.WithStatorCurrentLimit(60_A);
+  currentLimitConfigs.WithStatorCurrentLimit(60.0_A);
   currentLimitConfigs.WithStatorCurrentLimitEnable(true);
-  currentLimitConfigs.WithSupplyCurrentLimit(60_A);
+  currentLimitConfigs.WithSupplyCurrentLimit(60.0_A);
   currentLimitConfigs.WithSupplyCurrentLimitEnable(true);
-  currentLimitConfigs.WithSupplyCurrentLowerLimit(70_A); //Will do nothing right now, larger than SupplyCurrentLimit
+  currentLimitConfigs.WithSupplyCurrentLowerLimit(70.0_A); //Will do nothing right now, larger than SupplyCurrentLimit
   currentLimitConfigs.WithSupplyCurrentLowerTime(0.85_s);
   m_driveMotor.SetPosition(units::angle::turn_t(0.0));
 
