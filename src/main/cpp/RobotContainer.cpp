@@ -137,15 +137,23 @@ void RobotContainer::ConfigPrimaryButtonBindings()
 
 void RobotContainer::ConfigSecondaryButtonBindings()
 {
-  // auto& secondary = m_secondaryController;
+  auto& secondary = m_secondaryController;
 
   // Keep the bindings in this order
   // A, B, X, Y, Left Bumper, Right Bumper, Back, Start
 //  secondary.A().OnTrue(frc2::SequentialCommandGroup{
+  secondary.A().OnTrue(&m_elevDown);
+  secondary.Y().OnTrue(&m_elevUp);
+  secondary.Back().OnTrue(&m_elevReset);
+  secondary.X().OnTrue(&m_elevRelPos);
 
 #ifdef TEST_WHEEL_CONTROL
   auto loop = CommandScheduler::GetInstance().GetDefaultButtonLoop();
   secondary.POVUp(loop).Rising().IfHigh([this] { m_wheelsLeft.Schedule(); });
   secondary.POVRight(loop).Rising().IfHigh([this] { m_wheelsForward.Schedule(); });
 #endif  //  TEST_WHEEL_CONTROL
+}
+
+void RobotContainer::StopAll(){
+  m_elevator.Stop();
 }

@@ -17,6 +17,8 @@
 
 #include "ISubsystemAccess.h"
 
+#include "subsystems/ElevatorSubsystem.h"
+
 using namespace frc;
 using namespace frc2;
 
@@ -32,8 +34,9 @@ class RobotContainer : public ISubsystemAccess
   wpi::log::DataLog&         GetLogger() override { return DataLogManager::GetLog(); }
   frc2::CommandPtr GetAutonomousCommand();
 
- private:
-private:
+  void StopAll();
+
+  private:
   void SetDefaultCommands();
   void ConfigureBindings();
   void ConfigPrimaryButtonBindings();
@@ -44,6 +47,8 @@ private:
   DriveSubsystem m_drive;
   
   VisionSubsystem m_vision;
+
+  ElevatorSubsystem m_elevator;
 
 #define USE_XBOX
 #ifdef USE_XBOX
@@ -65,12 +70,16 @@ private:
     m_fieldRelative = !m_fieldRelative; 
     frc::SmartDashboard::PutBoolean("FieldRelative", m_fieldRelative);
     }, {}};
+  
 
 
   // Tag 3 coordinates
   // frc2::InstantCommand m_resetOdo{[this] {m_drive.ResetOdometry({11.56_m, 8.12_m, 90_deg});}, {&m_drive}};
   frc2::InstantCommand m_resetOdo{[this] {m_drive.ResetOdometry({530.49_in + 8.75_in, 130.17_in - 15.16_in, 120_deg});}, {&m_drive}};
-
+  frc2::InstantCommand m_elevUp{[this] { m_elevator.GoToPosition(28.791); }, {&m_elevator} };
+  frc2::InstantCommand m_elevDown{[this] { m_elevator.GoToPosition(18.95); }, {&m_elevator} };
+  frc2::InstantCommand m_elevReset{[this] { m_elevator.ElevatorReset(); }, {&m_elevator} };
+  frc2::InstantCommand m_elevRelPos{[this] { m_elevator.GotoPositionRel(0.0); }, {&m_elevator} };
 //#define TEST_WHEEL_CONTROL
 #ifdef TEST_WHEEL_CONTROL
 #define DISABLE_DRIVING
