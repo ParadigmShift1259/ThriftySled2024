@@ -13,7 +13,7 @@ double c_defaultFollowDirection;
 constexpr ClosedLoopSlot c_defaultElevatorDownPIDSlot = ClosedLoopSlot::kSlot0;
 constexpr ClosedLoopSlot c_defaultElevatorUpPIDSlot = ClosedLoopSlot::kSlot1;
 
-constexpr double c_defaultElevatorDownP = 0.006;
+constexpr double c_defaultElevatorDownP = 0.01;
 constexpr double c_defaultElevatorUpP = 0.1;
 constexpr double c_defaultElevatorI = 0.00005;
 constexpr double c_defaultElevatorD = 0.0;
@@ -68,7 +68,6 @@ ElevatorSubsystem::ElevatorSubsystem()
     frc::SmartDashboard::PutNumber("ElevatorFollowMotorPos", 1.0);
 
     frc::SmartDashboard::PutNumber("ElevatorGoToRel", 0.0);
-
 }
 
 void ElevatorSubsystem::Periodic()
@@ -82,7 +81,7 @@ void ElevatorSubsystem::Periodic()
     static double lastD = 0.0;
     static double lastFF = 0.0;
 
-    auto pDown = frc::Preferences::GetDouble("ElevatorPosDownP", c_defaultElevatorDownP); //originally .07
+    auto pDown = frc::Preferences::GetDouble("ElevatorPosDownP", c_defaultElevatorDownP);
     auto pUp = frc::Preferences::GetDouble("ElevatorPosUpP", c_defaultElevatorUpP);
     auto i = frc::Preferences::GetDouble("ElevatorPosI", c_defaultElevatorI);
     auto d = frc::Preferences::GetDouble("ElevatorPosD", c_defaultElevatorD);
@@ -129,28 +128,49 @@ void ElevatorSubsystem::Periodic()
     lastD = d;
     lastFF = ff;
 
+    double currentPos = m_leadRelativeEnc.GetPosition();
+    bool bGoingToBottom = currentPos < 10.0 && m_position < 1.0;
+    bool bGoingToTop = currentPos > 30.0 && m_position > 39.0;
+    if(( bGoingToBottom || bGoingToTop ) && m_slot == c_defaultElevatorUpPIDSlot)
+    {
+        m_slot = c_defaultElevatorDownPIDSlot;
+        m_leadPIDController.SetReference(m_position, SparkBase::ControlType::kPosition, m_slot);
+        m_followPIDController.SetReference(m_position, SparkBase::ControlType::kPosition, m_slot);
+    }
+
     frc::SmartDashboard::PutNumber("ElevatorLeadMotorPos Echo", m_leadRelativeEnc.GetPosition());
     frc::SmartDashboard::PutNumber("ElevatorFollowMotorPos Echo", m_followRelativeEnc.GetPosition());
-
   }
 }
 
 void ElevatorSubsystem::GoToPosition(double position)
 {
+    std::clamp(position, 0.0, 40.0);
+    m_position = position;
     // auto slot = position < -70.0 ? c_defaultElevatorUpPIDSlot : c_defaultElevatorDownPIDSlot;
     
     frc::SmartDashboard::PutNumber("ElevatorLeadMotorPos", position);
     frc::SmartDashboard::PutNumber("ElevatorFollowMotorPos", position);
 
-    auto slot = c_defaultElevatorUpPIDSlot;
-    m_leadPIDController.SetReference(position, SparkBase::ControlType::kPosition, slot);
-    m_followPIDController.SetReference(position, SparkBase::ControlType::kPosition, slot);
+    m_slot = c_defaultElevatorUpPIDSlot;
+    if(position < 1.5)
+    {
+        m_slot = c_defaultElevatorDownPIDSlot;
+    }
+    m_leadPIDController.SetReference(position, SparkBase::ControlType::kPosition, m_slot);
+    m_followPIDController.SetReference(position, SparkBase::ControlType::kPosition, m_slot);
 
 }
 
 void ElevatorSubsystem::GotoPositionRel(double relPos)
 {
+    bool bDown = relPos < 0.0;
     relPos = frc::SmartDashboard::GetNumber("ElevatorGoToRel", 0.0);
     std::clamp(relPos, -10.0, 10.0);
+    if(bDown)
+    {
+        relPos *= -1.0;
+    }
+    printf("GotoPositionRel enc %.3f relPos %.3f newPos %.3f\n", m_leadRelativeEnc.GetPosition(), relPos, m_leadRelativeEnc.GetPosition() + relPos);
     GoToPosition(m_leadRelativeEnc.GetPosition() + relPos);
 }

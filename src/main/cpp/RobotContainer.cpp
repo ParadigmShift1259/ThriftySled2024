@@ -145,7 +145,9 @@ void RobotContainer::ConfigSecondaryButtonBindings()
   secondary.A().OnTrue(&m_elevDown);
   secondary.Y().OnTrue(&m_elevUp);
   secondary.Back().OnTrue(&m_elevReset);
-  secondary.X().OnTrue(&m_elevRelPos);
+  secondary.POVDown().OnTrue(&m_elevRelPosDown);
+  secondary.POVUp().OnTrue(&m_elevRelPosUp);
+  secondary.X().OnTrue(&m_elevGoToZero);
 
 #ifdef TEST_WHEEL_CONTROL
   auto loop = CommandScheduler::GetInstance().GetDefaultButtonLoop();

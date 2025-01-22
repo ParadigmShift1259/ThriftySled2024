@@ -71,15 +71,15 @@ class RobotContainer : public ISubsystemAccess
     frc::SmartDashboard::PutBoolean("FieldRelative", m_fieldRelative);
     }, {}};
   
-
-
   // Tag 3 coordinates
   // frc2::InstantCommand m_resetOdo{[this] {m_drive.ResetOdometry({11.56_m, 8.12_m, 90_deg});}, {&m_drive}};
   frc2::InstantCommand m_resetOdo{[this] {m_drive.ResetOdometry({530.49_in + 8.75_in, 130.17_in - 15.16_in, 120_deg});}, {&m_drive}};
   frc2::InstantCommand m_elevUp{[this] { m_elevator.GoToPosition(28.791); }, {&m_elevator} };
   frc2::InstantCommand m_elevDown{[this] { m_elevator.GoToPosition(18.95); }, {&m_elevator} };
   frc2::InstantCommand m_elevReset{[this] { m_elevator.ElevatorReset(); }, {&m_elevator} };
-  frc2::InstantCommand m_elevRelPos{[this] { m_elevator.GotoPositionRel(0.0); }, {&m_elevator} };
+  frc2::InstantCommand m_elevRelPosUp{[this] { m_elevator.GotoPositionRel(1.0); }, {&m_elevator} };
+  frc2::InstantCommand m_elevRelPosDown{[this] { m_elevator.GotoPositionRel(-1.0); }, {&m_elevator} };
+  frc2::InstantCommand m_elevGoToZero{[this] { m_elevator.GoToPosition(0.0); }, {&m_elevator} };
 //#define TEST_WHEEL_CONTROL
 #ifdef TEST_WHEEL_CONTROL
 #define DISABLE_DRIVING

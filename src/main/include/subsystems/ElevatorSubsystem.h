@@ -71,4 +71,7 @@ private:
 
     double m_leadDirection = 1.0;
     double m_followDirection = 1.0;
+
+    double m_position = 0.0;
+    ClosedLoopSlot m_slot = ClosedLoopSlot::kSlot0;
 };
