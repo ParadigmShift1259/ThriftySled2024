@@ -31,6 +31,7 @@ class RobotContainer : public ISubsystemAccess
   // ISubsystemAcces Implementation
   DriveSubsystem&        GetDrive() override { return m_drive; }
   VisionSubsystem&       GetVision() override { return m_vision; }
+  ElevatorSubsystem&       GetElevator() override {return m_elevator; }
   wpi::log::DataLog&         GetLogger() override { return DataLogManager::GetLog(); }
   frc2::CommandPtr GetAutonomousCommand();
 
@@ -74,12 +75,18 @@ class RobotContainer : public ISubsystemAccess
   // Tag 3 coordinates
   // frc2::InstantCommand m_resetOdo{[this] {m_drive.ResetOdometry({11.56_m, 8.12_m, 90_deg});}, {&m_drive}};
   frc2::InstantCommand m_resetOdo{[this] {m_drive.ResetOdometry({530.49_in + 8.75_in, 130.17_in - 15.16_in, 120_deg});}, {&m_drive}};
-  frc2::InstantCommand m_elevUp{[this] { m_elevator.GoToPosition(28.791); }, {&m_elevator} };
-  frc2::InstantCommand m_elevDown{[this] { m_elevator.GoToPosition(18.95); }, {&m_elevator} };
+  frc2::InstantCommand m_elevL4{[this] 
+  { 
+    double elevHeight = 38.0;//frc::SmartDashboard::GetNumber("elevHeight", 0.0);
+    m_elevator.GoToPosition(elevHeight); }, {&m_elevator} 
+  };
+  frc2::InstantCommand m_elevL3{[this] { m_elevator.GoToPosition(15.5); }, {&m_elevator} };
+  frc2::InstantCommand m_elevL2{[this] { m_elevator.GoToPosition(2.0); }, {&m_elevator} };
+
   frc2::InstantCommand m_elevReset{[this] { m_elevator.ElevatorReset(); }, {&m_elevator} };
   frc2::InstantCommand m_elevRelPosUp{[this] { m_elevator.GotoPositionRel(1.0); }, {&m_elevator} };
   frc2::InstantCommand m_elevRelPosDown{[this] { m_elevator.GotoPositionRel(-1.0); }, {&m_elevator} };
-  frc2::InstantCommand m_elevGoToZero{[this] { m_elevator.GoToPosition(0.0); }, {&m_elevator} };
+  
 //#define TEST_WHEEL_CONTROL
 #ifdef TEST_WHEEL_CONTROL
 #define DISABLE_DRIVING

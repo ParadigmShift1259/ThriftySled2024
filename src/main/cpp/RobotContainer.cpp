@@ -4,6 +4,7 @@
 
 #include "RobotContainer.h"
 #include "commands/GoToPositionCommand.h"
+#include "commands/ElevatorGoToCommand.h"
 
 #include <frc/MathUtil.h>
 #include <frc/smartdashboard/SmartDashboard.h>
@@ -31,6 +32,9 @@ RobotContainer::RobotContainer()
   //---------------------------------------------------------
   SetDefaultCommands();
   ConfigureBindings();
+
+  frc::SmartDashboard::PutNumber("elevHeight", 0.0);
+  frc::SmartDashboard::PutNumber("elevDelay", 0.015);
 }
 
 // frc2::CommandPtr RobotContainer::GetAutonomousCommand() {
@@ -142,12 +146,18 @@ void RobotContainer::ConfigSecondaryButtonBindings()
   // Keep the bindings in this order
   // A, B, X, Y, Left Bumper, Right Bumper, Back, Start
 //  secondary.A().OnTrue(frc2::SequentialCommandGroup{
-  secondary.A().OnTrue(&m_elevDown);
-  secondary.Y().OnTrue(&m_elevUp);
+  secondary.Y().OnTrue(&m_elevL4);
+  secondary.B().OnTrue(&m_elevL3);
+  secondary.A().OnTrue(&m_elevL2);
+  secondary.X().OnTrue(frc2::SequentialCommandGroup{
+    ElevatorGoToCommand(*this, 2.0)
+    , WaitCommand(0.4_s)
+    , ElevatorGoToCommand(*this, 0.0)
+  }.ToPtr());
+      
   secondary.Back().OnTrue(&m_elevReset);
   secondary.POVDown().OnTrue(&m_elevRelPosDown);
   secondary.POVUp().OnTrue(&m_elevRelPosUp);
-  secondary.X().OnTrue(&m_elevGoToZero);
 
 #ifdef TEST_WHEEL_CONTROL
   auto loop = CommandScheduler::GetInstance().GetDefaultButtonLoop();
