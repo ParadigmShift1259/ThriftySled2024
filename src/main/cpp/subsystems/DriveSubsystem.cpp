@@ -13,7 +13,7 @@ DriveSubsystem::DriveSubsystem()
   , m_moduleCfg
     {   
         SwerveModule::kWheelRadius
-      , 1.0_mps
+      , kMaxSpeed * 0.85              // true max speed of robot not simply a "max velocity" limit on the robot
       , 1.0                           // wheelCOF coefficient of friction, unknown, docs suggest 1.0
       , frc::DCMotor::KrakenX60(1)
       , SwerveModule::kDriveGearRatio

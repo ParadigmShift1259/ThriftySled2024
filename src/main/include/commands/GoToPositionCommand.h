@@ -34,7 +34,8 @@ class GoToPositionCommand : public frc2::CommandHelper<frc2::Command, GoToPositi
 
     private:
         // PathPlannerPath m_path;
-        PathConstraints m_pathConstraints { 1.0_mps, 1.0_mps_sq, 1.0_rad_per_s, 1.0_rad_per_s_sq };
+        PathConstraints m_pathConstraints { 1.0_mps, 1.0_mps_sq, 90_deg_per_s, 180_deg_per_s_sq };
+        std::optional<frc2::CommandPtr> m_pathCmd;
 
         DriveSubsystem&        m_driveSubsystem;
         VisionSubsystem&        m_visionSubsystem;

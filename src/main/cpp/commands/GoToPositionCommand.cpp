@@ -190,8 +190,11 @@ void GoToPositionCommand::Execute()
         auto yTarget = units::length::meter_t {m_targetY};
         auto rotationTarget = frc::Rotation2d {units::angle::degree_t {m_targetRot}};
 
-        std::vector<frc::Pose2d> waypoints {  frc::Pose2d { xM, yM, rotationDeg }
-                                            , frc::Pose2d { xTarget, yTarget, rotationTarget }
+        // https://pathplanner.dev/pplib-create-a-path-on-the-fly.html
+        // Create a vector of waypoints from poses. Each pose represents one waypoint.
+        // The rotation component of the pose should be the direction of travel. Do not use holonomic rotation.
+        std::vector<frc::Pose2d> poses {  frc::Pose2d { xM, yM, rotationDeg }
+                                        , frc::Pose2d { xTarget, yTarget, rotationTarget }
         };
 
         if (!AutoBuilder::isConfigured())
@@ -205,11 +208,11 @@ void GoToPositionCommand::Execute()
                 m_driveSubsystem.GetRobotCfg(),
                 [this]() 
                 {
-                    auto alliance = frc::DriverStation::GetAlliance();
-                    if (alliance)
-                    {
-                        return alliance.value() == frc::DriverStation::Alliance::kRed;
-                    }
+                    // auto alliance = frc::DriverStation::GetAlliance();
+                    // if (alliance)
+                    // {
+                    //     return alliance.value() == frc::DriverStation::Alliance::kRed;
+                    // }
                     return false; 
                 }, // Should the path be automatically mirrored depending on alliance color. Optional, defaults to true
                 &m_driveSubsystem // Drive requirements, usually just a single drive subsystem
@@ -217,14 +220,16 @@ void GoToPositionCommand::Execute()
         }
         
         std::shared_ptr<PathPlannerPath> path = std::make_shared<PathPlannerPath>(
-            PathPlannerPath::waypointsFromPoses(waypoints),
+            PathPlannerPath::waypointsFromPoses(poses),
             m_pathConstraints,
-            std::nullopt,
+            std::nullopt, // The ideal starting state, this is only relevant for pre-planned paths, so can be nullopt for on-the-fly paths.
             GoalEndState(0.0_mps, frc::Rotation2d{ units::angle::degree_t{m_targetRot} } )
         );
+        // Prevent the path from being flipped if the coordinates are already correct
+        path->preventFlipping = true;
 
         printf("path waypoints x y angle\n");
-        for (auto& wp : waypoints)
+        for (auto& wp : poses)
         {
            printf("%.3f    %.3f    %.3f\n", wp.X().value(), wp.Y().value(), wp.Rotation().Degrees().value());
         }
@@ -235,9 +240,9 @@ void GoToPositionCommand::Execute()
         {
            printf("%.3f    %.3f    %.3f\n", pt.position.X().value(), pt.position.Y().value(), pt.position.Angle().Degrees().value());
         }
-        static auto pathCmd = AutoBuilder::followPath(path);
-        printf("has drive req %d\n", pathCmd.HasRequirement(&m_driveSubsystem));
-        //pathCmd.Schedule();
+
+        m_pathCmd = AutoBuilder::followPath(path);
+        m_pathCmd->Schedule();
 #else
         if (xDiff >= c_tolerance && xDiff < c_maxX)
         {
