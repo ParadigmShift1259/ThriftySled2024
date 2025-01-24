@@ -110,7 +110,8 @@ void RobotContainer::ConfigureBindings()
 #endif
 }
 
-void RobotContainer::ConfigPrimaryButtonBindings()
+void RobotContainer::
+ConfigPrimaryButtonBindings()
 {
   auto& primary = m_primaryController;
  

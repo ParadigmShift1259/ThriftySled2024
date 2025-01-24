@@ -22,6 +22,8 @@
 
 #include <networktables/StructTopic.h>
 
+#include <pathplanner/lib/path/PathPlannerPath.h>
+
 #include "IDriveSubsystem.h"
 #include "ConstantsCANIDs.h"
 #include "subsystems/SwerveModule.h"
@@ -36,6 +38,8 @@ static constexpr units::radians_per_second_t kRotationDriveMaxSpeed = 7.5_rad_pe
 static constexpr units::radians_per_second_t kRotationDriveDirectionLimit = 7.0_rad_per_s;
 static constexpr units::radians_per_second_t kAimingRotationDriveMaxSpeed = 7.5_rad_per_s;
 static constexpr units::radians_per_second_t kAimingRotationDriveDirectionLimit = 7.0_rad_per_s;
+
+using namespace pathplanner;
 
 /**
  * Represents a swerve drive style DriveSubsystem.
@@ -85,7 +89,7 @@ public:
   units::angle::radian_t GetGyroAzimuth() { return m_gyro.GetRotation2d().Radians(); }
   units::angle::degree_t GetGyroAzimuthDeg() { return m_gyro.GetRotation2d().Degrees(); }
 
-  std::vector<frc::Translation2d> GetModuleOffsets() { return { m_frontLeftLocation , m_frontRightLocation, m_rearRightLocation, m_rearLeftLocation }; }
+  RobotConfig& GetRobotCfg() { return m_robotConfig; }
 
   void ToggleSlowSpeed() override
   { 
@@ -130,6 +134,11 @@ private:
       m_frontLeftLocation, m_frontRightLocation, 
       m_rearLeftLocation, m_rearRightLocation
   };
+
+
+  // For PathPlanner on the fly paths
+  ModuleConfig m_moduleCfg;
+  RobotConfig m_robotConfig;
 
   // frc::SwerveDriveOdometry<4> m_odometry{
   //     m_kinematics,

@@ -50,7 +50,6 @@ const double c_targetRightReefRedX = c_targetReefRedX + c_targetReefRedOffsetX;
 const double c_targetRightReefRedY = c_targetReefRedY + c_targetReefRedOffsetX;
 #endif
 
-
 const units::velocity::meters_per_second_t c_defaultGoToReefMaxSpeed = 2.0_mps;
 
 GoToPositionCommand::GoToPositionCommand(ISubsystemAccess& subsystemAccess, EMoveDirection elmr)
@@ -195,6 +194,28 @@ void GoToPositionCommand::Execute()
                                             , frc::Pose2d { xTarget, yTarget, rotationTarget }
         };
 
+        if (!AutoBuilder::isConfigured())
+        {
+            AutoBuilder::configure(
+                [this]() { return m_driveSubsystem.GetPose(); }, // Function to supply current robot pose
+                [this](auto initPose) { m_driveSubsystem.ResetOdometry(initPose); }, // Function used to reset odometry at the beginning of auto
+                [this]() { return m_driveSubsystem.GetChassisSpeeds(); },
+                [this](frc::ChassisSpeeds speeds) { m_driveSubsystem.Drive(-speeds.vx, -speeds.vy, -speeds.omega, false); }, // Output function that accepts field relative ChassisSpeeds
+                std::make_shared<PPHolonomicDriveController>(PIDConstants(5.0, 0.0, 0.0), PIDConstants(5.0, 0.0, 0.0)),
+                m_driveSubsystem.GetRobotCfg(),
+                [this]() 
+                {
+                    auto alliance = frc::DriverStation::GetAlliance();
+                    if (alliance)
+                    {
+                        return alliance.value() == frc::DriverStation::Alliance::kRed;
+                    }
+                    return false; 
+                }, // Should the path be automatically mirrored depending on alliance color. Optional, defaults to true
+                &m_driveSubsystem // Drive requirements, usually just a single drive subsystem
+            );
+        }
+        
         std::shared_ptr<PathPlannerPath> path = std::make_shared<PathPlannerPath>(
             PathPlannerPath::waypointsFromPoses(waypoints),
             m_pathConstraints,
@@ -202,42 +223,21 @@ void GoToPositionCommand::Execute()
             GoalEndState(0.0_mps, frc::Rotation2d{ units::angle::degree_t{m_targetRot} } )
         );
 
-        static ModuleConfig moduleCfg {   SwerveModule::kWheelRadius
-                                        , 1.0_mps
-                                        , 1.0                           // wheelCOF coefficient of friction, unknown, docs suggest 1.0
-                                        , frc::DCMotor::KrakenX60(1)
-                                        , SwerveModule::kDriveGearRatio
-                                        , 60.0_A                        // driveCurrentLimit
-                                        , 1                             // numMotors
-        };
+        printf("path waypoints x y angle\n");
+        for (auto& wp : waypoints)
+        {
+           printf("%.3f    %.3f    %.3f\n", wp.X().value(), wp.Y().value(), wp.Rotation().Degrees().value());
+        }
 
-        static RobotConfig config {   60_kg
-                                    , (60_kg * (0.7903212_sq_m + 0.7903212_sq_m)) / 12.0  // Moment of inertia
-                                    , moduleCfg
-                                    , m_driveSubsystem.GetModuleOffsets()
-        };
-
-        AutoBuilder::configure(
-            [this]() { return m_driveSubsystem.GetPose(); }, // Function to supply current robot pose
-            [this](auto initPose) { m_driveSubsystem.ResetOdometry(initPose); }, // Function used to reset odometry at the beginning of auto
-            [this]() { return m_driveSubsystem.GetChassisSpeeds(); },
-            [this](frc::ChassisSpeeds speeds) { m_driveSubsystem.Drive(-speeds.vx, -speeds.vy, -speeds.omega, false); }, // Output function that accepts field relative ChassisSpeeds
-            std::make_shared<PPHolonomicDriveController>(PIDConstants(5.0, 0.0, 0.0), PIDConstants(5.0, 0.0, 0.0)),
-            config,
-            [this]() 
-            {
-                auto alliance = frc::DriverStation::GetAlliance();
-                if (alliance)
-                {
-                    return alliance.value() == frc::DriverStation::Alliance::kRed;
-                }
-                return false; 
-            }, // Should the path be automatically mirrored depending on alliance color. Optional, defaults to true
-            &m_driveSubsystem // Drive requirements, usually just a single drive subsystem
-        );
-
+        printf("path points x y angle\n");
+        auto pts = path->getAllPathPoints();
+        for (auto& pt : pts)
+        {
+           printf("%.3f    %.3f    %.3f\n", pt.position.X().value(), pt.position.Y().value(), pt.position.Angle().Degrees().value());
+        }
         static auto pathCmd = AutoBuilder::followPath(path);
-        pathCmd.Schedule();
+        printf("has drive req %d\n", pathCmd.HasRequirement(&m_driveSubsystem));
+        //pathCmd.Schedule();
 #else
         if (xDiff >= c_tolerance && xDiff < c_maxX)
         {

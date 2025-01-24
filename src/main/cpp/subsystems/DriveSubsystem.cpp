@@ -5,10 +5,28 @@
 #include "subsystems/DriveSubsystem.h"
 
 #include <frc/smartdashboard/SmartDashboard.h>
+
 #include <units/math.h>
 
 DriveSubsystem::DriveSubsystem()
   : m_gyro(kDrivePigeonCANID)
+  , m_moduleCfg
+    {   
+        SwerveModule::kWheelRadius
+      , 1.0_mps
+      , 1.0                           // wheelCOF coefficient of friction, unknown, docs suggest 1.0
+      , frc::DCMotor::KrakenX60(1)
+      , SwerveModule::kDriveGearRatio
+      , 60.0_A                        // driveCurrentLimit
+      , 1                             // numMotors
+    }
+  , m_robotConfig 
+    {
+        60_kg
+      , (60_kg * (0.7903212_sq_m + 0.7903212_sq_m)) / 12.0  // Moment of inertia
+      , m_moduleCfg
+      , { m_frontLeftLocation , m_frontRightLocation, m_rearRightLocation, m_rearLeftLocation }
+  }
 {
   m_gyro.Reset();
 

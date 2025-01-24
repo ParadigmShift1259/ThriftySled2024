@@ -23,7 +23,7 @@ enum EMoveDirection
     , eJogBackward
 } ;
 
-class GoToPositionCommand: public frc2::CommandHelper<frc2::Command, GoToPositionCommand>
+class GoToPositionCommand : public frc2::CommandHelper<frc2::Command, GoToPositionCommand>
 {
     public:
         explicit GoToPositionCommand(ISubsystemAccess& subsystemAccess, EMoveDirection elmr);
