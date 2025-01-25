@@ -37,6 +37,8 @@ class RobotContainer : public ISubsystemAccess
 
   void StopAll();
 
+  std::shared_ptr<PathPlannerPath> GetOnTheFlyPath();
+
   private:
   void SetDefaultCommands();
   void ConfigureBindings();
@@ -74,7 +76,10 @@ class RobotContainer : public ISubsystemAccess
   
   // Tag 3 coordinates
   // frc2::InstantCommand m_resetOdo{[this] {m_drive.ResetOdometry({11.56_m, 8.12_m, 90_deg});}, {&m_drive}};
-  frc2::InstantCommand m_resetOdo{[this] {m_drive.ResetOdometry({530.49_in + 8.75_in, 130.17_in - 15.16_in, 120_deg});}, {&m_drive}};
+  // frc2::InstantCommand m_resetOdo{[this] {m_drive.ResetOdometry({530.49_in + 8.75_in, 130.17_in - 15.16_in, 120_deg});}, {&m_drive}};
+  frc2::InstantCommand m_resetOdo{[this] {m_drive.ResetOdometry({481.39_in - 17.5_in, 158.5_in, 0_deg});}, {&m_drive}};
+  frc2::InstantCommand m_printPath{[this] {GetOnTheFlyPath();}, {}};
+
   frc2::InstantCommand m_elevL4{[this] 
   { 
     double elevHeight = 38.0;//frc::SmartDashboard::GetNumber("elevHeight", 0.0);
@@ -88,7 +93,12 @@ class RobotContainer : public ISubsystemAccess
   frc2::InstantCommand m_elevRelPosDown{[this] { m_elevator.GotoPositionRel(-1.0); }, {&m_elevator} };
 
   //std::optional<frc2::CommandPtr> m_pathCmd;
-  
+  PathConstraints m_pathConstraints { 0.25_mps, 0.25_mps_sq, 90_deg_per_s, 180_deg_per_s_sq };
+  std::shared_ptr<PathPlannerPath> m_path;
+  double m_targetX;
+  double m_targetY;
+  double m_targetRot;
+
 //#define TEST_WHEEL_CONTROL
 #ifdef TEST_WHEEL_CONTROL
 #define DISABLE_DRIVING

@@ -64,7 +64,9 @@ public:
                    , units::meters_per_second_t ySpeed
                    , units::radian_t rot
                    , bool fieldRelative);
-  
+
+  void Drive(const frc::ChassisSpeeds& speeds, const DriveFeedforwards& dffs);
+
   void UpdateOdometry() override;
   void ResetOdometry(frc::Pose2d pose) override;
   void SetHeading(units::degree_t heading) override;
@@ -89,7 +91,7 @@ public:
   units::angle::radian_t GetGyroAzimuth() { return m_gyro.GetRotation2d().Radians(); }
   units::angle::degree_t GetGyroAzimuthDeg() { return m_gyro.GetRotation2d().Degrees(); }
 
-  RobotConfig& GetRobotCfg() { return m_robotConfig; }
+  RobotConfig GetRobotCfg() { return m_robotConfig; }
 
   void ToggleSlowSpeed() override
   { 

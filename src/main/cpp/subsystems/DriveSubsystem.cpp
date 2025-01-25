@@ -64,6 +64,11 @@ DriveSubsystem::DriveSubsystem()
   frc::SmartDashboard::PutNumber("yawsign", 1.0);
 }
 
+void DriveSubsystem::Drive(const frc::ChassisSpeeds& speeds, const DriveFeedforwards& dffs)
+{
+  Drive(speeds.vx, speeds.vy, speeds.omega, false);
+}
+
 void DriveSubsystem::Drive(units::meters_per_second_t xSpeed,
                        units::meters_per_second_t ySpeed,
                        units::radians_per_second_t rot, bool fieldRelative)

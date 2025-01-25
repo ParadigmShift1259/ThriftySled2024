@@ -12,25 +12,29 @@ const units::length::meter_t c_targetRedX = 455.15_in;//530.49_in;
 const units::length::meter_t c_targetRedY = 317.15_in;//130.17_in;
 const units::angle::degree_t c_targetRedRot = 90_deg;//120_deg;
 #else
-const units::length::meter_t c_targetRedX = 530.49_in;//530.49_in;
-const units::length::meter_t c_targetRedY = 130.17_in;
-const units::angle::degree_t c_targetRedRot = 120_deg;
+// Tag 6
+// const units::length::meter_t c_targetRedX = 530.49_in;
+// const units::length::meter_t c_targetRedY = 130.17_in;
+// const units::angle::degree_t c_targetRedRot = 120_deg;
+
+// Tag 10
+const units::length::meter_t c_targetRedX = 481.39_in;
+const units::length::meter_t c_targetRedY = 158.50_in;
+const units::angle::degree_t c_targetRedRot = 0_deg;
 #endif
-const double c_targetPodiumX = (2.896_m - c_halfRobotSize).value();
-const double c_targetPodiumY = 4.106;
 const double c_tolerance = 0.02;
 const double c_minInput = 0.07;
 
 constexpr int c_tagIdReefBlue = 17;
-const double c_targetSpeakerBlueX = 1.23;
-const double c_targetSpeakerBlueY = 5.35;
+// const double c_targetSpeakerBlueX = 1.23;
+// const double c_targetSpeakerBlueY = 5.35;
 
-const double c_targetSpeakerRedX = c_targetSpeakerBlueX;
-const double c_targetSpeakerRedY = 4.106 - 1.448;
+// const double c_targetSpeakerRedX = c_targetSpeakerBlueX;
+// const double c_targetSpeakerRedY = 4.106 - 1.448;
 
-const double c_targetReefBlueX = (1.933_m - 0.050_m).value();  // 5cm bias on shooter/intake
-const double c_targetReefBlueY = (8.111_m - c_halfRobotSize).value();
-const double c_targetReefBlueRot = -90.0;
+// const double c_targetReefBlueX = (1.933_m - 0.050_m).value();  // 5cm bias on shooter/intake
+// const double c_targetReefBlueY = (8.111_m - c_halfRobotSize).value();
+// const double c_targetReefBlueRot = -90.0;
 
 #ifdef TAG_3
 const int c_tagIdReefRed = 3;
@@ -38,12 +42,20 @@ const double c_targetReefRedX = (c_targetRedX).value();
 const double c_targetReefRedY = (c_targetRedY - c_halfRobotSize).value(); 
 const double c_targetReefRedRot = c_targetRedRot.value();
 #else
-const int c_tagIdReefRed = 6;
-const double c_targetReefRedX = (c_targetRedX + c_halfRobotSize * 0.5).value(); //0.5 is sin(30)
-const double c_targetReefRedY = (c_targetRedY - c_halfRobotSize * sqrt(3) * 0.5).value(); //root(3)/2 is cos(30)
+// const int c_tagIdReefRed = 6;
+// const double c_targetReefRedX = (c_targetRedX + c_halfRobotSize * 0.5).value(); //0.5 is sin(30)
+// const double c_targetReefRedY = (c_targetRedY - c_halfRobotSize * sqrt(3) * 0.5).value(); //root(3)/2 is cos(30)
+// const double c_targetReefRedRot = c_targetRedRot.value();
+// const double c_targetReefRedOffsetX = c_reefPoleOffset.value() * c_cosine30;
+// const double c_targetReefRedOffsetY = c_reefPoleOffset.value() * 0.5;
+
+const int c_tagIdReefRed = 10;
+const double c_targetReefRedX = (c_targetRedX - c_halfRobotSize).value();
+const double c_targetReefRedY = (c_targetRedY).value();
 const double c_targetReefRedRot = c_targetRedRot.value();
-const double c_targetReefRedOffsetX = c_reefPoleOffset.value() * c_cosine30;
+const double c_targetReefRedOffsetX = 0.0;
 const double c_targetReefRedOffsetY = c_reefPoleOffset.value() * 0.5;
+
 const double c_targetLeftReefRedX = c_targetReefRedX - c_targetReefRedOffsetX;
 const double c_targetLeftReefRedY = c_targetReefRedY - c_targetReefRedOffsetX;
 const double c_targetRightReefRedX = c_targetReefRedX + c_targetReefRedOffsetX;
@@ -52,8 +64,8 @@ const double c_targetRightReefRedY = c_targetReefRedY + c_targetReefRedOffsetX;
 
 const units::velocity::meters_per_second_t c_defaultGoToReefMaxSpeed = 2.0_mps;
 
-//GoToPositionCommand::GoToPositionCommand(ISubsystemAccess& subsystemAccess, EMoveDirection elmr, std::optional<frc2::CommandPtr>& pathCmd)
-GoToPositionCommand::GoToPositionCommand(ISubsystemAccess& subsystemAccess, EMoveDirection elmr)
+GoToPositionCommand::GoToPositionCommand(ISubsystemAccess& subsystemAccess, EMoveDirection elmr, std::shared_ptr<PathPlannerPath>& path)
+//GoToPositionCommand::GoToPositionCommand(ISubsystemAccess& subsystemAccess, EMoveDirection elmr)
     : m_driveSubsystem(subsystemAccess.GetDrive())
     , m_visionSubsystem(subsystemAccess.GetVision())
     // , m_led(subsystemAccess.GetLED())
@@ -62,7 +74,7 @@ GoToPositionCommand::GoToPositionCommand(ISubsystemAccess& subsystemAccess, EMov
     , m_targetRot(0)
     , m_elmr(elmr)
     , m_bJogging(false)
-//    , m_pathCmd(pathCmd)
+    , m_path(path)
 {
     // AddRequirements(frc2::Requirements{&subsystemAccess.GetDrive(), &subsystemAccess.GetVision(), &subsystemAccess.GetLED()});
     AddRequirements(frc2::Requirements{&subsystemAccess.GetDrive(), &subsystemAccess.GetVision()});
@@ -198,47 +210,50 @@ void GoToPositionCommand::Execute()
         // std::vector<frc::Pose2d> poses {  frc::Pose2d { xM, yM, rotationDeg }
         //                                 , frc::Pose2d { xTarget, yTarget, rotationTarget }
         // };
-        // std::vector<frc::Pose2d> poses {  frc::Pose2d { xM, yM, 0_deg }
-        //                                 , frc::Pose2d { xTarget, yTarget, 0_deg }
-        // };
-
-        std::vector<frc::Pose2d> poses
-        {  
-              frc::Pose2d ( 1.0_m, 1.0_m, frc::Rotation2d ( 0_deg ) )
-            , frc::Pose2d ( 3.0_m, 1.0_m, frc::Rotation2d ( 0_deg ) )
-            , frc::Pose2d ( 5.0_m, 3.0_m, frc::Rotation2d ( 90_deg ) )
+        std::vector<frc::Pose2d> poses {  frc::Pose2d { xM, yM, 0_deg }
+                                        , frc::Pose2d { xTarget, yTarget, 0_deg }
         };
 
-        if (!AutoBuilder::isConfigured())
-        {
-            AutoBuilder::configure(
-                [this]() { return m_driveSubsystem.GetPose(); }, // Function to supply current robot pose
-                [this](auto initPose) { m_driveSubsystem.ResetOdometry(initPose); }, // Function used to reset odometry at the beginning of auto
-                [this]() { return m_driveSubsystem.GetChassisSpeeds(); },
-                [this](frc::ChassisSpeeds speeds) { m_driveSubsystem.Drive(speeds.vx, speeds.vy, speeds.omega, false); }, // Output function that accepts field relative ChassisSpeeds
-                std::make_shared<PPHolonomicDriveController>(PIDConstants(1.0, 0.0, 0.0), PIDConstants(1.0, 0.0, 0.0)),
-                m_driveSubsystem.GetRobotCfg(),
-                [this]() 
-                {
-                    // auto alliance = frc::DriverStation::GetAlliance();
-                    // if (alliance)
-                    // {
-                    //     return alliance.value() == frc::DriverStation::Alliance::kRed;
-                    // }
-                    return false; 
-                }, // Should the path be automatically mirrored depending on alliance color. Optional, defaults to true
-                &m_driveSubsystem // Drive requirements, usually just a single drive subsystem
-            );
-        }
+        // std::vector<frc::Pose2d> poses
+        // {  
+        //       frc::Pose2d ( 13.971_m, 2.404_m, frc::Rotation2d ( 120_deg ) )
+        //     , frc::Pose2d ( 13.697_m, 2.921_m, frc::Rotation2d ( 120_deg ) )
+        // };
+
+        // if (!AutoBuilder::isConfigured())
+        // {
+        //     AutoBuilder::configure(
+        //         [this]() { return m_driveSubsystem.GetPose(); }, // Function to supply current robot pose
+        //         [this](auto initPose) { m_driveSubsystem.ResetOdometry(initPose); }, // Function used to reset odometry at the beginning of auto
+        //         [this]() { return m_driveSubsystem.GetChassisSpeeds(); },
+        //         [this](frc::ChassisSpeeds speeds) { m_driveSubsystem.Drive(speeds.vx, speeds.vy, speeds.omega, false); }, // Output function that accepts field relative ChassisSpeeds
+        //         std::make_shared<PPHolonomicDriveController>(PIDConstants(5.0, 0.0, 0.0), PIDConstants(5.0, 0.0, 0.0)),
+        //         m_driveSubsystem.GetRobotCfg(),
+        //         [this]() 
+        //         {
+        //             auto alliance = frc::DriverStation::GetAlliance();
+        //             if (alliance)
+        //             {
+        //                 return alliance.value() == frc::DriverStation::Alliance::kRed;
+        //             }
+        //             return false; 
+        //         }, // Should the path be automatically mirrored depending on alliance color. Optional, defaults to true
+        //         &m_driveSubsystem // Drive requirements, usually just a single drive subsystem
+        //     );
+        // }
         
-        std::shared_ptr<PathPlannerPath> path = std::make_shared<PathPlannerPath>(
+        //std::shared_ptr<PathPlannerPath> path = std::make_shared<PathPlannerPath>(
+        m_path = std::make_shared<PathPlannerPath>(
             PathPlannerPath::waypointsFromPoses(poses),
             m_pathConstraints,
             std::nullopt, // The ideal starting state, this is only relevant for pre-planned paths, so can be nullopt for on-the-fly paths.
             GoalEndState(0.0_mps, frc::Rotation2d{ units::angle::degree_t{m_targetRot} } )
         );
+
+        //auto path = PathPlannerPath::fromPathFile("Example Path");
+
         // Prevent the path from being flipped if the coordinates are already correct
-        path->preventFlipping = true;
+        m_path->preventFlipping = true;
 
         printf("path waypoints x y angle\n");
         for (auto& wp : poses)
@@ -247,7 +262,7 @@ void GoToPositionCommand::Execute()
         }
 
         printf("path points x y angle\n");
-        auto pts = path->getAllPathPoints();
+        auto pts = m_path->getAllPathPoints();
         for (auto& pt : pts)
         {
            printf("%.3f    %.3f    %.3f\n", pt.position.X().value(), pt.position.Y().value(), pt.position.Angle().Degrees().value());
@@ -353,7 +368,7 @@ void GoToPositionCommand::End(bool interrupted)
 {
     // m_led.SetAnimation(c_colorWhite, LEDSubsystem::kStrobe);
     //m_driveSubsystem.Drive(0.0_mps, 0.0_mps, 0.0_rad_per_s, false);
-    m_visionSubsystem.SetPositionStarted(false);
+    //m_visionSubsystem.SetPositionStarted(false);
     // m_visionSubsystem.DisableReefLEDs();
     m_bJogging = false;
 }

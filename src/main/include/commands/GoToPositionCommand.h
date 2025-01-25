@@ -26,8 +26,9 @@ enum EMoveDirection
 class GoToPositionCommand : public frc2::CommandHelper<frc2::Command, GoToPositionCommand>
 {
     public:
-        //explicit GoToPositionCommand(ISubsystemAccess& subsystemAccess, EMoveDirection elmr, std::optional<frc2::CommandPtr>& pathCmd);
-        explicit GoToPositionCommand(ISubsystemAccess& subsystemAccess, EMoveDirection elmr);
+
+        explicit GoToPositionCommand(ISubsystemAccess& subsystemAccess, EMoveDirection elmr, std::shared_ptr<PathPlannerPath>& path);
+        //explicit GoToPositionCommand(ISubsystemAccess& subsystemAccess, EMoveDirection elmr);
         void Initialize() override;
         void Execute() override;
         bool IsFinished() override;
@@ -45,7 +46,8 @@ class GoToPositionCommand : public frc2::CommandHelper<frc2::Command, GoToPositi
         double m_targetRot;
         EMoveDirection m_elmr;
         bool m_bJogging;
-        std::optional<frc2::CommandPtr> m_pathCmd;
+        //std::optional<frc2::CommandPtr>& m_pathCmd;
+        std::shared_ptr<PathPlannerPath> m_path;
 
         frc::Timer m_timer;
 
