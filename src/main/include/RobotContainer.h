@@ -86,6 +86,8 @@ class RobotContainer : public ISubsystemAccess
   frc2::InstantCommand m_elevReset{[this] { m_elevator.ElevatorReset(); }, {&m_elevator} };
   frc2::InstantCommand m_elevRelPosUp{[this] { m_elevator.GotoPositionRel(1.0); }, {&m_elevator} };
   frc2::InstantCommand m_elevRelPosDown{[this] { m_elevator.GotoPositionRel(-1.0); }, {&m_elevator} };
+
+  //std::optional<frc2::CommandPtr> m_pathCmd;
   
 //#define TEST_WHEEL_CONTROL
 #ifdef TEST_WHEEL_CONTROL

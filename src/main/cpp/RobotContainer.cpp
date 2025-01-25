@@ -127,7 +127,7 @@ ConfigPrimaryButtonBindings()
   //primary.X().OnTrue(&m_trapRPM);
 #ifdef USE_XBOX
   primary.LeftBumper().OnTrue(&m_toggleFieldRelative);
-  primary.RightBumper().WhileTrue(GoToPositionCommand(*this, eMiddle).ToPtr());
+  primary.RightBumper().OnTrue(GoToPositionCommand(*this, eMiddle).ToPtr());
   primary.B().WhileTrue(GoToPositionCommand(*this, eRight).ToPtr());
   primary.X().WhileTrue(GoToPositionCommand(*this, eLeft).ToPtr());
   primary.POVUp().OnTrue(GoToPositionCommand(*this, eJogForward).ToPtr());

@@ -52,6 +52,7 @@ const double c_targetRightReefRedY = c_targetReefRedY + c_targetReefRedOffsetX;
 
 const units::velocity::meters_per_second_t c_defaultGoToReefMaxSpeed = 2.0_mps;
 
+//GoToPositionCommand::GoToPositionCommand(ISubsystemAccess& subsystemAccess, EMoveDirection elmr, std::optional<frc2::CommandPtr>& pathCmd)
 GoToPositionCommand::GoToPositionCommand(ISubsystemAccess& subsystemAccess, EMoveDirection elmr)
     : m_driveSubsystem(subsystemAccess.GetDrive())
     , m_visionSubsystem(subsystemAccess.GetVision())
@@ -61,6 +62,7 @@ GoToPositionCommand::GoToPositionCommand(ISubsystemAccess& subsystemAccess, EMov
     , m_targetRot(0)
     , m_elmr(elmr)
     , m_bJogging(false)
+//    , m_pathCmd(pathCmd)
 {
     // AddRequirements(frc2::Requirements{&subsystemAccess.GetDrive(), &subsystemAccess.GetVision(), &subsystemAccess.GetLED()});
     AddRequirements(frc2::Requirements{&subsystemAccess.GetDrive(), &subsystemAccess.GetVision()});
@@ -188,13 +190,23 @@ void GoToPositionCommand::Execute()
 
         auto xTarget = units::length::meter_t {m_targetX};
         auto yTarget = units::length::meter_t {m_targetY};
-        auto rotationTarget = frc::Rotation2d {units::angle::degree_t {m_targetRot}};
+        //auto rotationTarget = frc::Rotation2d {units::angle::degree_t {m_targetRot}};
 
         // https://pathplanner.dev/pplib-create-a-path-on-the-fly.html
         // Create a vector of waypoints from poses. Each pose represents one waypoint.
         // The rotation component of the pose should be the direction of travel. Do not use holonomic rotation.
-        std::vector<frc::Pose2d> poses {  frc::Pose2d { xM, yM, rotationDeg }
-                                        , frc::Pose2d { xTarget, yTarget, rotationTarget }
+        // std::vector<frc::Pose2d> poses {  frc::Pose2d { xM, yM, rotationDeg }
+        //                                 , frc::Pose2d { xTarget, yTarget, rotationTarget }
+        // };
+        // std::vector<frc::Pose2d> poses {  frc::Pose2d { xM, yM, 0_deg }
+        //                                 , frc::Pose2d { xTarget, yTarget, 0_deg }
+        // };
+
+        std::vector<frc::Pose2d> poses
+        {  
+              frc::Pose2d ( 1.0_m, 1.0_m, frc::Rotation2d ( 0_deg ) )
+            , frc::Pose2d ( 3.0_m, 1.0_m, frc::Rotation2d ( 0_deg ) )
+            , frc::Pose2d ( 5.0_m, 3.0_m, frc::Rotation2d ( 90_deg ) )
         };
 
         if (!AutoBuilder::isConfigured())
@@ -203,8 +215,8 @@ void GoToPositionCommand::Execute()
                 [this]() { return m_driveSubsystem.GetPose(); }, // Function to supply current robot pose
                 [this](auto initPose) { m_driveSubsystem.ResetOdometry(initPose); }, // Function used to reset odometry at the beginning of auto
                 [this]() { return m_driveSubsystem.GetChassisSpeeds(); },
-                [this](frc::ChassisSpeeds speeds) { m_driveSubsystem.Drive(-speeds.vx, -speeds.vy, -speeds.omega, false); }, // Output function that accepts field relative ChassisSpeeds
-                std::make_shared<PPHolonomicDriveController>(PIDConstants(5.0, 0.0, 0.0), PIDConstants(5.0, 0.0, 0.0)),
+                [this](frc::ChassisSpeeds speeds) { m_driveSubsystem.Drive(speeds.vx, speeds.vy, speeds.omega, false); }, // Output function that accepts field relative ChassisSpeeds
+                std::make_shared<PPHolonomicDriveController>(PIDConstants(1.0, 0.0, 0.0), PIDConstants(1.0, 0.0, 0.0)),
                 m_driveSubsystem.GetRobotCfg(),
                 [this]() 
                 {
@@ -241,8 +253,8 @@ void GoToPositionCommand::Execute()
            printf("%.3f    %.3f    %.3f\n", pt.position.X().value(), pt.position.Y().value(), pt.position.Angle().Degrees().value());
         }
 
-        m_pathCmd = AutoBuilder::followPath(path);
-        m_pathCmd->Schedule();
+        //m_pathCmd = AutoBuilder::followPath(path);
+        //m_pathCmd->Schedule();
 #else
         if (xDiff >= c_tolerance && xDiff < c_maxX)
         {
@@ -313,7 +325,7 @@ void GoToPositionCommand::Execute()
 bool GoToPositionCommand::IsFinished()
 {
 #ifdef USEPATHPLANNER
-    return true;
+    return true; // m_pathCmd->IsScheduled();
 #else
     auto x = m_driveSubsystem.GetX();
     auto y = m_driveSubsystem.GetY();

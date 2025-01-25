@@ -17,7 +17,7 @@ DriveSubsystem::DriveSubsystem()
       , 1.0                           // wheelCOF coefficient of friction, unknown, docs suggest 1.0
       , frc::DCMotor::KrakenX60(1)
       , SwerveModule::kDriveGearRatio
-      , 60.0_A                        // driveCurrentLimit
+      , 100.0_A                        // driveCurrentLimit
       , 1                             // numMotors
     }
   , m_robotConfig 
