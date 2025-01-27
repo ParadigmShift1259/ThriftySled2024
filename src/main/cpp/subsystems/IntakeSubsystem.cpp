@@ -32,7 +32,7 @@ IntakeSubsystem::IntakeSubsystem()
         .SetIdleMode(SparkBaseConfig::IdleMode::kBrake)
         .Inverted(false);
     config.ClosedLoopRampRate(0.0);
-    config.closedLoop.OutputRange(kDeployMinOut, kDeployMaxOut);
+    config.closedLoop.OutputRange(kMinOut, kMaxOut);
 
     m_deployMotor.Configure(config, SparkBase::ResetMode::kNoResetSafeParameters, SparkBase::PersistMode::kPersistParameters);
     

@@ -136,7 +136,6 @@ private:
       m_rearLeftLocation, m_rearRightLocation
   };
 
-
   // For PathPlanner on the fly paths
   ModuleConfig m_moduleCfg;
   RobotConfig m_robotConfig;

@@ -19,36 +19,25 @@ constexpr double c_defaultIntakeD = 0.0;
 constexpr ClosedLoopSlot c_intakeGeneralPIDSlot = ClosedLoopSlot::kSlot0;
 constexpr ClosedLoopSlot c_intakeExtendPIDSlot = ClosedLoopSlot::kSlot1;
 
-constexpr double c_defaultIntakeMin = -0.5;
-constexpr double c_defaultIntakeMax = 0.5;
-
 CoralManipulatorSubsystem::CoralManipulatorSubsystem() 
-    : m_motor(kIntakeRollerCANID)
-    , m_photoEye(kIntakePhotoeye)
-    , m_deployMotor(kIntakeDeployCANID, SparkLowLevel::MotorType::kBrushless)
+    : m_motor(kCoralManipRollerCANID)
+    , m_photoEye(kCoralManipPhotoeye)
+    , m_deployMotor(kCoralManipDeployCANID, SparkLowLevel::MotorType::kBrushless)
 {
     m_motor.SetNeutralMode(NeutralMode::Coast);
 
     SparkBaseConfig config{};
-    config
-        .SetIdleMode(SparkBaseConfig::IdleMode::kBrake);
+    config.SetIdleMode(SparkBaseConfig::IdleMode::kBrake);
     config.ClosedLoopRampRate(0.0);
-    config.closedLoop.OutputRange(kDeployMinOut, kDeployMaxOut);
+    config.closedLoop.OutputRange(kMinOut, kMaxOut);
 
     m_deployMotor.Configure(config, SparkBase::ResetMode::kNoResetSafeParameters, SparkBase::PersistMode::kPersistParameters);
     m_deployRelativeEnc.SetPosition(0.0);
 
-    frc::Preferences::InitDouble("kIntakeDeployP", c_defaultIntakeP);
-    frc::Preferences::InitDouble("kIntakeDeployExtendP", c_defaultIntakeExtendP);
-    frc::Preferences::InitDouble("kIntakeDeployI", c_defaultIntakeI);
-    frc::Preferences::InitDouble("kIntakeDeployD", c_defaultIntakeD);
-
-    frc::Preferences::InitDouble("kIntakeDeployMin", c_defaultIntakeMin);
-    frc::Preferences::InitDouble("kIntakeDeployMax", c_defaultIntakeMax);
-
-    frc::SmartDashboard::PutNumber("DepRtctTurns", c_defaultRetractTurns);
-    frc::SmartDashboard::PutNumber("DepExtTurns", c_defaultExtendTurns);
-    frc::SmartDashboard::PutNumber("DepOffsetTurns", c_defaultOffsetTurns);
+    frc::Preferences::InitDouble("kCoralManipDeployP", c_defaultIntakeP);
+    frc::Preferences::InitDouble("kCoralManipDeployExtendP", c_defaultIntakeExtendP);
+    frc::Preferences::InitDouble("kCoralManipDeployI", c_defaultIntakeI);
+    frc::Preferences::InitDouble("kCoralManipDeployD", c_defaultIntakeD);
 }
 
 void CoralManipulatorSubsystem::Periodic()
@@ -56,7 +45,7 @@ void CoralManipulatorSubsystem::Periodic()
     LoadDeployPid();
 
     frc::SmartDashboard::PutNumber("Deploy echo", m_deployRelativeEnc.GetPosition());
-    frc::SmartDashboard::PutBoolean("Intake PhotoEye", m_photoEye.Get());
+    frc::SmartDashboard::PutBoolean("CoralManipPhotoEye", m_photoEye.Get());
 }
 
 void CoralManipulatorSubsystem::LoadDeployPid()
@@ -66,10 +55,10 @@ void CoralManipulatorSubsystem::LoadDeployPid()
     static double lastI = 0.0;
     static double lastD = 0.0;
 
-    auto p = frc::Preferences::GetDouble("kIntakeDeployP", c_defaultIntakeP);
-    auto pExtend = frc::Preferences::GetDouble("kIntakeDeployExtendP", c_defaultIntakeExtendP);
-    auto i = frc::Preferences::GetDouble("kIntakeDeployI", c_defaultIntakeI);
-    auto d = frc::Preferences::GetDouble("kIntakeDeployD", c_defaultIntakeD);
+    auto p = frc::Preferences::GetDouble("kCoralManipDeployP", c_defaultIntakeP);
+    auto pExtend = frc::Preferences::GetDouble("kCoralManipDeployExtendP", c_defaultIntakeExtendP);
+    auto i = frc::Preferences::GetDouble("kCoralManipDeployI", c_defaultIntakeI);
+    auto d = frc::Preferences::GetDouble("kCoralManipDeployD", c_defaultIntakeD);
     
     if (p != lastP)
     {
@@ -109,38 +98,4 @@ void CoralManipulatorSubsystem::LoadDeployPid()
 void CoralManipulatorSubsystem::Set(double speed)
 {
     m_motor.Set(ControlMode::PercentOutput, speed);
-}
-
-void CoralManipulatorSubsystem::ExtendIntake()
-{
-    double turns = frc::SmartDashboard::GetNumber("DepExtTurns", c_defaultExtendTurns);
-    double offsetTurns = frc::SmartDashboard::GetNumber("DepOffsetTurns", c_defaultOffsetTurns);
-    //printf("dep extend turns %.3f\n", turns);
-    m_deployPIDController.SetReference(turns + offsetTurns, SparkBase::ControlType::kPosition, c_intakeExtendPIDSlot);
-
-    // frc::SmartDashboard::PutNumber("DepApplOut", m_deployMotor.GetAppliedOutput()); 
-    // frc::SmartDashboard::PutNumber("DepBusV", m_deployMotor.GetBusVoltage());
-    // frc::SmartDashboard::PutNumber("DepTemp", m_deployMotor.GetMotorTemperature());
-    // frc::SmartDashboard::PutNumber("DepOutAmps", m_deployMotor.GetOutputCurrent());    
-}
-
-void CoralManipulatorSubsystem::ExtendIntake(double turns)
-{
-    double offsetTurns = frc::SmartDashboard::GetNumber("DepOffsetTurns", c_defaultOffsetTurns);
-    m_deployPIDController.SetReference(turns + offsetTurns, SparkBase::ControlType::kPosition, c_intakeGeneralPIDSlot);
-}
-
-
-void CoralManipulatorSubsystem::RetractIntake()
-{
-    double turns = frc::SmartDashboard::GetNumber("DepRtctTurns", c_defaultRetractTurns);
-    //printf("dep retract turns %.3f\n", turns);
-    double offsetTurns = frc::SmartDashboard::GetNumber("DepOffsetTurns", c_defaultOffsetTurns);
-    m_deployPIDController.SetReference(turns + offsetTurns, SparkBase::ControlType::kPosition, c_intakeExtendPIDSlot);
-}
-
-void CoralManipulatorSubsystem::GoToPosition(double turns)
-{
-    double offsetTurns = frc::SmartDashboard::GetNumber("DepOffsetTurns", c_defaultOffsetTurns);
-    m_deployPIDController.SetReference(turns + offsetTurns, SparkBase::ControlType::kPosition, c_intakeGeneralPIDSlot);
 }

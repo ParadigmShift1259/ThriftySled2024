@@ -21,9 +21,6 @@ constexpr double c_turnGearRatio = 25.0;
 constexpr double kMinOut = -1.0;
 constexpr double kMaxOut = 1.0;
 
-constexpr double kDeployMinOut = -0.5;
-constexpr double kDeployMaxOut = 0.5;
-
 constexpr double c_defaultRetractTurns = 4.0;
 constexpr double c_defaultExtendTurns = 44; //Originally 43
 constexpr double c_defaultOffsetTurns = 0.0;

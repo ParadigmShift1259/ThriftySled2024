@@ -5,4 +5,5 @@
 constexpr int kElevationLimitRear  = 4;
 constexpr int kElevationLimitFront = 5;
 
-constexpr int kIntakePhotoeye      = 8;
+constexpr int kCoralManipPhotoeye  = 8;
+constexpr int kIntakePhotoeye      = 9;
