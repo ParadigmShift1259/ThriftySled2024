@@ -39,7 +39,7 @@ RobotContainer::RobotContainer()
           [this]() { return m_drive.GetPose(); }, // Function to supply current robot pose
           [this](auto initPose) { m_drive.ResetOdometry(initPose); }, // Function used to reset odometry at the beginning of auto
           [this]() { return m_drive.GetChassisSpeeds(); },
-          [this](frc::ChassisSpeeds speeds) { m_drive.Drive(speeds.vx, speeds.vy, speeds.omega, false); }, // Output function that accepts field relative ChassisSpeeds
+          [this](frc::ChassisSpeeds speeds) { m_drive.Drive(speeds.vx, speeds.vy, speeds.omega, false); }, // Output function that accepts robot-relative ChassisSpeeds.
           std::make_shared<PPHolonomicDriveController>(PIDConstants(5.0, 0.0, 0.0), PIDConstants(5.0, 0.0, 0.0)),
           m_drive.GetRobotCfg(),
           [this]() 
@@ -61,7 +61,6 @@ RobotContainer::RobotContainer()
       , frc::Pose2d ( 0_m, 0_m, frc::Rotation2d ( 0_deg ) )
   };
 
-  //std::shared_ptr<PathPlannerPath> path = std::make_shared<PathPlannerPath>(
   m_path = std::make_shared<PathPlannerPath>(
       PathPlannerPath::waypointsFromPoses(poses),
       m_pathConstraints,
@@ -71,6 +70,7 @@ RobotContainer::RobotContainer()
 
   SetDefaultCommands();
   ConfigureBindings();
+  SetUpLogging();
 
   frc::SmartDashboard::PutNumber("elevHeight", 0.0);
   frc::SmartDashboard::PutNumber("elevDelay", 0.015);
@@ -149,8 +149,7 @@ void RobotContainer::ConfigureBindings()
 #endif
 }
 
-void RobotContainer::
-ConfigPrimaryButtonBindings()
+void RobotContainer::ConfigPrimaryButtonBindings()
 {
   auto& primary = m_primaryController;
  
@@ -193,13 +192,13 @@ ConfigPrimaryButtonBindings()
   // }.ToPtr());
 
   //primary.RightBumper().OnTrue(&m_printPath);
-  constexpr double c_HolomonicP =0.01;
+  constexpr double c_HolomonicP = 0.01;
 
   primary.RightBumper().OnTrue(FollowPathCommand(
         GetOnTheFlyPath()
       , [this]() { return m_drive.GetPose(); } // Function to supply current robot pose
       , [this]() { return m_drive.GetChassisSpeeds(); }
-      , [this](const frc::ChassisSpeeds& speeds, const DriveFeedforwards &dffs) { m_drive.Drive(speeds, dffs); } // Output function that accepts field relative ChassisSpeeds
+      , [this](const frc::ChassisSpeeds& speeds, const DriveFeedforwards &dffs) { m_drive.Drive(speeds, dffs); } // Output function that accepts robot-relative ChassisSpeeds and feedforwards for each drive motor. If using swerve, these feedforwards will be in FL, FR, BL, BR order. If using a differential drive, they will be in L, R order. 
       , std::dynamic_pointer_cast<PathFollowingController>(std::make_shared<PPHolonomicDriveController>(PIDConstants(c_HolomonicP, 0.0, 0.0), PIDConstants(c_HolomonicP, 0.0, 0.0)))
       , m_drive.GetRobotCfg()
       , [this]() {
@@ -313,9 +312,6 @@ std::shared_ptr<PathPlannerPath> RobotContainer::GetOnTheFlyPath()
   // https://pathplanner.dev/pplib-create-a-path-on-the-fly.html
   // Create a vector of waypoints from poses. Each pose represents one waypoint.
   // The rotation component of the pose should be the direction of travel. Do not use holonomic rotation.
-  // std::vector<frc::Pose2d> poses {  frc::Pose2d { xM, yM, rotationDeg }
-  //                                 , frc::Pose2d { xTarget, yTarget, rotationTarget }
-  // };
   std::vector<frc::Pose2d> poses {  frc::Pose2d { xM, yM, 0_deg }
                                   , frc::Pose2d { xTarget, yTarget, 0_deg }
   };
@@ -330,18 +326,24 @@ std::shared_ptr<PathPlannerPath> RobotContainer::GetOnTheFlyPath()
   // Prevent the path from being flipped if the coordinates are already correct
   path->preventFlipping = true;
 
-  printf("path waypoints x y angle\n");
-  for (auto& wp : poses)
+  for (auto& pose : poses)
   {
-      printf("%.3f    %.3f    %.3f\n", wp.X().value(), wp.Y().value(), wp.Rotation().Degrees().value());
+    m_logPoses.Update(pose.Translation());
   }
 
-  printf("path points x y angle\n");
   auto pts = path->getAllPathPoints();
   for (auto& pt : pts)
   {
-      printf("%.3f    %.3f    %.3f\n", pt.position.X().value(), pt.position.Y().value(), pt.position.Angle().Degrees().value());
+    m_logPath.Update(pt.position);
   }
 
   return path;
+}
+
+void RobotContainer::SetUpLogging()
+{
+    wpi::log::DataLog& log = frc::DataLogManager::GetLog();
+  
+    m_logPoses = TranslationLog(log, "/onTheFlyPath/pose");
+    m_logPath =  TranslationLog(log, "/onTheFlyPath/waypoint");
 }

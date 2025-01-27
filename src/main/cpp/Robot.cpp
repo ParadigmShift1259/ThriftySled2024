@@ -16,7 +16,8 @@ void Robot::RobotInit() {}
  * <p> This runs after the mode specific periodic functions, but before
  * LiveWindow and SmartDashboard integrated updating.
  */
-void Robot::RobotPeriodic() {
+void Robot::RobotPeriodic()
+{
   frc2::CommandScheduler::GetInstance().Run();
 }
 
@@ -25,8 +26,10 @@ void Robot::RobotPeriodic() {
  * can use it to reset any subsystem information you want to clear when the
  * robot is disabled.
  */
-void Robot::DisabledInit() {
+void Robot::DisabledInit()
+{
   m_container.StopAll();
+  DataLogManager::Stop();
 }
 
 void Robot::DisabledPeriodic() {}
@@ -35,7 +38,14 @@ void Robot::DisabledPeriodic() {}
  * This autonomous runs the autonomous command selected by your {@link
  * RobotContainer} class.
  */
-void Robot::AutonomousInit() {
+void Robot::AutonomousInit()
+{
+  DataLogManager::LogNetworkTables(true);
+  DataLogManager::LogConsoleOutput(true);
+  DataLogManager::Start();
+  // Record both DS control and joystick data
+  DriverStation::StartDataLog(DataLogManager::GetLog());
+
   //m_autonomousCommand = m_container.GetAutonomousCommand();
 
   if (m_autonomousCommand) {
@@ -45,7 +55,14 @@ void Robot::AutonomousInit() {
 
 void Robot::AutonomousPeriodic() {}
 
-void Robot::TeleopInit() {
+void Robot::TeleopInit()
+{
+  DataLogManager::LogNetworkTables(true);
+  DataLogManager::LogConsoleOutput(true);
+  DataLogManager::Start();
+  // Record both DS control and joystick data
+  DriverStation::StartDataLog(DataLogManager::GetLog());
+
   // This makes sure that the autonomous stops running when
   // teleop starts running. If you want the autonomous to
   // continue until interrupted by another command, remove

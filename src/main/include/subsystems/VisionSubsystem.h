@@ -85,11 +85,8 @@ class VisionSubsystem : public frc2::SubsystemBase
   double m_yawError = 0.0;
   double m_commandedAzimuth = 0.0;
 
-
   double c_defaultAimP = -0.1;
   double c_minAimCommanded = 0.05;
-
-
 
   wpi::log::DoubleLogEntry m_logRobotAlliPoseX;
   wpi::log::DoubleLogEntry m_logRobotAlliPoseY;

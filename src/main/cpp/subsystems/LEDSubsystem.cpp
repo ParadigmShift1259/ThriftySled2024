@@ -34,7 +34,7 @@ LEDSubsystem::LEDSubsystem()
 
 void LEDSubsystem::Periodic()
 {
-  // m_log.Append(add_data_here);
+  // m_log.Update(add_data_here);
 }
 
 LEDSubsystem::Color LEDSubsystem::CreateColor(int r, int g, int b, int w)

@@ -51,20 +51,20 @@ void VisionSubsystem::PeriodicLoad()
   if (m_isValidLoad && m_isAllowedLoad)
   {
       m_netBufferField = m_netTableLoad->GetNumberArray("botpose", m_zero_vector);
-      m_logRobotPoseX.Append(m_netBufferField[eX]);
-      m_logRobotPoseY.Append(m_netBufferField[eY]);
-      m_logRobotPoseTheta.Append(m_netBufferField[eYaw]);
+      m_logRobotPoseX.Update(m_netBufferField[eX]);
+      m_logRobotPoseY.Update(m_netBufferField[eY]);
+      m_logRobotPoseTheta.Update(m_netBufferField[eYaw]);
 
       m_netBufferAlli = m_netTableLoad->GetNumberArray("botpose_wpiblue", m_zero_vector);
-      m_logRobotAlliPoseX.Append(m_netBufferAlli[eX]);
-      m_logRobotAlliPoseY.Append(m_netBufferAlli[eY]);
-      m_logRobotAlliPoseTheta.Append(m_netBufferAlli[eYaw]);
-      m_logLL_Latency.Append(m_netBufferAlli[eLatency]);
+      m_logRobotAlliPoseX.Update(m_netBufferAlli[eX]);
+      m_logRobotAlliPoseY.Update(m_netBufferAlli[eY]);
+      m_logRobotAlliPoseTheta.Update(m_netBufferAlli[eYaw]);
+      m_logLL_Latency.Update(m_netBufferAlli[eLatency]);
 
       m_tyLoad = m_netTableLoad->GetNumber("ty", 0.0);
       m_txLoad = m_netTableLoad->GetNumber("tx", 0.0);
-      m_logtxLoad.Append(m_txLoad);
-      m_logtyLoad.Append(m_tyLoad);
+      m_logtxLoad.Update(m_txLoad);
+      m_logtyLoad.Update(m_tyLoad);
 
 
 
@@ -88,15 +88,15 @@ void VisionSubsystem::PeriodicReef()
   if (m_isValidReef && m_isAllowedReef)
   {
       m_netBufferField = m_netTableReef->GetNumberArray("botpose", m_zero_vector);
-      m_logRobotPoseX.Append(m_netBufferField[eX]);
-      m_logRobotPoseY.Append(m_netBufferField[eY]);
-      m_logRobotPoseTheta.Append(m_netBufferField[eYaw]);
+      m_logRobotPoseX.Update(m_netBufferField[eX]);
+      m_logRobotPoseY.Update(m_netBufferField[eY]);
+      m_logRobotPoseTheta.Update(m_netBufferField[eYaw]);
 
       m_netBufferAlli = m_netTableReef->GetNumberArray("botpose_orb_wpiblue", m_zero_vector);
-      m_logRobotAlliPoseX.Append(m_netBufferAlli[eX]);
-      m_logRobotAlliPoseY.Append(m_netBufferAlli[eY]);
-      m_logRobotAlliPoseTheta.Append(m_netBufferAlli[eYaw]);
-      m_logLL_Latency.Append(m_netBufferAlli[eLatency]);
+      m_logRobotAlliPoseX.Update(m_netBufferAlli[eX]);
+      m_logRobotAlliPoseY.Update(m_netBufferAlli[eY]);
+      m_logRobotAlliPoseTheta.Update(m_netBufferAlli[eYaw]);
+      m_logLL_Latency.Update(m_netBufferAlli[eLatency]);
 
       frc::SmartDashboard::PutNumber("xReef", m_netBufferAlli[eX]);
       frc::SmartDashboard::PutNumber("yReef", m_netBufferAlli[eY]);
@@ -105,9 +105,9 @@ void VisionSubsystem::PeriodicReef()
       m_tyReef = m_netTableReef->GetNumber("ty", 0.0);
       m_txReef = m_netTableReef->GetNumber("tx", 0.0);
       m_tidReef = m_netTableReef->GetNumber("tid", 0);
-      m_logtxReef.Append(m_txReef);
-      m_logtyReef.Append(m_tyReef);
-      m_logtidReef.Append(m_tidReef);
+      m_logtxReef.Update(m_txReef);
+      m_logtyReef.Update(m_tyReef);
+      m_logtidReef.Update(m_tidReef);
   }
   // else
   // {

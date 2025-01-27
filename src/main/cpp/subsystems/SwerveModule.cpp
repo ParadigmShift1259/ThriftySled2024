@@ -163,8 +163,8 @@ void SwerveModule::Periodic()
   frc::SmartDashboard::PutNumber("Abs Pos Offset" + m_id, m_offset);  
   frc::SmartDashboard::PutNumber("Turn Enc Pos" + m_id, GetTurnPosition().to<double>());
   
-  m_logTurningEncoderPosition.Append(GetTurnPosition().to<double>());
-  m_logAbsoluteEncoderPosition.Append(absPos);
+  m_logTurningEncoderPosition.Update(GetTurnPosition().to<double>());
+  m_logAbsoluteEncoderPosition.Update(absPos);
 }
 
 void SwerveModule::ResyncAbsRelEnc()
@@ -216,8 +216,8 @@ units::meter_t SwerveModule::CalcMeters()
 void SwerveModule::SetDesiredState(frc::SwerveModuleState& referenceState)
 {
   // Need to log before referenceState is optimized
-  m_logTurningRefSpeed.Append(referenceState.speed.to<double>());
-  m_logTurningRefAngle.Append(referenceState.angle.Degrees().to<double>());
+  m_logTurningRefSpeed.Update(referenceState.speed.to<double>());
+  m_logTurningRefAngle.Update(referenceState.angle.Degrees().to<double>());
 
   // Optimize the reference state to avoid spinning further than 90 degrees
   double currPosition = GetTurnPosition().to<double>();
@@ -243,9 +243,9 @@ void SwerveModule::SetDesiredState(frc::SwerveModuleState& referenceState)
   // Negative sign is because turning motor rotates opposite wheel
   double newRef = -c_turnGearRatio * referenceState.angle.Radians().to<double>();
 
-  m_logTurningNewAngle.Append(referenceState.angle.Degrees().to<double>());
-  m_logDriveNewSpeed.Append(referenceState.speed.to<double>());
-  m_logDriveNormalizedSpeed.Append((referenceState.speed / m_currentMaxSpeed).to<double>());
+  m_logTurningNewAngle.Update(referenceState.angle.Degrees().to<double>());
+  m_logDriveNewSpeed.Update(referenceState.speed.to<double>());
+  m_logDriveNormalizedSpeed.Update((referenceState.speed / m_currentMaxSpeed).to<double>());
 
   frc::SmartDashboard::PutNumber("Turn Ref Motor" + m_id, newRef);
   m_turningPIDController.SetReference(newRef, SparkBase::ControlType::kPosition);

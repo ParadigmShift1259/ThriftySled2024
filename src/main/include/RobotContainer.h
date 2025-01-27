@@ -6,6 +6,7 @@
 
 #include <frc/filter/SlewRateLimiter.h>
 #include <frc/smartdashboard/SmartDashboard.h>
+#include <frc/DataLogManager.h>
 
 #include <frc2/command/button/CommandXboxController.h>
 #include <frc2/command/button/CommandJoystick.h>
@@ -44,13 +45,11 @@ class RobotContainer : public ISubsystemAccess
   void ConfigureBindings();
   void ConfigPrimaryButtonBindings();
   void ConfigSecondaryButtonBindings();
+  void SetUpLogging();
 
   // The robot's subsystems and commands are defined here...
-  
   DriveSubsystem m_drive;
-  
   VisionSubsystem m_vision;
-
   ElevatorSubsystem m_elevator;
 
 #define USE_XBOX
@@ -66,7 +65,7 @@ class RobotContainer : public ISubsystemAccess
   SlewRateLimiter<units::scalar> m_rotLimiter{3 / 1_s};
   SlewRateLimiter<units::scalar> m_yawRotationLimiter{3 / 1_s};
   // TODO Make sure field relative starts how the drive team wants
-  bool m_fieldRelative = true;
+  bool m_fieldRelative = false;
   bool m_isAutoRunning = false;
 
   frc2::InstantCommand m_toggleFieldRelative{[this] { 
@@ -107,4 +106,8 @@ class RobotContainer : public ISubsystemAccess
   frc2::InstantCommand m_wheelsBackward{[this] { GetDrive().WheelsBackward(); }, {&m_drive} };
   frc2::InstantCommand m_wheelsRight{[this] { GetDrive().WheelsRight(); }, {&m_drive} };
 #endif  // TEST_WHEEL_CONTROL
+
+  using TranslationLog = wpi::log::StructLogEntry<frc::Translation2d>;
+  TranslationLog m_logPath;
+  TranslationLog m_logPoses;
 };
