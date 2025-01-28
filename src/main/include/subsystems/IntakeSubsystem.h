@@ -42,7 +42,7 @@ public:
     void RetractIntake();
     void GoToPosition(double turns);
     double GetPosition() { return m_deployRelativeEnc.GetPosition(); }
-    bool IsNotePresent() { return m_photoEye.Get(); }
+    // bool IsNotePresent() { return m_photoEye.Get(); }
     void EjectNote() { Set(kIngestSpeed); }
     void Stop() { Set(0.0); }
 
@@ -52,7 +52,7 @@ private:
     /// 775 that runs intake
     TalonSRX m_motor;
     frc::Timer m_timer;
-    frc::DigitalInput m_photoEye;
+    // frc::DigitalInput m_photoEye;
 
     SparkMax m_deployMotor;
     SparkRelativeEncoder m_deployRelativeEnc = m_deployMotor.GetEncoder();    

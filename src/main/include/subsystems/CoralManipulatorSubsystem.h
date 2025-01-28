@@ -5,6 +5,7 @@
 #include "ConstantsCANIDs.h"
 
 #include <frc/DigitalInput.h>
+#include <frc/Servo.h>
 
 #include <frc/Timer.h>
 #include <frc2/command/SubsystemBase.h>
@@ -33,28 +34,31 @@ public:
     /// Drives the intake at a given speed
     /// \param speed         Desired motor speed to run, ranging from [-1, 1]
     void Set(double speed);
-    /// Extends the intake out of the robot
-    void ExtendIntake();
-    void ExtendIntake(double turns);
-    // Retracts the intake into the robot
-    void RetractIntake();
+    /// Deploys the manipulator out of the robot
+    void DeployManipulator();
+    void DeployManipulator(double turns);
+    // Retracts the manipulator into the robot
+    void RetractManipulator();
     void GoToPosition(double turns);
-    double GetPosition() { return m_deployRelativeEnc.GetPosition(); }
-    bool IsNotePresent() { return m_photoEye.Get(); }
-    void EjectNote() { Set(kIngestSpeed); }
+    double GetPosition() { return m_coralRelativeEnc.GetPosition(); }
+    bool IsCoralPresentInput() { return m_photoEyeIn.Get(); }
+    bool ICoralPresentOutput() { return m_photoEyeOut.Get(); }
+    void EjectCoral() { Set(kIngestSpeed); }
     void Stop() { Set(0.0); }
 
 private:
     void LoadDeployPid();
 
-    /// 775 that runs intake
-    TalonSRX m_motor;
+    // 775 that runs intake
+    // TalonSRX m_motor;
     frc::Timer m_timer;
-    frc::DigitalInput m_photoEye;
+    frc::DigitalInput m_photoEyeIn;
+    frc::DigitalInput m_photoEyeOut;
+    frc::Servo m_deployServo;
 
-    SparkMax m_deployMotor;
-    SparkRelativeEncoder m_deployRelativeEnc = m_deployMotor.GetEncoder();    
-    SparkClosedLoopController m_deployPIDController = m_deployMotor.GetClosedLoopController();
+    SparkMax m_coralMotor;
+    SparkRelativeEncoder m_coralRelativeEnc = m_coralMotor.GetEncoder();    
+    SparkClosedLoopController m_coralPIDController = m_coralMotor.GetClosedLoopController();
 
     static constexpr bool kIntakeExtend = true;
     static constexpr bool kIntakeRetract = false;

@@ -24,14 +24,14 @@ ElevatorSubsystem::ElevatorSubsystem()
     , m_followMotor(kElevatorFollowMotorCANID, SparkLowLevel::MotorType::kBrushless)
 {
     m_leadConfig
-        .SetIdleMode(SparkBaseConfig::IdleMode::kBrake)
+        .SetIdleMode(SparkBaseConfig::IdleMode::kCoast)
         .Inverted(true);
     m_leadConfig.ClosedLoopRampRate(0.0);
     m_leadConfig.closedLoop.OutputRange(kMinOut, kMaxOut);
     m_leadMotor.Configure(m_leadConfig, SparkBase::ResetMode::kNoResetSafeParameters, SparkBase::PersistMode::kPersistParameters);
 
     m_followConfig
-        .SetIdleMode(SparkBaseConfig::IdleMode::kBrake)
+        .SetIdleMode(SparkBaseConfig::IdleMode::kCoast)
         .Inverted(false);
     m_followConfig.ClosedLoopRampRate(0.0);
     m_followConfig.closedLoop.OutputRange(kMinOut, kMaxOut);

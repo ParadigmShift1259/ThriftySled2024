@@ -21,7 +21,7 @@ constexpr double c_defaultIntakeMax = 0.5;
 
 IntakeSubsystem::IntakeSubsystem() 
     : m_motor(kIntakeRollerCANID)
-    , m_photoEye(kIntakePhotoeye)
+    // , m_photoEye(kIntakePhotoeye)
     , m_deployMotor(kIntakeDeployCANID, SparkLowLevel::MotorType::kBrushless)
     , m_deployFollowMotor(kIntakeDeployFollowCANID, SparkLowLevel::MotorType::kBrushless)
 {
@@ -61,7 +61,7 @@ void IntakeSubsystem::Periodic()
 
     frc::SmartDashboard::PutNumber("Deploy echo", m_deployRelativeEnc.GetPosition());
     frc::SmartDashboard::PutNumber("Deploy Follow echo", m_deployFollowRelativeEnc.GetPosition());
-    frc::SmartDashboard::PutBoolean("Intake PhotoEye", m_photoEye.Get());
+    // frc::SmartDashboard::PutBoolean("Intake PhotoEye", m_photoEye.Get());
 }
 
 void IntakeSubsystem::LoadDeployPid()
