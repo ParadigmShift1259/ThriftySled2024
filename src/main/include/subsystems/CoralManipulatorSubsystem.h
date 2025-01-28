@@ -43,8 +43,8 @@ public:
     double GetPosition() { return m_coralRelativeEnc.GetPosition(); }
     bool IsCoralPresentInput() { return m_photoEyeIn.Get(); }
     bool ICoralPresentOutput() { return m_photoEyeOut.Get(); }
-    void EjectCoral() { Set(kIngestSpeed); }
-    void Stop() { Set(0.0); }
+    void EjectCoral() { m_coralMotor.SetVoltage(-9.0_V); }
+    void Stop() { m_coralMotor.SetVoltage(0.0_V); }
 
 private:
     void LoadDeployPid();

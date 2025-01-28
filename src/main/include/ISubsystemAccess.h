@@ -6,6 +6,7 @@
 #include "subsystems/DriveSubsystem.h"
 #include "subsystems/VisionSubsystem.h"
 #include "subsystems/ElevatorSubsystem.h"
+#include "subsystems/CoralManipulatorSubsystem.h"
 
 // #include "subsystems/IntakeSubsystem.h"
 // #include "subsystems/ShooterSubsystem.h"
@@ -20,6 +21,7 @@ public:
     virtual DriveSubsystem&        GetDrive() = 0;
     virtual VisionSubsystem&       GetVision() = 0;
     virtual ElevatorSubsystem&       GetElevator() = 0;
+    virtual CoralManipulatorSubsystem& GetCoral() = 0;
     // virtual IntakeSubsystem&       GetIntake() = 0;
     // virtual ShooterSubsystem&      GetShooter() = 0;
     // virtual ClimberSubsystem&      GetClimber() = 0; 

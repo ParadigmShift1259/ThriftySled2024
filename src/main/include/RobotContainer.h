@@ -31,7 +31,8 @@ class RobotContainer : public ISubsystemAccess
   // ISubsystemAcces Implementation
   DriveSubsystem&        GetDrive() override { return m_drive; }
   VisionSubsystem&       GetVision() override { return m_vision; }
-  ElevatorSubsystem&       GetElevator() override {return m_elevator; }
+  ElevatorSubsystem&       GetElevator() override { return m_elevator; }
+  CoralManipulatorSubsystem& GetCoral() override { return m_coral; }
   wpi::log::DataLog&         GetLogger() override { return DataLogManager::GetLog(); }
   frc2::CommandPtr GetAutonomousCommand();
 
@@ -48,10 +49,9 @@ class RobotContainer : public ISubsystemAccess
   // The robot's subsystems and commands are defined here...
   
   DriveSubsystem m_drive;
-  
   VisionSubsystem m_vision;
-
   ElevatorSubsystem m_elevator;
+  CoralManipulatorSubsystem m_coral;
 
 #define USE_XBOX
 #ifdef USE_XBOX
@@ -91,6 +91,8 @@ class RobotContainer : public ISubsystemAccess
   frc2::InstantCommand m_elevReset{[this] { m_elevator.ElevatorReset(); }, {&m_elevator} };
   frc2::InstantCommand m_elevRelPosUp{[this] { m_elevator.GotoPositionRel(1.0); }, {&m_elevator} };
   frc2::InstantCommand m_elevRelPosDown{[this] { m_elevator.GotoPositionRel(-1.0); }, {&m_elevator} };
+  frc2::InstantCommand m_coralRun{[this] { m_coral.EjectCoral(); }, {&m_coral} };
+  frc2::InstantCommand m_coralStop{[this] { m_coral.Stop(); }, {&m_coral} };
 
   //std::optional<frc2::CommandPtr> m_pathCmd;
   PathConstraints m_pathConstraints { 0.25_mps, 0.25_mps_sq, 90_deg_per_s, 180_deg_per_s_sq };

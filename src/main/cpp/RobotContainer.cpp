@@ -222,13 +222,16 @@ ConfigPrimaryButtonBindings()
   primary.POVDown().OnTrue(GoToPositionCommand(*this, eJogBackward, m_path).ToPtr());
   primary.POVRight().OnTrue(GoToPositionCommand(*this, eJogRight, m_path).ToPtr());
   primary.POVLeft().OnTrue(GoToPositionCommand(*this, eJogLeft, m_path).ToPtr());
+  primary.A().OnTrue(&m_coralRun);
+  primary.Y().OnTrue(&m_coralStop);
 #else
   primary.Button(7).OnTrue(&m_toggleFieldRelative);
 #endif
   primary.Back().OnTrue(&m_resetOdo);
 }
 
-void RobotContainer::ConfigSecondaryButtonBindings()
+void RobotContainer::
+ConfigSecondaryButtonBindings()
 {
   auto& secondary = m_secondaryController;
 
@@ -330,18 +333,18 @@ std::shared_ptr<PathPlannerPath> RobotContainer::GetOnTheFlyPath()
   // Prevent the path from being flipped if the coordinates are already correct
   path->preventFlipping = true;
 
-  printf("path waypoints x y angle\n");
-  for (auto& wp : poses)
-  {
-      printf("%.3f    %.3f    %.3f\n", wp.X().value(), wp.Y().value(), wp.Rotation().Degrees().value());
-  }
+  // printf("path waypoints x y angle\n");
+  // for (auto& wp : poses)
+  // {
+  //     printf("%.3f    %.3f    %.3f\n", wp.X().value(), wp.Y().value(), wp.Rotation().Degrees().value());
+  // }
 
-  printf("path points x y angle\n");
-  auto pts = path->getAllPathPoints();
-  for (auto& pt : pts)
-  {
-      printf("%.3f    %.3f    %.3f\n", pt.position.X().value(), pt.position.Y().value(), pt.position.Angle().Degrees().value());
-  }
+  // printf("path points x y angle\n");
+  // auto pts = path->getAllPathPoints();
+  // for (auto& pt : pts)
+  // {
+  //     printf("%.3f    %.3f    %.3f\n", pt.position.X().value(), pt.position.Y().value(), pt.position.Angle().Degrees().value());
+  // }
 
   return path;
 }
