@@ -5,6 +5,8 @@
 #include "RobotContainer.h"
 #include "commands/GoToPositionCommand.h"
 #include "commands/ElevatorGoToCommand.h"
+#include "commands/CoralIntakeCommand.h"
+#include "commands/CoralPrepCommand.h"
 
 #include <frc/MathUtil.h>
 #include <frc/smartdashboard/SmartDashboard.h>
@@ -30,7 +32,7 @@ RobotContainer::RobotContainer()
 {
   //---------------------------------------------------------
   //printf("************************Calling SilenceJoystickConnectionWarning - Wisco2024 Day 1 only REMOVE!!!!!\n");
-  //DriverStation::SilenceJoystickConnectionWarning(true);
+  DriverStation::SilenceJoystickConnectionWarning(true);
   //---------------------------------------------------------
 
   if (!AutoBuilder::isConfigured())
@@ -216,8 +218,10 @@ ConfigPrimaryButtonBindings()
         {&m_drive} // Drive requirements, usually just a single drive subsystem
       ).ToPtr());
 
-  primary.B().WhileTrue(GoToPositionCommand(*this, eRight, m_path).ToPtr());
-  primary.X().WhileTrue(GoToPositionCommand(*this, eLeft, m_path).ToPtr());
+  // primary.B().WhileTrue(GoToPositionCommand(*this, eRight, m_path).ToPtr());
+  // primary.X().WhileTrue(GoToPositionCommand(*this, eLeft, m_path).ToPtr());
+  primary.X().OnTrue(CoralIntakeCommand(*this).ToPtr());
+  primary.B().OnTrue(CoralPrepCommand(*this).ToPtr());
   primary.POVUp().OnTrue(GoToPositionCommand(*this, eJogForward, m_path).ToPtr());
   primary.POVDown().OnTrue(GoToPositionCommand(*this, eJogBackward, m_path).ToPtr());
   primary.POVRight().OnTrue(GoToPositionCommand(*this, eJogRight, m_path).ToPtr());

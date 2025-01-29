@@ -82,11 +82,10 @@ class RobotContainer : public ISubsystemAccess
 
   frc2::InstantCommand m_elevL4{[this] 
   { 
-    double elevHeight = 38.0;//frc::SmartDashboard::GetNumber("elevHeight", 0.0);
-    m_elevator.GoToPosition(elevHeight); }, {&m_elevator} 
+    m_elevator.GoToPosition(c_defaultL4Turns); }, {&m_elevator} 
   };
-  frc2::InstantCommand m_elevL3{[this] { m_elevator.GoToPosition(15.5); }, {&m_elevator} };
-  frc2::InstantCommand m_elevL2{[this] { m_elevator.GoToPosition(2.0); }, {&m_elevator} };
+  frc2::InstantCommand m_elevL3{[this] { m_elevator.GoToPosition(c_defaultL3Turns); }, {&m_elevator} };
+  frc2::InstantCommand m_elevL2{[this] { m_elevator.GoToPosition(c_defaultL2Turns); }, {&m_elevator} };
 
   frc2::InstantCommand m_elevReset{[this] { m_elevator.ElevatorReset(); }, {&m_elevator} };
   frc2::InstantCommand m_elevRelPosUp{[this] { m_elevator.GotoPositionRel(1.0); }, {&m_elevator} };

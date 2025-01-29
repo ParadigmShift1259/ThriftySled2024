@@ -27,11 +27,11 @@ using namespace rev::spark;
 //All temporary values 1/18/25
 constexpr double c_defaultResetTurns = 0.0;
 constexpr double c_defaultParkTurns = 0.0;
-constexpr double c_defaultL1Turns = -0.0;
-constexpr double c_defaultL2Turns = -10.0;
-constexpr double c_defaultL3Turns = -63.0;
-constexpr double c_defaultL4Turns = -126.0;
-constexpr double c_defaultLoadTurns = -75.0;
+constexpr double c_defaultL1Turns = 0.0;
+constexpr double c_defaultL2Turns =  2.0;
+constexpr double c_defaultL3Turns = 15.5;
+constexpr double c_defaultL4Turns = 38.0;
+constexpr double c_defaultLoadTurns = 10.0;
 
 class ElevatorSubsystem : public frc2::SubsystemBase
 {
@@ -49,6 +49,8 @@ public:
     void ElevatorReset(){ m_leadRelativeEnc.SetPosition(0.0); m_followRelativeEnc.SetPosition(0.0);}
 
     void GotoPositionRel(double relPos);
+
+    bool IsAtPosition(double level);
 
     enum Position {
         kDefaultPosition,

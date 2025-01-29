@@ -33,7 +33,7 @@ public:
 
     /// Drives the intake at a given speed
     /// \param speed         Desired motor speed to run, ranging from [-1, 1]
-    void Set(double speed);
+    void SetFeeder(double speed);
     /// Deploys the manipulator out of the robot
     void DeployManipulator();
     void DeployManipulator(double turns);
@@ -42,8 +42,9 @@ public:
     void GoToPosition(double turns);
     double GetPosition() { return m_coralRelativeEnc.GetPosition(); }
     bool IsCoralPresentInput() { return m_photoEyeIn.Get(); }
-    bool ICoralPresentOutput() { return m_photoEyeOut.Get(); }
+    bool IsCoralPresentOutput() { return m_photoEyeOut.Get(); }
     void EjectCoral() { m_coralMotor.SetVoltage(-9.0_V); }
+    void SetManipulator(double speed);
     void Stop() { m_coralMotor.SetVoltage(0.0_V); }
 
 private:

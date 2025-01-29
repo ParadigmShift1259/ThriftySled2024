@@ -90,7 +90,14 @@ void CoralManipulatorSubsystem::LoadDeployPid()
 
 }
 
-void CoralManipulatorSubsystem::Set(double speed)
+void CoralManipulatorSubsystem::SetFeeder(double speed)
 {
+    std::clamp(speed, -1.0, 1.0);
     //m_motor.Set(ControlMode::PercentOutput, speed);
+}
+
+void CoralManipulatorSubsystem::SetManipulator(double speed)
+{
+    std::clamp(speed, -1.0, 1.0);
+    m_coralMotor.Set(speed);
 }
