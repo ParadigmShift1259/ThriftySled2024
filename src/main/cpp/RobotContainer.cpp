@@ -7,6 +7,8 @@
 #include "commands/ElevatorGoToCommand.h"
 #include "commands/CoralIntakeCommand.h"
 #include "commands/CoralPrepCommand.h"
+#include "commands/CoralEjectCommand.h"
+#include "commands/CoralEjectPostCommand.h"
 
 #include <frc/MathUtil.h>
 #include <frc/smartdashboard/SmartDashboard.h>
@@ -220,14 +222,15 @@ ConfigPrimaryButtonBindings()
 
   // primary.B().WhileTrue(GoToPositionCommand(*this, eRight, m_path).ToPtr());
   // primary.X().WhileTrue(GoToPositionCommand(*this, eLeft, m_path).ToPtr());
+  primary.A().OnTrue(&m_coralEject);
+  primary.B().OnTrue(CoralPrepCommand(*this, c_defaultL4Turns).ToPtr());
   primary.X().OnTrue(CoralIntakeCommand(*this).ToPtr());
-  primary.B().OnTrue(CoralPrepCommand(*this).ToPtr());
+  primary.Y().OnTrue(&m_coralStop);
   primary.POVUp().OnTrue(GoToPositionCommand(*this, eJogForward, m_path).ToPtr());
   primary.POVDown().OnTrue(GoToPositionCommand(*this, eJogBackward, m_path).ToPtr());
   primary.POVRight().OnTrue(GoToPositionCommand(*this, eJogRight, m_path).ToPtr());
   primary.POVLeft().OnTrue(GoToPositionCommand(*this, eJogLeft, m_path).ToPtr());
-  primary.A().OnTrue(&m_coralRun);
-  primary.Y().OnTrue(&m_coralStop);
+
 #else
   primary.Button(7).OnTrue(&m_toggleFieldRelative);
 #endif
@@ -242,16 +245,26 @@ ConfigSecondaryButtonBindings()
   // Keep the bindings in this order
   // A, B, X, Y, Left Bumper, Right Bumper, Back, Start
 //  secondary.A().OnTrue(frc2::SequentialCommandGroup{
-  secondary.Y().OnTrue(&m_elevL4);
-  secondary.B().OnTrue(&m_elevL3);
   secondary.A().OnTrue(&m_elevL2);
+  secondary.B().OnTrue(&m_elevL3);
   secondary.X().OnTrue(frc2::SequentialCommandGroup{
     ElevatorGoToCommand(*this, 2.0)
     , WaitCommand(0.4_s)
     , ElevatorGoToCommand(*this, 0.0)
   }.ToPtr());
+  secondary.Y().OnTrue(&m_elevL4);
+
+  secondary.LeftBumper().OnTrue(CoralEjectPostCommand(*this).ToPtr());
+  secondary.RightBumper().OnTrue(frc2::SequentialCommandGroup{
+    CoralPrepCommand(*this, c_defaultL3Turns)
+    , WaitCommand(0.5_s)
+    , CoralEjectCommand(*this)
+    , WaitCommand(0.5_s)
+    , CoralEjectPostCommand(*this)
+  }.ToPtr());
       
   secondary.Back().OnTrue(&m_elevReset);
+  secondary.Start().OnTrue(&m_coralRetract);
   secondary.POVDown().OnTrue(&m_elevRelPosDown);
   secondary.POVUp().OnTrue(&m_elevRelPosUp);
 

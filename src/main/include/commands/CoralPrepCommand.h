@@ -9,7 +9,7 @@
 class CoralPrepCommand: public frc2::CommandHelper<frc2::Command, CoralPrepCommand>
 {
     public:
-        explicit CoralPrepCommand(ISubsystemAccess& subsystemAccess);
+        explicit CoralPrepCommand(ISubsystemAccess& subsystemAccess, double coralLevel);
         void Initialize() override;
         void Execute() override;
         bool IsFinished() override;
@@ -22,7 +22,9 @@ class CoralPrepCommand: public frc2::CommandHelper<frc2::Command, CoralPrepComma
 
         frc::Timer m_timer;
 
-        bool m_isCoralPresent = false;
+        double m_coralLevel = c_defaultL1Turns;
+        double m_coralEncPos = 0.0;
+        bool m_retract = true;
 
 		wpi::log::BooleanLogEntry m_logStartCoralPrepCommand;
 		wpi::log::BooleanLogEntry m_logCoralPrepCommandFlipped;

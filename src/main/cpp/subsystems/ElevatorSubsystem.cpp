@@ -182,6 +182,6 @@ void ElevatorSubsystem::GotoPositionRel(double relPos)
 bool ElevatorSubsystem::IsAtPosition(double level)
 {
     double difference = fabs(m_leadRelativeEnc.GetPosition() - level);
-    return difference > -0.5 && difference < 0.5;
+    return difference > -0.53 && difference < 0.5;
 }
 

@@ -11,7 +11,7 @@ using namespace frc;
 using namespace ctre::phoenix::motorcontrol;
 using namespace rev::spark;
 
-constexpr double c_defaultCoralManipP = 0.03;
+constexpr double c_defaultCoralManipP = 0.1;
 constexpr double c_defaultCoralManipI = 0.0;
 constexpr double c_defaultCoralManipD = 0.0;
 
@@ -41,6 +41,8 @@ CoralManipulatorSubsystem::CoralManipulatorSubsystem()
     frc::Preferences::InitDouble("kCoralManipP", c_defaultCoralManipP);
     frc::Preferences::InitDouble("kCoralManipI", c_defaultCoralManipI);
     frc::Preferences::InitDouble("kCoralManipD", c_defaultCoralManipD);
+
+    frc::SmartDashboard::PutNumber("CoralRetractTurns", 3.25);
 }
 
 void CoralManipulatorSubsystem::Periodic()
@@ -100,4 +102,10 @@ void CoralManipulatorSubsystem::SetManipulator(double speed)
 {
     std::clamp(speed, -1.0, 1.0);
     m_coralMotor.Set(speed);
+}
+
+void CoralManipulatorSubsystem::RetractCoral()
+{
+    auto turns = frc::SmartDashboard::GetNumber("CoralRetractTurns", 3.25);
+    m_coralPIDController.SetReference(m_coralRelativeEnc.GetPosition() + turns, SparkLowLevel::ControlType::kPosition);
 }

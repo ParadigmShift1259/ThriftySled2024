@@ -45,6 +45,8 @@ public:
     bool IsCoralPresentOutput() { return m_photoEyeOut.Get(); }
     void EjectCoral() { m_coralMotor.SetVoltage(-9.0_V); }
     void SetManipulator(double speed);
+    void RetractCoral();
+
     void Stop() { m_coralMotor.SetVoltage(0.0_V); }
 
 private:
@@ -59,7 +61,7 @@ private:
 
     SparkMax m_coralMotor;
     SparkRelativeEncoder m_coralRelativeEnc = m_coralMotor.GetEncoder();    
-    SparkClosedLoopController m_coralPIDController = m_coralMotor.GetClosedLoopController();
+    SparkClosedLoopController& m_coralPIDController = m_coralMotor.GetClosedLoopController();
 
     static constexpr bool kIntakeExtend = true;
     static constexpr bool kIntakeRetract = false;

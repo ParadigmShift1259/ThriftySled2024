@@ -86,6 +86,8 @@ public:
   void WheelsBackward() override;
   void WheelsRight() override;
 
+  void Stop() {m_bOverrideXboxInput = false;}
+
   TalonFX& GetTalon(int module);
 
   units::angle::radian_t GetGyroAzimuth() { return m_gyro.GetRotation2d().Radians(); }

@@ -17,25 +17,23 @@ CoralEjectCommand::CoralEjectCommand(ISubsystemAccess& subsystemAccess)
 
 void CoralEjectCommand::Initialize()
 {
+    printf("Coral Eject Initialized \n");
     m_timer.Reset();
     m_timer.Start();
-    m_elevatorSubsystem.GoToPosition(c_defaultL4Turns);
 }
 
 void CoralEjectCommand::Execute()
 {
-    if (m_elevatorSubsystem.IsAtPosition(c_defaultL4Turns)){
-        m_coralSubsystem.SetManipulator(0.5);
-    }
+    m_coralSubsystem.EjectCoral();
 }
 
 bool CoralEjectCommand::IsFinished()
 {
-    return m_coralSubsystem.IsCoralPresentOutput();
+    return m_coralSubsystem.IsCoralPresentOutput() == false;
 }
 
 void CoralEjectCommand::End(bool interrupted)
 {
-    m_isCoralPresent = false;
     m_coralSubsystem.Stop();
+    printf("Coral Eject End \n");
 }
