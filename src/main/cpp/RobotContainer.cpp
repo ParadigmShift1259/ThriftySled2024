@@ -101,7 +101,7 @@ void RobotContainer::SetDefaultCommands()
       if (m_isAutoRunning == false)
       {
         // const double kDeadband = 0.02;
-        constexpr double kDeadband = 0.1;
+        constexpr double kDeadband = 0.02; //originally 0.1
 		    constexpr double direction = 1.0;
 // define USE_XBOX in RobotContainer.h
 #ifdef USE_XBOX      
@@ -181,10 +181,13 @@ ConfigPrimaryButtonBindings()
         {&m_drive} // Drive requirements, usually just a single drive subsystem
       ).ToPtr());
 #endif
+  #define DRIVER_PRACTICE
+  #ifndef DRIVER_PRACTICE
   primary.A().OnTrue(&m_coralEject);
   primary.B().OnTrue(CoralPrepCommand(*this, c_defaultL4Turns).ToPtr());
   primary.X().OnTrue(CoralIntakeCommand(*this).ToPtr());
   primary.Y().OnTrue(&m_coralStop);
+  #endif
   primary.LeftBumper().OnTrue(&m_toggleFieldRelative);
   primary.RightBumper().OnTrue(&m_toggleSlowSpeed);
   primary.Back().OnTrue(&m_resetOdo);
@@ -203,12 +206,14 @@ void RobotContainer::ConfigSecondaryButtonBindings()
   secondary.A().OnTrue(&m_elevL2);
   secondary.B().OnTrue(&m_elevL3);
   secondary.X().OnTrue(frc2::SequentialCommandGroup{
-    m_setHighSpeedCmd
-    , ElevatorGoToCommand(*this, 2.0)
+    // m_setHighSpeedCmd
+    ElevatorGoToCommand(*this, 2.0)
     , WaitCommand(0.4_s)
     , ElevatorGoToCommand(*this, 0.0)
   }.ToPtr());
   secondary.Y().OnTrue(&m_elevL4);
+
+  #ifndef DRIVER_PRACTICE
 
   secondary.LeftBumper().OnTrue(CoralEjectPostCommand(*this).ToPtr());
   secondary.RightBumper().OnTrue(frc2::SequentialCommandGroup{
@@ -218,13 +223,25 @@ void RobotContainer::ConfigSecondaryButtonBindings()
     , WaitCommand(0.5_s)
     , CoralEjectPostCommand(*this)
   }.ToPtr());
+
+  #endif
       
+  #ifndef DRIVER_PRACTICE
   secondary.Back().OnTrue(&m_elevReset);
-  secondary.Start().OnTrue(&m_coralRetract);
+  secondary.Start().OnTrue(&m_elevL2_3);
+  #endif
+  secondary.Back().OnTrue(&m_elevL3_4);
+  secondary.Start().OnTrue(&m_elevL2_3);
   secondary.POVDown().OnTrue(&m_elevRelPosDown);
   secondary.POVUp().OnTrue(&m_elevRelPosUp);
+  #ifndef DRIVER_PRACTICE
   secondary.LeftTrigger().OnTrue(&m_elevL3_4);
   secondary.RightTrigger().OnTrue(&m_elevL2_3);
+  #endif
+  secondary.RightTrigger().OnTrue(&m_coralEject);
+  secondary.LeftTrigger().OnTrue(CoralIntakeCommand(*this).ToPtr());
+  secondary.RightBumper().OnTrue(&m_coralStop);
+
 
 #ifdef TEST_WHEEL_CONTROL
   auto loop = CommandScheduler::GetInstance().GetDefaultButtonLoop();

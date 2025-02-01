@@ -94,7 +94,7 @@ class RobotContainer : public ISubsystemAccess
     m_elevator.GoToPosition(c_defaultL4Turns); }, {&m_elevator} 
   };
   frc2::InstantCommand m_elevL3{[this] { m_drive.SetSlowSpeed(true); m_elevator.GoToPosition(c_defaultL3Turns); }, {&m_elevator} };
-  frc2::InstantCommand m_elevL2{[this] { m_drive.SetSlowSpeed(true); m_elevator.GoToPosition(c_defaultL2Turns); }, {&m_elevator} };
+  frc2::InstantCommand m_elevL2{[this] { m_elevator.GoToPosition(c_defaultL2Turns); }, {&m_elevator} };
   frc2::InstantCommand m_elevL2_3{[this] { m_drive.SetSlowSpeed(true); m_elevator.GoToPosition(c_algaeRemovalL2_3); }, {&m_elevator} };
   frc2::InstantCommand m_elevL3_4{[this] { m_drive.SetSlowSpeed(true); m_elevator.GoToPosition(c_algaeRemovalL3_4); }, {&m_elevator} };
 
@@ -106,6 +106,7 @@ class RobotContainer : public ISubsystemAccess
   { 
     bool down = (m_elevator.GetCurrentPosition() < 2.0);
     m_coral.EjectCoral(down); 
+    m_drive.SetSlowSpeed(false);
   }, {&m_coral} };
   frc2::InstantCommand m_coralStop{[this] { m_coral.Stop(); }, {&m_coral} };
   frc2::InstantCommand m_coralRetract{[this] { m_coral.RetractCoral(); }, {&m_coral} };
