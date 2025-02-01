@@ -31,9 +31,9 @@
 #include "LimelightHelpers.h"
 
 static constexpr units::meters_per_second_t kMaxSpeed = 18.9_fps;  // L3 Gear Ratio Falcon Max Speed
-static constexpr units::meters_per_second_t kLowSpeed = 4.0_fps;  // L3 Gear Ratio Falcon Max Speed
-static constexpr units::radians_per_second_t kMaxAngularSpeed{2.5 * std::numbers::pi};  // 1/2 rotation per second
-static constexpr units::radians_per_second_squared_t kMaxAngularAcceleration{10.0 * std::numbers::pi};  // 4 rotations per second squared
+static constexpr units::meters_per_second_t kLowSpeed = 1.0_fps;  // L3 Gear Ratio Falcon Max Speed
+static constexpr units::radians_per_second_t kMaxAngularSpeed{2.5 * std::numbers::pi};  // 2 1/2 radians per second
+static constexpr units::radians_per_second_t kLowAngularSpeed{ std::numbers::pi/3.0};  // 1/2 radian per second
 static constexpr units::radians_per_second_t kRotationDriveMaxSpeed = 7.5_rad_per_s;
 static constexpr units::radians_per_second_t kRotationDriveDirectionLimit = 7.0_rad_per_s;
 static constexpr units::radians_per_second_t kAimingRotationDriveMaxSpeed = 7.5_rad_per_s;
@@ -95,9 +95,10 @@ public:
 
   RobotConfig GetRobotCfg() { return m_robotConfig; }
 
-  void ToggleSlowSpeed() override
-  { 
-    m_currentMaxSpeed = (m_currentMaxSpeed == kMaxSpeed ? kLowSpeed : kMaxSpeed);
+  void SetSlowSpeed(bool slow) 
+  {
+    m_currentMaxSpeed = (slow ? kLowSpeed : kMaxSpeed);
+    m_currentMaxAngularSpeed = (slow ? kLowAngularSpeed : kMaxAngularSpeed);
 
     m_frontLeft.SetMaxSpeed(m_currentMaxSpeed);
     m_frontRight.SetMaxSpeed(m_currentMaxSpeed);
@@ -105,7 +106,13 @@ public:
     m_rearRight.SetMaxSpeed(m_currentMaxSpeed);
   }
 
+  void ToggleSlowSpeed() override
+  { 
+    SetSlowSpeed(m_currentMaxSpeed == kMaxSpeed);
+  }
+
   units::meters_per_second_t m_currentMaxSpeed = kMaxSpeed;
+  units::radians_per_second_t m_currentMaxAngularSpeed = kMaxAngularSpeed;
 
 // Safer sppeds for lab testing
   // static constexpr units::meters_per_second_t kMaxSpeed = 1.0_mps;

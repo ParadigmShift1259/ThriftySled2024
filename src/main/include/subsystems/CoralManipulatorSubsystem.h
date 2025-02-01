@@ -43,7 +43,7 @@ public:
     double GetPosition() { return m_coralRelativeEnc.GetPosition(); }
     bool IsCoralPresentInput() { return m_photoEyeIn.Get(); }
     bool IsCoralPresentOutput() { return m_photoEyeOut.Get(); }
-    void EjectCoral() { m_coralMotor.SetVoltage(-9.0_V); }
+    void EjectCoral(bool slow) { m_coralMotor.SetVoltage(slow ? -5.0_V : -9.0_V); }
     void SetManipulator(double speed);
     void RetractCoral();
 

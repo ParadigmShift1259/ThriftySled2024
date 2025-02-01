@@ -28,15 +28,16 @@ using namespace rev::spark;
 constexpr double c_defaultResetTurns = 0.0;
 constexpr double c_defaultParkTurns = 0.0;
 constexpr double c_defaultL1Turns = 0.0;
-constexpr double c_defaultL2Turns =  2.0;
-constexpr double c_defaultL3Turns = 15.5;
+constexpr double c_defaultL2Turns =  2.5; // originally 2.0
+constexpr double c_defaultL3Turns = 15.5; 
 constexpr double c_defaultL4Turns = 38.0;
 constexpr double c_defaultLoadTurns = 10.0;
+constexpr double c_algaeRemovalL3_4 = 28.0;
+constexpr double c_algaeRemovalL2_3 = 14.0;
 
 class ElevatorSubsystem : public frc2::SubsystemBase
 {
 public:
-
     ElevatorSubsystem();
 
     /// Will be called periodically whenever the CommandScheduler runs.
@@ -48,6 +49,7 @@ public:
 
     void ElevatorReset(){ m_leadRelativeEnc.SetPosition(0.0); m_followRelativeEnc.SetPosition(0.0);}
 
+    double GetCurrentPosition(){return m_leadRelativeEnc.GetPosition();}
     void GotoPositionRel(double relPos);
 
     bool IsAtPosition(double level);

@@ -229,7 +229,7 @@ void SwerveModule::SetDesiredState(frc::SwerveModuleState& referenceState)
 #ifdef DISABLE_DRIVE
     m_driveMotor.Set(TalonFXControlMode::Velocity, 0.0);
 #else
-    auto spd = (referenceState.speed / m_currentMaxSpeed).to<double>();
+    auto spd = (referenceState.speed).to<double>();
     spd *= m_driveMotorReversed ? -1.0 : 1.0;
     m_driveMotor.Set(spd);  
 #endif

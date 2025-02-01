@@ -24,7 +24,7 @@ void CoralEjectCommand::Initialize()
 
 void CoralEjectCommand::Execute()
 {
-    m_coralSubsystem.EjectCoral();
+    m_coralSubsystem.EjectCoral(false);
 }
 
 bool CoralEjectCommand::IsFinished()

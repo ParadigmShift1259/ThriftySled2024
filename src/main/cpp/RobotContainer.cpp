@@ -88,11 +88,7 @@ RobotContainer::RobotContainer()
 void RobotContainer::Periodic()
 {
   m_drive.Periodic();
-  //static int count = 0;
-  //if (count++ % 25 == 0)
-  //{
-    frc::SmartDashboard::PutBoolean("FieldRelative", m_fieldRelative);
-  //}
+  frc::SmartDashboard::PutBoolean("FieldRelative", m_fieldRelative);
 }
 
 void RobotContainer::SetDefaultCommands()
@@ -125,7 +121,7 @@ void RobotContainer::SetDefaultCommands()
 #endif
         const auto xSpeed = m_xspeedLimiter.Calculate(xInput) * m_drive.m_currentMaxSpeed;
         auto ySpeed = m_yspeedLimiter.Calculate(yInput) * m_drive.m_currentMaxSpeed;
-        auto rot = m_rotLimiter.Calculate(rotInput) * kMaxAngularSpeed;      
+        auto rot = m_rotLimiter.Calculate(rotInput) * m_drive.m_currentMaxAngularSpeed;      
 
 //#define DISABLE_DRIVING
 #ifndef DISABLE_DRIVING
@@ -161,44 +157,9 @@ ConfigPrimaryButtonBindings()
   // Primary
   // Keep the bindings in this order
   // A, B, X, Y, Left Bumper, Right Bumper, Back, Start
-  /*primary.A().WhileTrue(GoToPositionCommand(*this, false).ToPtr());
-  primary.B().WhileTrue(frc2::SequentialCommandGroup{
-    GoToAzimuthCommand(*this)
-    , m_posPipeline
-  }.ToPtr());*/
 
-  //primary.X().OnTrue(&m_trapRPM);
-#ifdef USE_XBOX
-  primary.LeftBumper().OnTrue(&m_toggleFieldRelative);
-
-  // primary.RightBumper().OnTrue(frc2::SequentialCommandGroup
-  // {
-  //      GoToPositionCommand(*this, eMiddle, m_path)
-  //    , FollowPathCommand(
-  //       m_path
-  //     , [this]() { return m_drive.GetPose(); } // Function to supply current robot pose
-  //     , [this]() { return m_drive.GetChassisSpeeds(); }
-  //     , [this](const frc::ChassisSpeeds& speeds, const DriveFeedforwards &dffs) { m_drive.Drive(speeds, dffs); } // Output function that accepts field relative ChassisSpeeds
-  //     , std::dynamic_pointer_cast<PathFollowingController>(std::make_shared<PPHolonomicDriveController>(PIDConstants(5.0, 0.0, 0.0), PIDConstants(5.0, 0.0, 0.0)))
-  //     , m_drive.GetRobotCfg()
-  //     , [this]() {
-  //           // Boolean supplier that controls when the path will be mirrored for the red alliance
-  //           // This will flip the path being followed to the red side of the field.
-  //           // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
-
-  //           auto alliance = DriverStation::GetAlliance();
-  //           if (alliance) {
-  //               return alliance.value() == DriverStation::Alliance::kRed;
-  //           }
-  //           return false;
-  //       },
-  //       {&m_drive} // Drive requirements, usually just a single drive subsystem
-  //     )
-  // }.ToPtr());
-
-  //primary.RightBumper().OnTrue(&m_printPath);
   constexpr double c_HolomonicP =0.01;
-
+#if 0
   primary.RightBumper().OnTrue(FollowPathCommand(
         GetOnTheFlyPath()
       , [this]() { return m_drive.GetPose(); } // Function to supply current robot pose
@@ -219,36 +180,31 @@ ConfigPrimaryButtonBindings()
         },
         {&m_drive} // Drive requirements, usually just a single drive subsystem
       ).ToPtr());
-
-  // primary.B().WhileTrue(GoToPositionCommand(*this, eRight, m_path).ToPtr());
-  // primary.X().WhileTrue(GoToPositionCommand(*this, eLeft, m_path).ToPtr());
+#endif
   primary.A().OnTrue(&m_coralEject);
   primary.B().OnTrue(CoralPrepCommand(*this, c_defaultL4Turns).ToPtr());
   primary.X().OnTrue(CoralIntakeCommand(*this).ToPtr());
   primary.Y().OnTrue(&m_coralStop);
+  primary.LeftBumper().OnTrue(&m_toggleFieldRelative);
+  primary.RightBumper().OnTrue(&m_toggleSlowSpeed);
+  primary.Back().OnTrue(&m_resetOdo);
   primary.POVUp().OnTrue(GoToPositionCommand(*this, eJogForward, m_path).ToPtr());
   primary.POVDown().OnTrue(GoToPositionCommand(*this, eJogBackward, m_path).ToPtr());
   primary.POVRight().OnTrue(GoToPositionCommand(*this, eJogRight, m_path).ToPtr());
   primary.POVLeft().OnTrue(GoToPositionCommand(*this, eJogLeft, m_path).ToPtr());
-
-#else
-  primary.Button(7).OnTrue(&m_toggleFieldRelative);
-#endif
-  primary.Back().OnTrue(&m_resetOdo);
 }
 
-void RobotContainer::
-ConfigSecondaryButtonBindings()
+void RobotContainer::ConfigSecondaryButtonBindings()
 {
   auto& secondary = m_secondaryController;
 
   // Keep the bindings in this order
   // A, B, X, Y, Left Bumper, Right Bumper, Back, Start
-//  secondary.A().OnTrue(frc2::SequentialCommandGroup{
   secondary.A().OnTrue(&m_elevL2);
   secondary.B().OnTrue(&m_elevL3);
   secondary.X().OnTrue(frc2::SequentialCommandGroup{
-    ElevatorGoToCommand(*this, 2.0)
+    m_setHighSpeedCmd
+    , ElevatorGoToCommand(*this, 2.0)
     , WaitCommand(0.4_s)
     , ElevatorGoToCommand(*this, 0.0)
   }.ToPtr());
@@ -267,6 +223,8 @@ ConfigSecondaryButtonBindings()
   secondary.Start().OnTrue(&m_coralRetract);
   secondary.POVDown().OnTrue(&m_elevRelPosDown);
   secondary.POVUp().OnTrue(&m_elevRelPosUp);
+  secondary.LeftTrigger().OnTrue(&m_elevL3_4);
+  secondary.RightTrigger().OnTrue(&m_elevL2_3);
 
 #ifdef TEST_WHEEL_CONTROL
   auto loop = CommandScheduler::GetInstance().GetDefaultButtonLoop();

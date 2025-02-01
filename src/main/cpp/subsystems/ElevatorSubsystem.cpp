@@ -67,7 +67,7 @@ ElevatorSubsystem::ElevatorSubsystem()
     frc::SmartDashboard::PutNumber("ElevatorLeadMotorPos", 1.0);
     frc::SmartDashboard::PutNumber("ElevatorFollowMotorPos", 1.0);
 
-    frc::SmartDashboard::PutNumber("ElevatorGoToRel", 0.0);
+    frc::SmartDashboard::PutNumber("ElevatorGoToRel", 1.0);
 }
 
 void ElevatorSubsystem::Periodic()
@@ -169,7 +169,7 @@ void ElevatorSubsystem::GoToPosition(double position)
 void ElevatorSubsystem::GotoPositionRel(double relPos)
 {
     bool bDown = relPos < 0.0;
-    relPos = frc::SmartDashboard::GetNumber("ElevatorGoToRel", 0.0);
+    relPos = frc::SmartDashboard::GetNumber("ElevatorGoToRel", 1.0);
     std::clamp(relPos, -10.0, 10.0);
     if(bDown)
     {
