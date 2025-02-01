@@ -45,11 +45,12 @@ class RobotContainer : public ISubsystemAccess
 
   std::shared_ptr<PathPlannerPath> GetOnTheFlyPath();
 
-  private:
+ private:
   void SetDefaultCommands();
   void ConfigureBindings();
   void ConfigPrimaryButtonBindings();
   void ConfigSecondaryButtonBindings();
+  void ConfigureRobotLEDs();
 
   // The robot's subsystems and commands are defined here...
   

@@ -89,6 +89,7 @@ class LEDSubsystem : public frc2::SubsystemBase
 
 static const LEDSubsystem::Color c_colorPink = LEDSubsystem::CreateColor(80, 10, 15 , 0);
 static const LEDSubsystem::Color c_colorGreen = LEDSubsystem::CreateColor(13, 80, 0, 0);
+static const LEDSubsystem::Color c_colorRed = LEDSubsystem::CreateColor(255, 0, 0, 0);
 //static const LEDSubsystem::Color c_colorWhite = LEDSubsystem::CreateColor(255, 255, 255, 10);
-//static const LEDSubsystem::Color c_defaultColor = LEDSubsystem::CreateColor(255, 255, 255, 10);
+static const LEDSubsystem::Color c_defaultColor = LEDSubsystem::CreateColor(255, 255, 255, 10);
 

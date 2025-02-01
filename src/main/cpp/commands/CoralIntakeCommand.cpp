@@ -50,7 +50,7 @@ void CoralIntakeCommand::End(bool interrupted)
 {
     m_isCoralPresent = false;
     m_coralSubsystem.Stop();
-#ifdef LED
-    m_ledSubsystem.SetCurrentAction(LEDSubsystem::CurrentAction::kIdle);
-#endif
+// #ifdef LED
+//     m_ledSubsystem.SetCurrentAction(LEDSubsystem::CurrentAction::kIdle);
+// #endif
 }
