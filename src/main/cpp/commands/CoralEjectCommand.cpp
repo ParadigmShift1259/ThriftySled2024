@@ -20,6 +20,7 @@ void CoralEjectCommand::Initialize()
     printf("Coral Eject Initialized \n");
     m_timer.Reset();
     m_timer.Start();
+
 }
 
 void CoralEjectCommand::Execute()

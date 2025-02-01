@@ -19,6 +19,9 @@ class CoralPrepCommand: public frc2::CommandHelper<frc2::Command, CoralPrepComma
 
         CoralManipulatorSubsystem&        m_coralSubsystem;
         ElevatorSubsystem&                m_elevatorSubsystem;
+#ifdef LED
+        LEDSubsystem&                     m_ledSubsystem;
+#endif
 
         frc::Timer m_timer;
 

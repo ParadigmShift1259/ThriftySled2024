@@ -6,9 +6,16 @@
 CoralPrepCommand::CoralPrepCommand(ISubsystemAccess& subsystemAccess, double coralLevel)
     : m_coralSubsystem(subsystemAccess.GetCoral())
     , m_elevatorSubsystem(subsystemAccess.GetElevator())
+#ifdef LED
+    , m_ledSubsystem(subsystemAccess.GetLED())
+#endif
     , m_coralLevel(coralLevel)
 {
-    AddRequirements(frc2::Requirements{&subsystemAccess.GetCoral(), &subsystemAccess.GetElevator()});
+#ifdef LED
+    AddRequirements(frc2::Requirements{&subsystemAccess.GetCoral(), &subsystemAccess.GetElevator(), &subsystemAccess.GetLED()});
+#else
+    AddRequirements(frc2::Requirements{&subsystemAccess.GetCoral(), &subsystemAccess.GetElevator(), });
+#endif
 
     wpi::log::DataLog& log = subsystemAccess.GetLogger();
     m_logStartCoralPrepCommand = wpi::log::BooleanLogEntry(log, "/CoralPrepCommand/startCommand");
@@ -21,6 +28,10 @@ void CoralPrepCommand::Initialize()
     auto turns = frc::SmartDashboard::GetNumber("CoralRetractTurns", 3.25);
     m_timer.Reset();
     m_timer.Start();
+#ifdef LED
+    m_ledSubsystem.SetCurrentAction(LEDSubsystem::CurrentAction::kPreCoral);
+    m_ledSubsystem.SetAnimation(c_colorPink, LEDSubsystem::kStrobe);  //TODO Replace constant color with var based on left/right & Set height based on level
+#endif
     m_elevatorSubsystem.GoToPosition(m_coralLevel);
     m_coralEncPos = m_coralSubsystem.GetPosition() + turns;
     m_retract = true;
@@ -46,5 +57,7 @@ bool CoralPrepCommand::IsFinished()
 void CoralPrepCommand::End(bool interrupted)
 {
     m_coralSubsystem.Stop();
-    printf("Coral Prep Ended \n");
+#ifdef LED
+    m_ledSubsystem.SetCurrentAction(LEDSubsystem::CurrentAction::kIdle);
+#endif
 }

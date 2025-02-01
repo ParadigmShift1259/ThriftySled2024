@@ -70,6 +70,7 @@ private:
     SparkFlex m_followMotor;
     SparkRelativeEncoder m_followRelativeEnc = m_followMotor.GetEncoder();    
     SparkClosedLoopController m_followPIDController = m_followMotor.GetClosedLoopController();
+    
 
     wpi::log::DoubleLogEntry m_log;
 

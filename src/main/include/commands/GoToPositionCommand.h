@@ -40,7 +40,9 @@ class GoToPositionCommand : public frc2::CommandHelper<frc2::Command, GoToPositi
 
         DriveSubsystem&        m_driveSubsystem;
         VisionSubsystem&        m_visionSubsystem;
-        // LEDSubsystem&           m_led;
+#ifdef LED
+        LEDSubsystem&           m_led;
+#endif
         double m_targetX;
         double m_targetY;
         double m_targetRot;
@@ -51,7 +53,9 @@ class GoToPositionCommand : public frc2::CommandHelper<frc2::Command, GoToPositi
 
         frc::Timer m_timer;
 
-        // LEDSubsystem::Color c_colorWhite = LEDSubsystem::CreateColor(255, 255, 255, 10);
+#ifdef LED
+        LEDSubsystem::Color c_colorWhite = LEDSubsystem::CreateColor(255, 255, 255, 10);
+#endif
 
 		wpi::log::BooleanLogEntry m_logStartGoToPositionCommand;
 		wpi::log::BooleanLogEntry m_logGoToPositionCommandFlipped;

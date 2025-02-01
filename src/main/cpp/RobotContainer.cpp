@@ -158,8 +158,9 @@ ConfigPrimaryButtonBindings()
   // Keep the bindings in this order
   // A, B, X, Y, Left Bumper, Right Bumper, Back, Start
 
-  constexpr double c_HolomonicP =0.01;
 #if 0
+  constexpr double c_HolomonicP =0.01;
+
   primary.RightBumper().OnTrue(FollowPathCommand(
         GetOnTheFlyPath()
       , [this]() { return m_drive.GetPose(); } // Function to supply current robot pose
@@ -226,6 +227,8 @@ void RobotContainer::ConfigSecondaryButtonBindings()
   secondary.LeftTrigger().OnTrue(&m_elevL3_4);
   secondary.RightTrigger().OnTrue(&m_elevL2_3);
 
+  secondary.POVLeft().OnTrue(&m_rumblePrimary);
+
 #ifdef TEST_WHEEL_CONTROL
   auto loop = CommandScheduler::GetInstance().GetDefaultButtonLoop();
   secondary.POVUp(loop).Rising().IfHigh([this] { m_wheelsLeft.Schedule(); });
@@ -268,9 +271,9 @@ std::shared_ptr<PathPlannerPath> RobotContainer::GetOnTheFlyPath()
 
   auto x = m_drive.GetX();
   auto y = m_drive.GetY();
-  auto rotation = m_drive.GetGyroAzimuthDeg().value();
+  //auto rotation = m_drive.GetGyroAzimuthDeg().value();
 
-  const units::length::meter_t c_jogLength = 5.0_in;
+  //const units::length::meter_t c_jogLength = 5.0_in;
 
   // int tagId = m_visionSubsystem.GetTagId();
   m_targetX = c_targetReefRedX;
@@ -283,7 +286,7 @@ std::shared_ptr<PathPlannerPath> RobotContainer::GetOnTheFlyPath()
 
   auto xM = units::length::meter_t {x};
   auto yM = units::length::meter_t {y};
-  auto rotationDeg = frc::Rotation2d {units::angle::degree_t {rotation}};
+  //auto rotationDeg = frc::Rotation2d {units::angle::degree_t {rotation}};
 
   auto xTarget = units::length::meter_t {m_targetX};
   auto yTarget = units::length::meter_t {m_targetY};

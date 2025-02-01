@@ -6,6 +6,7 @@
 
 #include <frc/filter/SlewRateLimiter.h>
 #include <frc/smartdashboard/SmartDashboard.h>
+#include <frc/GenericHID.h>
 
 #include <frc2/command/button/CommandXboxController.h>
 #include <frc2/command/button/CommandJoystick.h>
@@ -33,6 +34,10 @@ class RobotContainer : public ISubsystemAccess
   VisionSubsystem&       GetVision() override { return m_vision; }
   ElevatorSubsystem&       GetElevator() override { return m_elevator; }
   CoralManipulatorSubsystem& GetCoral() override { return m_coral; }
+  #ifdef LED
+  LEDSubsystem&           GetLED() override { return m_led; }
+  #endif
+  
   wpi::log::DataLog&         GetLogger() override { return DataLogManager::GetLog(); }
   frc2::CommandPtr GetAutonomousCommand();
 
@@ -52,6 +57,9 @@ class RobotContainer : public ISubsystemAccess
   VisionSubsystem m_vision;
   ElevatorSubsystem m_elevator;
   CoralManipulatorSubsystem m_coral;
+  #ifdef LED
+  LEDSubsystem m_led;
+  #endif
 
 #define USE_XBOX
 #ifdef USE_XBOX
@@ -109,6 +117,9 @@ class RobotContainer : public ISubsystemAccess
   }, {&m_coral} };
   frc2::InstantCommand m_coralStop{[this] { m_coral.Stop(); }, {&m_coral} };
   frc2::InstantCommand m_coralRetract{[this] { m_coral.RetractCoral(); }, {&m_coral} };
+
+  frc2::InstantCommand m_rumblePrimary{[this] { m_primaryController.SetRumble(GenericHID::RumbleType::kBothRumble, 1); }, {} };
+  frc2::InstantCommand m_stopRumblePrimary{[this] { m_primaryController.SetRumble(GenericHID::RumbleType::kBothRumble, 0); }, {} };
 
   PathConstraints m_pathConstraints { 0.25_mps, 0.25_mps_sq, 90_deg_per_s, 180_deg_per_s_sq };
   std::shared_ptr<PathPlannerPath> m_path;

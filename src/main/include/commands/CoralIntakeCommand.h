@@ -18,6 +18,9 @@ class CoralIntakeCommand: public frc2::CommandHelper<frc2::Command, CoralIntakeC
     private:
 
         CoralManipulatorSubsystem&        m_coralSubsystem;
+#ifdef LED
+        LEDSubsystem&                     m_ledSubsystem;
+#endif
 
         frc::Timer m_timer;
 

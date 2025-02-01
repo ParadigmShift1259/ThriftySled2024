@@ -18,6 +18,9 @@ class ElevatorGoToCommand: public frc2::CommandHelper<frc2::Command, ElevatorGoT
     private:
 
         ElevatorSubsystem&        m_elevatorSubsystem;
+#ifdef LED
+        LEDSubsystem&                     m_ledSubsystem;
+#endif
 
         double m_position = 0.0;
 

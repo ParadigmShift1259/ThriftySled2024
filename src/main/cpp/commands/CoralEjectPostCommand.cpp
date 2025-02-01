@@ -6,9 +6,15 @@
 CoralEjectPostCommand::CoralEjectPostCommand(ISubsystemAccess& subsystemAccess)
     : m_elevatorSubsystem(subsystemAccess.GetElevator())
     , m_driveSubsystem(subsystemAccess.GetDrive())
+#ifdef LED
+    , m_ledSubsystem(subsystemAccess.GetLED())
+#endif
 {
+#ifdef LED
+    AddRequirements(frc2::Requirements{&subsystemAccess.GetElevator(), &subsystemAccess.GetDrive(), &subsystemAccess.GetLED()});
+#else
     AddRequirements(frc2::Requirements{&subsystemAccess.GetElevator(), &subsystemAccess.GetDrive()});
-
+#endif
     wpi::log::DataLog& log = subsystemAccess.GetLogger();
     m_logStartCoralEjectPostCommand = wpi::log::BooleanLogEntry(log, "/CoralEjectPostCommand/startCommand");
     m_logCoralEjectPostCommandFlipped = wpi::log::BooleanLogEntry(log, "/CoralEjectPostCommand/startCommand");

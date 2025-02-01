@@ -68,7 +68,9 @@ GoToPositionCommand::GoToPositionCommand(ISubsystemAccess& subsystemAccess, EMov
 //GoToPositionCommand::GoToPositionCommand(ISubsystemAccess& subsystemAccess, EMoveDirection elmr)
     : m_driveSubsystem(subsystemAccess.GetDrive())
     , m_visionSubsystem(subsystemAccess.GetVision())
-    // , m_led(subsystemAccess.GetLED())
+#ifdef LED
+    , m_led(subsystemAccess.GetLED())
+#endif
     , m_targetX(0)
     , m_targetY(0)
     , m_targetRot(0)
@@ -76,8 +78,11 @@ GoToPositionCommand::GoToPositionCommand(ISubsystemAccess& subsystemAccess, EMov
     , m_bJogging(false)
     , m_path(path)
 {
-    // AddRequirements(frc2::Requirements{&subsystemAccess.GetDrive(), &subsystemAccess.GetVision(), &subsystemAccess.GetLED()});
+#ifdef LED
+    AddRequirements(frc2::Requirements{&subsystemAccess.GetDrive(), &subsystemAccess.GetVision(), &subsystemAccess.GetLED()});
+#else
     AddRequirements(frc2::Requirements{&subsystemAccess.GetDrive(), &subsystemAccess.GetVision()});
+#endif
 
     wpi::log::DataLog& log = subsystemAccess.GetLogger();
     m_logStartGoToPositionCommand = wpi::log::BooleanLogEntry(log, "/GoToPositionCommand/startCommand");
@@ -198,7 +203,7 @@ void GoToPositionCommand::Execute()
 #ifdef USEPATHPLANNER
         auto xM = units::length::meter_t {x};
         auto yM = units::length::meter_t {y};
-        auto rotationDeg = frc::Rotation2d {units::angle::degree_t {rotation}};
+        //auto rotationDeg = frc::Rotation2d {units::angle::degree_t {rotation}};
 
         auto xTarget = units::length::meter_t {m_targetX};
         auto yTarget = units::length::meter_t {m_targetY};

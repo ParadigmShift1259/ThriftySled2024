@@ -5,9 +5,16 @@
 
 ElevatorGoToCommand::ElevatorGoToCommand(ISubsystemAccess& subsystemAccess, double position)
     : m_elevatorSubsystem(subsystemAccess.GetElevator())
+#ifdef LED
+    , m_ledSubsystem(subsystemAccess.GetLED())
+#endif
     , m_position(position)
 {
+#ifdef LED
+    AddRequirements(frc2::Requirements{&subsystemAccess.GetElevator(), &subsystemAccess.GetLED()});
+#else
     AddRequirements(frc2::Requirements{&subsystemAccess.GetElevator()});
+#endif
 
     wpi::log::DataLog& log = subsystemAccess.GetLogger();
     m_logStartElevatorGoToCommand = wpi::log::BooleanLogEntry(log, "/ElevatorGoToCommand/startCommand");

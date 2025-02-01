@@ -22,13 +22,11 @@ constexpr double c_defaultIntakeMin = -0.5;
 constexpr double c_defaultIntakeMax = 0.5;
 
 CoralManipulatorSubsystem::CoralManipulatorSubsystem() 
-    : m_coralMotor(kCoralManipulatorCANID,SparkLowLevel::MotorType::kBrushless)
-    , m_photoEyeIn(kCoralManipPhotoeyeIn)
+    : m_photoEyeIn(kCoralManipPhotoeyeIn)
     , m_photoEyeOut(kCoralManipPhotoeyeOut)
     , m_deployServo(kCoralManipDeployChannel)
+    , m_coralMotor(kCoralManipulatorCANID,SparkLowLevel::MotorType::kBrushless)
 {
-    
-
     SparkBaseConfig config{};
     config
         .SetIdleMode(SparkBaseConfig::IdleMode::kBrake);

@@ -38,18 +38,17 @@ class LEDSubsystem : public frc2::SubsystemBase
       kStrobe,
       kBlank
     };
-
+    
     enum CurrentAction
     {
       kDefaultAction,
       kIdle = kDefaultAction,
       kIntaking,
-      kPreShoot,
-      kShootMovement,
-      kShoot,
-      kAmpPosition,
-      kAmpMovement,
-      kAmpShoot,
+      kHasCoral,
+      kTagVisible,
+      kPreCoral,
+      kPostCoral,
+      kElevator,
       kClimbing,
       kClimbFinish
     };
@@ -58,7 +57,6 @@ class LEDSubsystem : public frc2::SubsystemBase
     static Color CreateColor(int r, int g, int b, int w);
 
     bool IsRobotBusy() { return m_currentAction != kIdle; }
-    // void SetRobotBusy(bool value) { m_busy = value; }
 
     void SetDefaultColor(Color color) { m_defaultColor = color; }
     Color GetDefaultColor() { return m_defaultColor; }
@@ -77,6 +75,7 @@ class LEDSubsystem : public frc2::SubsystemBase
     static constexpr int c_ledNum = 16;
     static constexpr int c_ledOffset = 8;
 
+//COMMENT YOUR CODE KELLEN
     ColorFlowAnimation m_colorFlowAnimation{0, 0, 0, 0, c_defaultSpeed, c_ledNum, ColorFlowAnimation::Forward, c_ledOffset};
     SingleFadeAnimation m_singleFadeAnimation{0, 0, 0, 0, c_defaultSpeed, c_ledNum, c_ledOffset};
     StrobeAnimation m_strobeAnimation{0, 0, 0, 0, c_defaultSpeed, c_ledNum, c_ledOffset};
@@ -87,3 +86,9 @@ class LEDSubsystem : public frc2::SubsystemBase
     double m_speed;
     bool m_busy;
 };
+
+static const LEDSubsystem::Color c_colorPink = LEDSubsystem::CreateColor(80, 10, 15 , 0);
+static const LEDSubsystem::Color c_colorGreen = LEDSubsystem::CreateColor(13, 80, 0, 0);
+//static const LEDSubsystem::Color c_colorWhite = LEDSubsystem::CreateColor(255, 255, 255, 10);
+//static const LEDSubsystem::Color c_defaultColor = LEDSubsystem::CreateColor(255, 255, 255, 10);
+

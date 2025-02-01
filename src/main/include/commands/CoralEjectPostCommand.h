@@ -18,6 +18,9 @@ class CoralEjectPostCommand: public frc2::CommandHelper<frc2::Command, CoralEjec
     private:
         ElevatorSubsystem&                m_elevatorSubsystem;
         DriveSubsystem&                   m_driveSubsystem;
+#ifdef LED
+        LEDSubsystem&                     m_ledSubsystem;
+#endif
 
         frc::Timer m_timer;
 
