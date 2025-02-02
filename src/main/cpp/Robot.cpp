@@ -16,7 +16,8 @@ void Robot::RobotInit() {}
  * <p> This runs after the mode specific periodic functions, but before
  * LiveWindow and SmartDashboard integrated updating.
  */
-void Robot::RobotPeriodic() {
+void Robot::RobotPeriodic()
+{
   frc2::CommandScheduler::GetInstance().Run();
 }
 
@@ -25,11 +26,22 @@ void Robot::RobotPeriodic() {
  * can use it to reset any subsystem information you want to clear when the
  * robot is disabled.
  */
-void Robot::DisabledInit() {
+void Robot::DisabledInit()
+{
   m_container.StopAll();
+  m_enabled = false;
+  frc::SmartDashboard::PutBoolean("Robot Enabled", m_enabled);
+  m_container.ConfigureRobotLEDs();
 }
 
 void Robot::DisabledPeriodic() {}
+
+void Robot::DisabledExit()
+{
+  m_enabled = true;
+  frc::SmartDashboard::PutBoolean("Robot Enabled", m_enabled);
+  m_container.ConfigureRobotLEDs();
+}
 
 /**
  * This autonomous runs the autonomous command selected by your {@link

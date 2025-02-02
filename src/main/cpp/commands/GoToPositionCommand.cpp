@@ -99,11 +99,11 @@ GoToPositionCommand::GoToPositionCommand(ISubsystemAccess& subsystemAccess, EMov
 
 void GoToPositionCommand::Initialize()
 {
-    // if (m_led.GetCurrentAction() == LEDSubsystem::CurrentAction::kReefPosition)
+    // if (m_led.GetCurrentAction() == LEDSubsystem::kReefPosition)
     // {
-    //     m_led.SetCurrentAction(LEDSubsystem::CurrentAction::kReefMovement);
+    //     m_led.SetCurrentAction(LEDSubsystem::kReefMovement);
     // }
-    // m_led.SetAnimation(c_colorWhite, LEDSubsystem::Animation::kFlow);
+    // m_led.SetAnimation(c_colorWhite, LEDSubsystem::kFlow);
     m_timer.Reset();
     m_timer.Start();
     // m_visionSubsystem.EnableReefLEDs();

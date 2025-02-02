@@ -334,44 +334,5 @@ std::shared_ptr<PathPlannerPath> RobotContainer::GetOnTheFlyPath()
 
 void RobotContainer::ConfigureRobotLEDs()
 {
-  bool robotEnabled = frc::SmartDashboard::GetBoolean("Robot Enabled", false);
-  if (robotEnabled)
-  {
-    // if ((GetLED().GetCurrentAction() == LEDSubsystem::CurrentAction::kAmpPosition && GetVision().IsValidAmp())
-    // || (GetLED().GetCurrentAction() == LEDSubsystem::CurrentAction::kPreShoot && GetVision().IsValidShooter()))
-    // {
-    //  if (GetLED().GetCurrentAction() == LEDSubsystem::CurrentAction::kAmpPosition)
-    // {
-    //     m_vision.SetPositionStarted(true);
-    //   }
-    //   else
-    //   {
-    //     m_vision.SetAzimuthStarted(true);
-    //   }
-    //   GetLED().SetDefaultColor(c_colorWhite);
-    //   GetLED().SetAnimation(GetLED().GetDefaultColor(), LEDSubsystem::kSolid);
-    // }
-    // else if (
-    //   ((GetLED().GetCurrentAction() == LEDSubsystem::CurrentAction::kAmpPosition && !GetVision().IsValidAmp())
-    //   && m_vision.IsPositionStarted())
-    // || ((GetLED().GetCurrentAction() == LEDSubsystem::CurrentAction::kPreShoot && !GetVision().IsValidShooter())
-    //   && m_vision.IsAzimuthStarted())
-    // )
-    // {
-    //   GetLED().SetDefaultColor(GetIntake().IsNotePresent() ? c_colorPink : c_colorGreen);
-    //   GetLED().SetAnimation(GetLED().GetDefaultColor(), LEDSubsystem::kSolid);
-    // }
-    // else
-    // {
-    //   GetLED().SetDefaultColor(GetIntake().IsNotePresent() ? c_colorPink : c_colorGreen);
-      if (!GetLED().IsRobotBusy())
-      {
-        GetLED().SetAnimation(GetLED().GetDefaultColor(), LEDSubsystem::kSolid);
-      }
-   // }
-  }
-  else
-  {
-    GetLED().SetAnimation(c_colorRed, LEDSubsystem::kSolid);
-  }
+  GetLED().Periodic();
 }

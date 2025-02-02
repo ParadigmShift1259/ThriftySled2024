@@ -25,7 +25,7 @@ void CoralIntakeCommand::Initialize()
     m_timer.Reset();
     m_timer.Start();
 #ifdef LED
-    m_ledSubsystem.SetCurrentAction(LEDSubsystem::CurrentAction::kHasCoral);
+    m_ledSubsystem.SetCurrentAction(LEDSubsystem::kHasCoral);
 #endif
 }
 
@@ -51,6 +51,6 @@ void CoralIntakeCommand::End(bool interrupted)
     m_isCoralPresent = false;
     m_coralSubsystem.Stop();
 // #ifdef LED
-//     m_ledSubsystem.SetCurrentAction(LEDSubsystem::CurrentAction::kIdle);
+//     m_ledSubsystem.SetCurrentAction(LEDSubsystem::kIdle);
 // #endif
 }

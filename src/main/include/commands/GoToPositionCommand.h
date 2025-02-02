@@ -53,10 +53,6 @@ class GoToPositionCommand : public frc2::CommandHelper<frc2::Command, GoToPositi
 
         frc::Timer m_timer;
 
-#ifdef LED
-        LEDSubsystem::Color c_colorWhite = LEDSubsystem::CreateColor(255, 255, 255, 10);
-#endif
-
-		wpi::log::BooleanLogEntry m_logStartGoToPositionCommand;
-		wpi::log::BooleanLogEntry m_logGoToPositionCommandFlipped;
+        wpi::log::BooleanLogEntry m_logStartGoToPositionCommand;
+	wpi::log::BooleanLogEntry m_logGoToPositionCommandFlipped;
 };

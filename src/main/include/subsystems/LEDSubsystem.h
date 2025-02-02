@@ -6,6 +6,7 @@
 
 #include <ctre/phoenix/led/CANdle.h>
 #include <ctre/phoenix/led/ColorFlowAnimation.h>
+#include <ctre/phoenix/led/LarsonAnimation.h>
 #include <ctre/phoenix/led/SingleFadeAnimation.h>
 #include <ctre/phoenix/led/StrobeAnimation.h>
 #include <ctre/phoenix/ErrorCode.h>
@@ -16,30 +17,43 @@
 
 using namespace ctre::phoenix::led;
 
+struct Color
+{
+  int red = 0;
+  int green = 0;
+  int blue = 0;
+  int white = 0;
+};
+
+//                                                 red green blue white
+const Color c_colorPink   = {  80,  10,  15,   0 };
+const Color c_colorGreen  = {  13,  80,   0,   0 };
+const Color c_colorRed    = { 255,   0,   0,   0 };
+const Color c_colorOrange = {  43,   6,   0, 255 };
+const Color c_colorYellow = { 255,   0,   0,   0 };
+const Color c_colorBlack  = {   0,   0,   0,   0 };
+const Color c_colorWhite  = { 255, 255, 255,  10 };
+
+const Color c_defaultColor = c_colorWhite;
+
 class LEDSubsystem : public frc2::SubsystemBase
 {
   public:
     LEDSubsystem();
     void Periodic() override;
-    struct Color
-    {
-      int red = 0;
-      int green = 0;
-      int blue = 0;
-      int white = 0;
-    };
 
-    enum Animation
+    enum EAnimation
     {
       kDefaultAnim,
       kSolid = kDefaultAnim,
       kFade,
       kFlow,
       kStrobe,
+      kScanner,
       kBlank
     };
     
-    enum CurrentAction
+    enum ECurrentAction
     {
       kDefaultAction,
       kIdle = kDefaultAction,
@@ -53,43 +67,59 @@ class LEDSubsystem : public frc2::SubsystemBase
       kClimbFinish
     };
 
-    void SetAnimation(Color rgbw, Animation animate);
-    static Color CreateColor(int r, int g, int b, int w);
+    void SetAnimation(Color rgbw, EAnimation animate);
 
     bool IsRobotBusy() { return m_currentAction != kIdle; }
 
     void SetDefaultColor(Color color) { m_defaultColor = color; }
     Color GetDefaultColor() { return m_defaultColor; }
 
-    void SetCurrentAction(CurrentAction action) { m_currentAction = action; }
-    CurrentAction GetCurrentAction() { return m_currentAction; }
+    void SetCurrentAction(ECurrentAction action) { m_currentAction = action; }
+    ECurrentAction GetCurrentAction() { return m_currentAction; }
     
   private:
-#ifndef THING1
+    // Convienince function to set LED color by accessing color struct components
+    void SetColor(const Color& color) { m_candle.SetLEDs(color.red, color.green, color.blue, color.white, c_ledOffset, c_ledNum); }
+    // Convienince function to set an animation color by accessing color struct components
+    void SetColor(BaseTwoSizeAnimation& animation, const Color& color)
+    {
+      animation.SetR(color.red);
+      animation.SetG(color.green);
+      animation.SetB(color.blue);
+      animation.SetW(color.white);
+    }
+
     CANdleConfiguration m_candleConfig;
     wpi::log::DoubleLogEntry m_log;
     CANdle m_candle{kLEDCANID};
-#endif
-    static constexpr double c_defaultSpeed = 0.5;
 
+    static constexpr double c_defaultSpeed = 0.5;
     static constexpr int c_ledNum = 16;
     static constexpr int c_ledOffset = 8;
 
-//COMMENT YOUR CODE KELLEN
+    // Animation c'tor args
+    // First 4 are red, green, blue, white (brightness) [0 to 255]
+    // speed	How fast should the color travel the strip [0, 1]
+    // numLed	How many LEDs the CANdle controls
+    // ledOffset	Where to start the animation
+    //
+    // Animation that gradually lights the entire LED strip one LED at a time
+    // Additional args
+    // direction	Forward, Backward 
     ColorFlowAnimation m_colorFlowAnimation{0, 0, 0, 0, c_defaultSpeed, c_ledNum, ColorFlowAnimation::Forward, c_ledOffset};
+    // Animation that fades into and out of a specified color.
     SingleFadeAnimation m_singleFadeAnimation{0, 0, 0, 0, c_defaultSpeed, c_ledNum, c_ledOffset};
+    // Animation that strobes the LEDs a specified color
     StrobeAnimation m_strobeAnimation{0, 0, 0, 0, c_defaultSpeed, c_ledNum, c_ledOffset};
+    // Animation that sends a pocket of light across the LED strip (see https://en.wikipedia.org/wiki/Knight_Rider)
+    // Additional args
+    // BounceMode mode  Front, Center, Back; default Front
+    // int size         Size of the group of lit LEDs [0 to 7]; defalt 2 
+    // int ledOffset    Where to start the animation; default 0
+    LarsonAnimation m_larsonAnimation{0, 0, 0, 0, c_defaultSpeed, c_ledNum, LarsonAnimation::Front, 3, c_ledOffset};
 
-    Color m_defaultColor;
-    CurrentAction m_currentAction;
-
-    double m_speed;
-    bool m_busy;
+    Color           m_defaultColor;
+    ECurrentAction  m_currentAction;
 };
 
-static const LEDSubsystem::Color c_colorPink = LEDSubsystem::CreateColor(80, 10, 15 , 0);
-static const LEDSubsystem::Color c_colorGreen = LEDSubsystem::CreateColor(13, 80, 0, 0);
-static const LEDSubsystem::Color c_colorRed = LEDSubsystem::CreateColor(255, 0, 0, 0);
-//static const LEDSubsystem::Color c_colorWhite = LEDSubsystem::CreateColor(255, 255, 255, 10);
-static const LEDSubsystem::Color c_defaultColor = LEDSubsystem::CreateColor(255, 255, 255, 10);
 

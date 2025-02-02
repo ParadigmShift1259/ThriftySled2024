@@ -29,18 +29,24 @@ class RobotContainer : public ISubsystemAccess
   RobotContainer();
 
   void Periodic();
+
   // ISubsystemAcces Implementation
-  DriveSubsystem&        GetDrive() override { return m_drive; }
-  VisionSubsystem&       GetVision() override { return m_vision; }
-  ElevatorSubsystem&       GetElevator() override { return m_elevator; }
+  DriveSubsystem&            GetDrive() override { return m_drive; }
+  VisionSubsystem&           GetVision() override { return m_vision; }
+  ElevatorSubsystem&         GetElevator() override { return m_elevator; }
   CoralManipulatorSubsystem& GetCoral() override { return m_coral; }
   #ifdef LED
-  LEDSubsystem&           GetLED() override { return m_led; }
+  LEDSubsystem&              GetLED() override { return m_led; }
   #endif
+  // END ISubsystemAcces Implementation
   
   wpi::log::DataLog&         GetLogger() override { return DataLogManager::GetLog(); }
-  frc2::CommandPtr GetAutonomousCommand();
+  frc2::CommandPtr           GetAutonomousCommand();
 
+  // ConfigureRobotLEDs called by Robot class, passes enabled state via dashboard value "Robot Enabled"
+  void ConfigureRobotLEDs();
+
+  // Stop all motors (currently elevator only)
   void StopAll();
 
   std::shared_ptr<PathPlannerPath> GetOnTheFlyPath();
@@ -50,7 +56,6 @@ class RobotContainer : public ISubsystemAccess
   void ConfigureBindings();
   void ConfigPrimaryButtonBindings();
   void ConfigSecondaryButtonBindings();
-  void ConfigureRobotLEDs();
 
   // The robot's subsystems and commands are defined here...
   

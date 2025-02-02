@@ -24,7 +24,7 @@ CoralEjectCommand::CoralEjectCommand(ISubsystemAccess& subsystemAccess)
 void CoralEjectCommand::Initialize()
 {
 #ifdef LED
-    m_ledSubsystem.SetCurrentAction(LEDSubsystem::CurrentAction::kDefaultAction);
+    m_ledSubsystem.SetCurrentAction(LEDSubsystem::kDefaultAction);
     m_ledSubsystem.SetAnimation(c_defaultColor, LEDSubsystem::kSolid);
 #endif
     m_timer.Reset();

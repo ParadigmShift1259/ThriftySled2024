@@ -29,7 +29,7 @@ void CoralPrepCommand::Initialize()
     m_timer.Reset();
     m_timer.Start();
 #ifdef LED
-    m_ledSubsystem.SetCurrentAction(LEDSubsystem::CurrentAction::kPreCoral);
+    m_ledSubsystem.SetCurrentAction(LEDSubsystem::kPreCoral);
     m_ledSubsystem.SetAnimation(c_colorPink, LEDSubsystem::kStrobe);  //TODO Replace constant color with var based on left/right & Set height based on level
 #endif
     m_elevatorSubsystem.GoToPosition(m_coralLevel);
@@ -58,6 +58,6 @@ void CoralPrepCommand::End(bool interrupted)
 {
     m_coralSubsystem.Stop();
 #ifdef LED
-    m_ledSubsystem.SetCurrentAction(LEDSubsystem::CurrentAction::kIdle);
+    m_ledSubsystem.SetCurrentAction(LEDSubsystem::kIdle);
 #endif
 }

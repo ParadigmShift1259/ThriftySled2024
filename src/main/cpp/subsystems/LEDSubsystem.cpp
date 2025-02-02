@@ -1,3 +1,5 @@
+#include <frc/smartdashboard/SmartDashboard.h>
+
 #include "subsystems/LEDSubsystem.h"
 
 static constexpr int c_defaultLEDNum = 8;
@@ -10,8 +12,7 @@ LEDSubsystem::LEDSubsystem()
   m_candleConfig.brightnessScalar = 1.0; // dim the LEDs to half brightness
   m_candle.ConfigAllSettings(m_candleConfig);
   m_candle.ClearAnimation(0);
-  m_candle.SetLEDs(43, 6, 0, 255, c_ledOffset, c_ledNum);
-  m_speed = c_defaultSpeed;
+  SetColor(c_colorOrange);
 
   m_log = wpi::log::DoubleLogEntry(log, "/subsystem/led");
 
@@ -26,61 +27,83 @@ LEDSubsystem::LEDSubsystem()
 
 void LEDSubsystem::Periodic()
 {
+  bool robotEnabled = frc::SmartDashboard::GetBoolean("Robot Enabled", false);
+  if (robotEnabled)
+  {
+    // if ((GetCurrentAction() == LEDSubsystem::kAmpPosition && GetVision().IsValidAmp())
+    // || (GetCurrentAction() == LEDSubsystem::kPreShoot && GetVision().IsValidShooter()))
+    // {
+    //  if (GetCurrentAction() == LEDSubsystem::kAmpPosition)
+    // {
+    //     m_vision.SetPositionStarted(true);
+    //   }
+    //   else
+    //   {
+    //     m_vision.SetAzimuthStarted(true);
+    //   }
+    //   SetDefaultColor(c_colorWhite);
+    //   SetAnimation(GetDefaultColor(), LEDSubsystem::kSolid);
+    // }
+    // else if (
+    //   ((GetCurrentAction() == LEDSubsystem::kAmpPosition && !GetVision().IsValidAmp())
+    //   && m_vision.IsPositionStarted())
+    // || ((GetCurrentAction() == LEDSubsystem::kPreShoot && !GetVision().IsValidShooter())
+    //   && m_vision.IsAzimuthStarted())
+    // )
+    // {
+    //   SetDefaultColor(GetIntake().IsNotePresent() ? c_colorPink : c_colorGreen);
+    //   SetAnimation(GetDefaultColor(), LEDSubsystem::kSolid);
+    // }
+    // else
+    // {
+    //   SetDefaultColor(GetIntake().IsNotePresent() ? c_colorPink : c_colorGreen);
+      if (!IsRobotBusy())
+      {
+        SetAnimation(GetDefaultColor(), LEDSubsystem::kSolid);
+      }
+   // }
+  }
+  else
+  {
+    // Robot is disabled, turn red
+    SetAnimation(c_colorRed, LEDSubsystem::kSolid);
+  }
+
   // m_log.Append(add_data_here);
 }
 
-LEDSubsystem::Color LEDSubsystem::CreateColor(int r, int g, int b, int w)
+void LEDSubsystem::SetAnimation(Color color, EAnimation animate)
 {
-  Color color;
-  color.red = r;
-  color.green = g;
-  color.blue = b;
-  color.white = w;
-  return color;
-}
-
-void LEDSubsystem::SetAnimation(Color rgbw, Animation animate)
-{
-  int red = rgbw.red;
-  int green = rgbw.green;
-  int blue = rgbw.blue;
-  int white = rgbw.white;
   switch (animate)
   {
-    case (Animation::kSolid):
+    case (EAnimation::kSolid):
       m_candle.ClearAnimation(0);
-      m_candle.SetLEDs(red, green, blue, white, c_ledOffset, c_ledNum);
+      SetColor(color);
       break;
-    case (Animation::kFade):
-    {
-      m_singleFadeAnimation.SetR(red);
-      m_singleFadeAnimation.SetG(green);
-      m_singleFadeAnimation.SetB(blue);
-      m_singleFadeAnimation.SetW(white);
+
+    case (EAnimation::kFade):
+      SetColor(m_singleFadeAnimation, color);
       m_candle.Animate(m_singleFadeAnimation);
       break;
-    }
-    case (Animation::kFlow):
-    {
-      m_colorFlowAnimation.SetR(red);
-      m_colorFlowAnimation.SetG(green);
-      m_colorFlowAnimation.SetB(blue);
-      m_colorFlowAnimation.SetW(white);
+
+    case (EAnimation::kFlow):
+      SetColor(m_colorFlowAnimation, color);
       m_candle.Animate(m_colorFlowAnimation);
       break;
-    }
-    case (Animation::kStrobe):
-    {
-      m_strobeAnimation.SetR(red);
-      m_strobeAnimation.SetG(green);
-      m_strobeAnimation.SetB(blue);
-      m_strobeAnimation.SetW(white);
+
+    case (EAnimation::kStrobe):
+      SetColor(m_strobeAnimation, color);
       m_candle.Animate(m_strobeAnimation);
       break;
-    }
+    
+    case (EAnimation::kScanner):
+      SetColor(m_larsonAnimation, color);
+      m_candle.Animate(m_larsonAnimation);
+      break;
+    
     default:
       m_candle.ClearAnimation(0);
-      m_candle.SetLEDs(red, green, blue, white, c_ledOffset, c_ledNum);
+      SetColor(color);
       break;
   }
 }
