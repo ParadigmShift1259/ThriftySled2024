@@ -35,9 +35,9 @@ class RobotContainer : public ISubsystemAccess
   VisionSubsystem&           GetVision() override { return m_vision; }
   ElevatorSubsystem&         GetElevator() override { return m_elevator; }
   CoralManipulatorSubsystem& GetCoral() override { return m_coral; }
-  #ifdef LED
+#ifdef LED
   LEDSubsystem&              GetLED() override { return m_led; }
-  #endif
+#endif
   // END ISubsystemAcces Implementation
   
   wpi::log::DataLog&         GetLogger() override { return DataLogManager::GetLog(); }
@@ -56,6 +56,10 @@ class RobotContainer : public ISubsystemAccess
   void ConfigureBindings();
   void ConfigPrimaryButtonBindings();
   void ConfigSecondaryButtonBindings();
+#define USE_BUTTON_BOX
+#ifdef USE_BUTTON_BOX
+  void ConfigButtonBoxBindings();
+#endif
 
   // The robot's subsystems and commands are defined here...
   
@@ -63,18 +67,16 @@ class RobotContainer : public ISubsystemAccess
   VisionSubsystem m_vision;
   ElevatorSubsystem m_elevator;
   CoralManipulatorSubsystem m_coral;
-  #ifdef LED
+#ifdef LED
   LEDSubsystem m_led;
-  #endif
+#endif
 
-#define USE_XBOX
-#ifdef USE_XBOX
   CommandXboxController m_primaryController{0};
   CommandXboxController m_secondaryController{1};
-#else
-  frc2::CommandJoystick m_primaryController{0};
-  frc2::CommandJoystick m_secondaryController{1};
+#ifdef USE_BUTTON_BOX
+  CommandXboxController m_buttonController{3};
 #endif
+
   SlewRateLimiter<units::scalar> m_xspeedLimiter{3 / 1_s, -3 / 1_s};
   SlewRateLimiter<units::scalar> m_yspeedLimiter{3 / 1_s, -3 / 1_s};
   SlewRateLimiter<units::scalar> m_rotLimiter{3 / 1_s};

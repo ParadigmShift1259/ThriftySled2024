@@ -108,8 +108,7 @@ void RobotContainer::SetDefaultCommands()
         // const double kDeadband = 0.02;
         constexpr double kDeadband = 0.1;
 		    constexpr double direction = 1.0;
-// define USE_XBOX in RobotContainer.h
-#ifdef USE_XBOX      
+
         const auto xInput = direction* ApplyDeadband(m_primaryController.GetLeftY(), kDeadband);
         const auto yInput = direction * ApplyDeadband(m_primaryController.GetLeftX(), kDeadband);
         const auto rotInput = ApplyDeadband(m_primaryController.GetRightX(), kDeadband);      
@@ -117,13 +116,6 @@ void RobotContainer::SetDefaultCommands()
         // const auto rotYInput = ApplyDeadband(m_primaryController.GetRightY(), kDeadband);
         // const double rotX = m_rotLimiter.Calculate(rotXInput);
         // const double rotY = m_rotLimiter.Calculate(rotYInput);
-#else
-        constexpr double kRotDeadband = 0.42;
-        const auto xInput = direction* ApplyDeadband(m_primaryController.GetHID().GetY(), kDeadband);
-        const auto yInput = direction * ApplyDeadband(m_primaryController.GetHID().GetX(), kDeadband);
-        const auto rotInput = ApplyDeadband(m_secondaryController.GetHID().GetX(), kRotDeadband);
-        // rotInput *= fabs(rotInput);      
-#endif
         const auto xSpeed = m_xspeedLimiter.Calculate(xInput) * m_drive.m_currentMaxSpeed;
         auto ySpeed = m_yspeedLimiter.Calculate(yInput) * m_drive.m_currentMaxSpeed;
         auto rot = m_rotLimiter.Calculate(rotInput) * m_drive.m_currentMaxAngularSpeed;      
@@ -150,12 +142,11 @@ void RobotContainer::ConfigureBindings()
   ConfigPrimaryButtonBindings();
   ConfigSecondaryButtonBindings();
 #ifdef USE_BUTTON_BOX
-  // ConfigButtonBoxBindings();
+  ConfigButtonBoxBindings();
 #endif
 }
 
-void RobotContainer::
-ConfigPrimaryButtonBindings()
+void RobotContainer::ConfigPrimaryButtonBindings()
 {
   auto& primary = m_primaryController;
  
@@ -240,6 +231,71 @@ void RobotContainer::ConfigSecondaryButtonBindings()
   secondary.POVRight(loop).Rising().IfHigh([this] { m_wheelsForward.Schedule(); });
 #endif  //  TEST_WHEEL_CONTROL
 }
+
+#ifdef USE_BUTTON_BOX
+void RobotContainer::ConfigButtonBoxBindings()
+{
+  auto& buttonBox = m_buttonController;
+
+  // Physical layout and XBox assignment
+  // ┌───────┐       ┌───────┬───────┐
+  // │Green1 │       │White2 │ Blue2 │
+  // │  X    │       │  Back │ Start │
+  // ├───────┤       ├───────┼───────┤
+  // │Yellow1│       │Green2 │ Red2  │
+  // │  Y    │       │  LS   │  RS   │
+  // ├───────┤       ├───────┼───────┤
+  // │Blue1  │       │Black2 │Yellow2│
+  // │  RB   │       │  B    │  A    │
+  // ├───────┼───────┼───────┤───────┘
+  // │Black1 │White1 │ Red1  │        
+  // │  LB   │   LT  │  RT   │        
+  // └───────┴───────┴───────┘             
+  buttonBox.X().OnTrue(&m_elevL4);
+  buttonBox.Y().OnTrue(&m_elevL3);
+  buttonBox.RightBumper().OnTrue(&m_elevL2);
+  buttonBox.LeftBumper().OnTrue(frc2::SequentialCommandGroup{
+    m_setHighSpeedCmd
+    , ElevatorGoToCommand(*this, 2.0)
+    , WaitCommand(0.4_s)
+    , ElevatorGoToCommand(*this, 0.0)
+  }.ToPtr());
+
+  //buttonBox.LeftTrigger().OnTrue(&m_selectLeftReefPole);
+  //buttonBox.RightTrigger().OnTrue(&m_selectRightReefPole);
+  
+  buttonBox.Back().OnTrue(&m_elevRelPosUp);
+  buttonBox.LeftStick().OnTrue(&m_elevRelPosDown);
+
+  //buttonBox.B().OnTrue(&m_coralStop);
+  
+  buttonBox.Start().OnTrue(&m_elevL3_4);
+  buttonBox.RightStick().OnTrue(&m_elevL2_3);
+
+  //buttonBox.A().OnTrue(&m_coralRetract);
+
+  // Wiring
+  // See Game Pad 2040 project https://gp2040-ce.info/introduction
+  //
+  //        │             │                          │           │      
+  //        │             │ GP                    GP │           │      
+  // Button │    XBox     │2040    RasPI Pico    2040│   XBox    │Button
+  //        │             │    ┌────────────────┐    │           │      
+  // Yellow2│            A│ B1 │GP06            │    │           │      
+  // Black2 │            B│ B2 │GP07            │    │           │      
+  // Red1   │   Right Trig│ R2 │GP08            │    │           │      
+  // White1 │    Left Trig│ L2 │GP09            │    │           │      
+  //        │             │    │GND          GND│    │           │      
+  // Green1 │            X│ B3 │GP10        GP21│ A2 │           │      
+  // Yellow1│            Y│ B4 │GP11        GP20│ A1 │           │      
+  // Blue1  │ Right Bumper│ R1 │GP12        GP19│ R3 │Right Stick│Red2  
+  // Black1 │  Left Bumper│ L1 │GP13        GP18│ L3 │Left Stick │Green2
+  //                           │GND          GND│    │           │      
+  //                           │            GP17│ S2 │Start      │Blue2 
+  //                           │            GP16│ S1 │Back       │White2
+  //                           └────────────────┘                       
+}
+#endif
 
 void RobotContainer::StopAll()
 {
