@@ -149,6 +149,7 @@ void RobotContainer::ConfigureBindings()
 void RobotContainer::ConfigPrimaryButtonBindings()
 {
   auto& primary = m_primaryController;
+
  
   // Primary
   // Keep the bindings in this order
@@ -222,6 +223,8 @@ void RobotContainer::ConfigSecondaryButtonBindings()
   secondary.POVUp().OnTrue(&m_elevRelPosUp);
   secondary.LeftTrigger().OnTrue(&m_elevL3_4);
   secondary.RightTrigger().OnTrue(&m_elevL2_3);
+  // secondary.LeftTrigger().OnTrue(&m_intakeAlign);
+  // secondary.RightTrigger().OnTrue(&m_intakePark);
 
   secondary.POVLeft().OnTrue(&m_rumblePrimary);
 
@@ -261,8 +264,8 @@ void RobotContainer::ConfigButtonBoxBindings()
     , ElevatorGoToCommand(*this, 0.0)
   }.ToPtr());
 
-  //buttonBox.LeftTrigger().OnTrue(&m_selectLeftReefPole);
-  //buttonBox.RightTrigger().OnTrue(&m_selectRightReefPole);
+  // buttonBox.LeftTrigger().OnTrue(&m_intakeAlign);
+  // buttonBox.RightTrigger().OnTrue(&m_intakePark);
   
   buttonBox.Back().OnTrue(&m_elevRelPosUp);
   buttonBox.LeftStick().OnTrue(&m_elevRelPosDown);
@@ -390,5 +393,7 @@ std::shared_ptr<PathPlannerPath> RobotContainer::GetOnTheFlyPath()
 
 void RobotContainer::ConfigureRobotLEDs()
 {
+#ifdef LED
   GetLED().Periodic();
+#endif
 }

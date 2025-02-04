@@ -35,6 +35,7 @@ class RobotContainer : public ISubsystemAccess
   VisionSubsystem&           GetVision() override { return m_vision; }
   ElevatorSubsystem&         GetElevator() override { return m_elevator; }
   CoralManipulatorSubsystem& GetCoral() override { return m_coral; }
+  IntakeSubsystem&           GetIntake() override { return m_intake; }
 #ifdef LED
   LEDSubsystem&              GetLED() override { return m_led; }
 #endif
@@ -67,6 +68,7 @@ class RobotContainer : public ISubsystemAccess
   VisionSubsystem m_vision;
   ElevatorSubsystem m_elevator;
   CoralManipulatorSubsystem m_coral;
+  IntakeSubsystem m_intake;
 #ifdef LED
   LEDSubsystem m_led;
 #endif
@@ -117,6 +119,9 @@ class RobotContainer : public ISubsystemAccess
   frc2::InstantCommand m_elevReset{[this] { m_elevator.ElevatorReset(); }, {&m_elevator} };
   frc2::InstantCommand m_elevRelPosUp{[this] { m_elevator.GotoPositionRel(1.0); }, {&m_elevator} };
   frc2::InstantCommand m_elevRelPosDown{[this] { m_elevator.GotoPositionRel(-1.0); }, {&m_elevator} };
+
+  frc2::InstantCommand m_intakeAlign{[this] { m_intake.AlignIntake(); }, {&m_intake} };
+  frc2::InstantCommand m_intakePark{[this] { m_intake.ParkIntakeForClimb(); }, {&m_intake} };
 
   frc2::InstantCommand m_coralEject{[this]
   { 

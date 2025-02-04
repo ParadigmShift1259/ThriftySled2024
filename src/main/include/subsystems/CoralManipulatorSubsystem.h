@@ -20,9 +20,6 @@ WPI_UNIGNORE_DEPRECATED
 using namespace ctre::phoenix::motorcontrol::can;
 using namespace rev::spark;
 
-constexpr double kIngestSpeed = 1.0;
-constexpr double kReleaseSpeed = -1.0;
-
 class CoralManipulatorSubsystem : public frc2::SubsystemBase
 {
 public:
@@ -62,7 +59,4 @@ private:
     SparkMax m_coralMotor;
     SparkRelativeEncoder m_coralRelativeEnc = m_coralMotor.GetEncoder();    
     SparkClosedLoopController& m_coralPIDController = m_coralMotor.GetClosedLoopController();
-
-    static constexpr bool kIntakeExtend = true;
-    static constexpr bool kIntakeRetract = false;
 };

@@ -31,7 +31,7 @@ CoralManipulatorSubsystem::CoralManipulatorSubsystem()
     config
         .SetIdleMode(SparkBaseConfig::IdleMode::kBrake);
     config.ClosedLoopRampRate(0.0);
-    config.closedLoop.OutputRange(kDeployMinOut, kDeployMaxOut);
+    config.closedLoop.OutputRange(kMinOut, kMaxOut);
 
     m_coralMotor.Configure(config, SparkBase::ResetMode::kNoResetSafeParameters, SparkBase::PersistMode::kPersistParameters);
     m_coralRelativeEnc.SetPosition(0.0);

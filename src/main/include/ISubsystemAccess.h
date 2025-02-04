@@ -9,12 +9,11 @@
 #include "subsystems/VisionSubsystem.h"
 #include "subsystems/ElevatorSubsystem.h"
 #include "subsystems/CoralManipulatorSubsystem.h"
+#include "subsystems/IntakeSubsystem.h"
 #ifdef LED
 #include "subsystems/LEDSubsystem.h"
 #endif
 
-// #include "subsystems/IntakeSubsystem.h"
-// #include "subsystems/ShooterSubsystem.h"
 // #include "subsystems/ClimberSubsystem.h"
 
 #include <frc/DataLogManager.h>
@@ -29,7 +28,7 @@ public:
 #ifdef LED
     virtual LEDSubsystem&          GetLED() = 0;
 #endif
-    // virtual IntakeSubsystem&       GetIntake() = 0;
+    virtual IntakeSubsystem&       GetIntake() = 0;
     // virtual ShooterSubsystem&      GetShooter() = 0;
     // virtual ClimberSubsystem&      GetClimber() = 0;
 
