@@ -25,7 +25,7 @@ struct Color
   int white = 0;
 };
 
-//                                                 red green blue white
+//                            red green blue white
 const Color c_colorPink   = {  80,  10,  15,   0 };
 const Color c_colorGreen  = {  13,  80,   0,   0 };
 const Color c_colorRed    = { 255,   0,   0,   0 };

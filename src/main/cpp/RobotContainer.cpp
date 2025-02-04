@@ -390,5 +390,7 @@ std::shared_ptr<PathPlannerPath> RobotContainer::GetOnTheFlyPath()
 
 void RobotContainer::ConfigureRobotLEDs()
 {
+#ifdef LED
   GetLED().Periodic();
+#endif
 }
