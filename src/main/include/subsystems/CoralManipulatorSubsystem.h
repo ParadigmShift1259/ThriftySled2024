@@ -7,6 +7,8 @@
 #include <frc/DigitalInput.h>
 #include <frc/Servo.h>
 
+#include <frc/SmartDashboard/SmartDashboard.h>
+
 #include <frc/Timer.h>
 #include <frc2/command/SubsystemBase.h>
 
@@ -32,8 +34,7 @@ public:
     /// \param speed         Desired motor speed to run, ranging from [-1, 1]
     void SetFeeder(double speed);
     /// Deploys the manipulator out of the robot
-    void DeployManipulator();
-    void DeployManipulator(double turns);
+    void DeployManipulator() {double angle = frc::SmartDashboard::GetNumber("ServoDegrees", 0.0); m_deployServo.SetAngle(angle); }
     // Retracts the manipulator into the robot
     void RetractManipulator();
     void GoToPosition(double turns);

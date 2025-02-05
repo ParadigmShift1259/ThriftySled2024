@@ -223,8 +223,9 @@ void RobotContainer::ConfigSecondaryButtonBindings()
   secondary.POVUp().OnTrue(&m_elevRelPosUp);
   secondary.LeftTrigger().OnTrue(&m_elevL3_4);
   secondary.RightTrigger().OnTrue(&m_elevL2_3);
-  // secondary.LeftTrigger().OnTrue(&m_intakeAlign);
-  // secondary.RightTrigger().OnTrue(&m_intakePark);
+  secondary.LeftStick().OnTrue(&m_intakeAlign);
+  secondary.RightStick().OnTrue(&m_intakePark);
+  // secondary.RightStick().OnTrue(&m_coralDeploy);
 
   secondary.POVLeft().OnTrue(&m_rumblePrimary);
 

@@ -43,6 +43,7 @@ class RobotContainer : public ISubsystemAccess
   
   wpi::log::DataLog&         GetLogger() override { return DataLogManager::GetLog(); }
   frc2::CommandPtr           GetAutonomousCommand();
+  void StartUp() { m_intake.AlignIntake(); }
 
   // ConfigureRobotLEDs called by Robot class, passes enabled state via dashboard value "Robot Enabled"
   void ConfigureRobotLEDs();
@@ -130,6 +131,7 @@ class RobotContainer : public ISubsystemAccess
   }, {&m_coral} };
   frc2::InstantCommand m_coralStop{[this] { m_coral.Stop(); }, {&m_coral} };
   frc2::InstantCommand m_coralRetract{[this] { m_coral.RetractCoral(); }, {&m_coral} };
+  frc2::InstantCommand m_coralDeploy{[this] {m_coral.DeployManipulator(); }, {&m_coral} };
 
   frc2::InstantCommand m_rumblePrimary{[this] { m_primaryController.SetRumble(GenericHID::RumbleType::kBothRumble, 1); }, {} };
   frc2::InstantCommand m_stopRumblePrimary{[this] { m_primaryController.SetRumble(GenericHID::RumbleType::kBothRumble, 0); }, {} };

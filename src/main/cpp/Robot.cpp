@@ -48,8 +48,9 @@ void Robot::DisabledExit()
  * RobotContainer} class.
  */
 void Robot::AutonomousInit() {
-  //m_autonomousCommand = m_container.GetAutonomousCommand();
+  // m_container.StartUp();
 
+  //m_autonomousCommand = m_container.GetAutonomousCommand();
   if (m_autonomousCommand) {
     m_autonomousCommand->Schedule();
   }
@@ -58,6 +59,7 @@ void Robot::AutonomousInit() {
 void Robot::AutonomousPeriodic() {}
 
 void Robot::TeleopInit() {
+  // m_container.StartUp();
   // This makes sure that the autonomous stops running when
   // teleop starts running. If you want the autonomous to
   // continue until interrupted by another command, remove

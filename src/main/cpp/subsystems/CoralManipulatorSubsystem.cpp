@@ -41,12 +41,14 @@ CoralManipulatorSubsystem::CoralManipulatorSubsystem()
     frc::Preferences::InitDouble("kCoralManipD", c_defaultCoralManipD);
 
     frc::SmartDashboard::PutNumber("CoralRetractTurns", 3.25);
+    frc::SmartDashboard::PutNumber("ServoDegrees", 0.0);
 }
 
 void CoralManipulatorSubsystem::Periodic()
 {
     LoadDeployPid();
 
+    frc::SmartDashboard::PutNumber("Servo echo", m_deployServo.GetAngle());
     frc::SmartDashboard::PutNumber("Coral echo", m_coralRelativeEnc.GetPosition());
     frc::SmartDashboard::PutBoolean("CoralManipPhotoEyeIn", m_photoEyeIn.Get());
     frc::SmartDashboard::PutBoolean("CoralManipPhotoEyeOut", m_photoEyeOut.Get());
