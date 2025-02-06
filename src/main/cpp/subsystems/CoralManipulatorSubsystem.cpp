@@ -18,9 +18,6 @@ constexpr double c_defaultCoralManipD = 0.0;
 constexpr ClosedLoopSlot c_intakeGeneralPIDSlot = ClosedLoopSlot::kSlot0;
 constexpr ClosedLoopSlot c_intakeExtendPIDSlot = ClosedLoopSlot::kSlot1;
 
-constexpr double c_defaultIntakeMin = -0.5;
-constexpr double c_defaultIntakeMax = 0.5;
-
 CoralManipulatorSubsystem::CoralManipulatorSubsystem() 
     : m_photoEyeIn(kCoralManipPhotoeyeIn)
     , m_photoEyeOut(kCoralManipPhotoeyeOut)
@@ -41,14 +38,16 @@ CoralManipulatorSubsystem::CoralManipulatorSubsystem()
     frc::Preferences::InitDouble("kCoralManipD", c_defaultCoralManipD);
 
     frc::SmartDashboard::PutNumber("CoralRetractTurns", 3.25);
-    frc::SmartDashboard::PutNumber("ServoDegrees", 0.0);
+    frc::SmartDashboard::PutNumber("ServoDeploy", 0.9);
+    frc::SmartDashboard::PutNumber("ServoRetract", 0.3);
 }
 
 void CoralManipulatorSubsystem::Periodic()
 {
     LoadDeployPid();
 
-    frc::SmartDashboard::PutNumber("Servo echo", m_deployServo.GetAngle());
+    frc::SmartDashboard::PutNumber("ServoDeployEcho", m_deployServo.Get());
+    frc::SmartDashboard::PutNumber("ServoRetractEcho", m_deployServo.Get());
     frc::SmartDashboard::PutNumber("Coral echo", m_coralRelativeEnc.GetPosition());
     frc::SmartDashboard::PutBoolean("CoralManipPhotoEyeIn", m_photoEyeIn.Get());
     frc::SmartDashboard::PutBoolean("CoralManipPhotoEyeOut", m_photoEyeOut.Get());
@@ -104,8 +103,12 @@ void CoralManipulatorSubsystem::SetManipulator(double speed)
     m_coralMotor.Set(speed);
 }
 
-void CoralManipulatorSubsystem::RetractCoral()
+void CoralManipulatorSubsystem::RetractCoral(ELevels eLevel)
 {
     auto turns = frc::SmartDashboard::GetNumber("CoralRetractTurns", 3.25);
+    if (eLevel == L4)
+    {
+        turns += 3.0;
+    }
     m_coralPIDController.SetReference(m_coralRelativeEnc.GetPosition() + turns, SparkLowLevel::ControlType::kPosition);
 }

@@ -15,7 +15,7 @@ constexpr ClosedLoopSlot c_defaultElevatorUpPIDSlot = ClosedLoopSlot::kSlot1;
 
 constexpr double c_defaultElevatorDownP = 0.01;
 constexpr double c_defaultElevatorUpP = 0.1;
-constexpr double c_defaultElevatorI = 0.00005;
+constexpr double c_defaultElevatorI = 0.00003;
 constexpr double c_defaultElevatorD = 0.0;
 constexpr double c_defaultElevatorFF = 0.00000;
 
@@ -103,8 +103,8 @@ void ElevatorSubsystem::Periodic()
     }
     if (i != lastI)
     {
-        m_leadConfig.closedLoop.I(i, c_defaultElevatorDownPIDSlot).I(i, c_defaultElevatorUpPIDSlot);
-        m_followConfig.closedLoop.I(i, c_defaultElevatorDownPIDSlot).I(i, c_defaultElevatorUpPIDSlot);
+        m_leadConfig.closedLoop.I(i, c_defaultElevatorDownPIDSlot); // Only apply I to down motion .I(i, c_defaultElevatorUpPIDSlot);
+        m_followConfig.closedLoop.I(i, c_defaultElevatorDownPIDSlot); // Only apply I to down motion .I(i, c_defaultElevatorUpPIDSlot);
         m_leadMotor.Configure(m_leadConfig, SparkBase::ResetMode::kNoResetSafeParameters, SparkBase::PersistMode::kPersistParameters);
         m_followMotor.Configure(m_followConfig, SparkBase::ResetMode::kNoResetSafeParameters, SparkBase::PersistMode::kPersistParameters);
     }

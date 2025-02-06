@@ -42,7 +42,20 @@ void CoralPrepCommand::Execute()
     if (m_elevatorSubsystem.IsAtPosition(m_coralLevel) && m_retract)
     {
         // m_coralSubsystem.SetManipulator(0.5); This is for L4 only goes all the way back
-        m_coralSubsystem.RetractCoral();
+        ELevels eLevel = L1;
+        if (m_coralLevel == c_defaultL2Turns)
+        {
+            eLevel = L2;
+        }
+        else if (m_coralLevel == c_defaultL3Turns)
+        {
+            eLevel = L3;
+        }
+        else if (m_coralLevel == c_defaultL4Turns)
+        {
+            eLevel = L4;
+        }
+        m_coralSubsystem.RetractCoral(eLevel);
         m_retract = false;
     }
 

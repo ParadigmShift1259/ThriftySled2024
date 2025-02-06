@@ -22,6 +22,8 @@ WPI_UNIGNORE_DEPRECATED
 using namespace ctre::phoenix::motorcontrol::can;
 using namespace rev::spark;
 
+enum ELevels { L1, L2, L3, L4 };
+
 class CoralManipulatorSubsystem : public frc2::SubsystemBase
 {
 public:
@@ -34,16 +36,16 @@ public:
     /// \param speed         Desired motor speed to run, ranging from [-1, 1]
     void SetFeeder(double speed);
     /// Deploys the manipulator out of the robot
-    void DeployManipulator() {double angle = frc::SmartDashboard::GetNumber("ServoDegrees", 0.0); m_deployServo.SetAngle(angle); }
+    void DeployManipulator() {double sp = frc::SmartDashboard::GetNumber("ServoDeploy", 0.9); m_deployServo.Set(sp); }
     // Retracts the manipulator into the robot
-    void RetractManipulator();
+    void RetractManipulator() {double sp = frc::SmartDashboard::GetNumber("ServoRetract", 0.3);m_deployServo.Set(sp); }
     void GoToPosition(double turns);
     double GetPosition() { return m_coralRelativeEnc.GetPosition(); }
     bool IsCoralPresentInput() { return m_photoEyeIn.Get(); }
     bool IsCoralPresentOutput() { return m_photoEyeOut.Get(); }
     void EjectCoral(bool slow) { m_coralMotor.SetVoltage(slow ? -5.0_V : -9.0_V); }
     void SetManipulator(double speed);
-    void RetractCoral();
+    void RetractCoral(ELevels eLevel);
 
     void Stop() { m_coralMotor.SetVoltage(0.0_V); }
 

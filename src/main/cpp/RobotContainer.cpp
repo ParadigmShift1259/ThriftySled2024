@@ -9,6 +9,7 @@
 #include "commands/CoralPrepCommand.h"
 #include "commands/CoralEjectCommand.h"
 #include "commands/CoralEjectPostCommand.h"
+#include "commands/StopAllCommand.h"
 
 #include <frc/MathUtil.h>
 #include <frc/smartdashboard/SmartDashboard.h>
@@ -186,10 +187,13 @@ void RobotContainer::ConfigPrimaryButtonBindings()
   primary.LeftBumper().OnTrue(&m_toggleFieldRelative);
   primary.RightBumper().OnTrue(&m_toggleSlowSpeed);
   primary.Back().OnTrue(&m_resetOdo);
-  primary.POVUp().OnTrue(GoToPositionCommand(*this, eJogForward, m_path).ToPtr());
-  primary.POVDown().OnTrue(GoToPositionCommand(*this, eJogBackward, m_path).ToPtr());
-  primary.POVRight().OnTrue(GoToPositionCommand(*this, eJogRight, m_path).ToPtr());
-  primary.POVLeft().OnTrue(GoToPositionCommand(*this, eJogLeft, m_path).ToPtr());
+
+  primary.POVUp().OnTrue(StopAllCommand(*this).ToPtr());
+
+//   primary.POVUp().OnTrue(GoToPositionCommand(*this, eJogForward, m_path).ToPtr());
+//   primary.POVDown().OnTrue(GoToPositionCommand(*this, eJogBackward, m_path).ToPtr());
+//   primary.POVRight().OnTrue(GoToPositionCommand(*this, eJogRight, m_path).ToPtr());
+//   primary.POVLeft().OnTrue(GoToPositionCommand(*this, eJogLeft, m_path).ToPtr());
 }
 
 void RobotContainer::ConfigSecondaryButtonBindings()
@@ -225,9 +229,8 @@ void RobotContainer::ConfigSecondaryButtonBindings()
   secondary.RightTrigger().OnTrue(&m_elevL2_3);
   secondary.LeftStick().OnTrue(&m_intakeAlign);
   secondary.RightStick().OnTrue(&m_intakePark);
-  // secondary.RightStick().OnTrue(&m_coralDeploy);
-
-  secondary.POVLeft().OnTrue(&m_rumblePrimary);
+  secondary.POVRight().OnTrue(&m_coralDeployManip);
+  secondary.POVLeft().OnTrue(&m_coralRetractManip);
 
 #ifdef TEST_WHEEL_CONTROL
   auto loop = CommandScheduler::GetInstance().GetDefaultButtonLoop();

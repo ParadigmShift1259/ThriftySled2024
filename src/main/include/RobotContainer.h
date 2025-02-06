@@ -130,8 +130,9 @@ class RobotContainer : public ISubsystemAccess
     m_coral.EjectCoral(down); 
   }, {&m_coral} };
   frc2::InstantCommand m_coralStop{[this] { m_coral.Stop(); }, {&m_coral} };
-  frc2::InstantCommand m_coralRetract{[this] { m_coral.RetractCoral(); }, {&m_coral} };
-  frc2::InstantCommand m_coralDeploy{[this] {m_coral.DeployManipulator(); }, {&m_coral} };
+  frc2::InstantCommand m_coralRetract{[this] { m_coral.RetractCoral(L1); }, {&m_coral} };
+  frc2::InstantCommand m_coralDeployManip{[this] {m_coral.DeployManipulator(); }, {&m_coral} };
+  frc2::InstantCommand m_coralRetractManip{[this] {m_coral.RetractManipulator(); }, {&m_coral} };
 
   frc2::InstantCommand m_rumblePrimary{[this] { m_primaryController.SetRumble(GenericHID::RumbleType::kBothRumble, 1); }, {} };
   frc2::InstantCommand m_stopRumblePrimary{[this] { m_primaryController.SetRumble(GenericHID::RumbleType::kBothRumble, 0); }, {} };
