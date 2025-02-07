@@ -29,12 +29,13 @@ void CoralEjectCommand::Initialize()
 #endif
     m_timer.Reset();
     m_timer.Start();
-
+    
+    m_coralSubsystem.EjectCoral(false);
 }
 
 void CoralEjectCommand::Execute()
 {
-    m_coralSubsystem.EjectCoral(false);
+    
 }
 
 bool CoralEjectCommand::IsFinished()
@@ -44,6 +45,7 @@ bool CoralEjectCommand::IsFinished()
 
 void CoralEjectCommand::End(bool interrupted)
 {
-    m_coralSubsystem.Stop();
-    printf("Coral Eject End \n");
+    m_coralSubsystem.RetractManipulator();
+    m_coralSubsystem.Stop(); //Stops coral eject motors
+    // printf("Coral Eject End \n");
 }

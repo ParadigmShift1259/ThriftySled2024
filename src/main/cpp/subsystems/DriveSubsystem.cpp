@@ -285,7 +285,7 @@ void DriveSubsystem::WheelsForward()
   m_bOverrideXboxInput = true;
   frc::SwerveModuleState sms;
   sms.angle = frc::Rotation2d{0.0_deg};
-  sms.speed = 0.5_mps;
+  sms.speed = 0.25_mps;
   SetAllDesiredState(sms);
 }
 

@@ -57,6 +57,10 @@ void CoralPrepCommand::Execute()
         }
         m_coralSubsystem.RetractCoral(eLevel);
         m_retract = false;
+        // if (m_coralLevel == c_defaultL4Turns)
+        // {
+        //     m_coralSubsystem.DeployManipulator();
+        // }
     }
 
 }

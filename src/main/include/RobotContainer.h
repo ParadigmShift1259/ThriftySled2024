@@ -13,6 +13,7 @@
 #include <frc2/command/CommandPtr.h>
 #include <frc2/command/RunCommand.h>
 #include <frc2/command/InstantCommand.h>
+#include <frc2/command/button/NetworkButton.h>
 
 #include "Constants.h"
 
@@ -136,6 +137,8 @@ class RobotContainer : public ISubsystemAccess
 
   frc2::InstantCommand m_rumblePrimary{[this] { m_primaryController.SetRumble(GenericHID::RumbleType::kBothRumble, 1); }, {} };
   frc2::InstantCommand m_stopRumblePrimary{[this] { m_primaryController.SetRumble(GenericHID::RumbleType::kBothRumble, 0); }, {} };
+
+  NetworkButton m_netButtonTest{"NetButtons", "Test"};
 
   PathConstraints m_pathConstraints { 0.25_mps, 0.25_mps_sq, 90_deg_per_s, 180_deg_per_s_sq };
   std::shared_ptr<PathPlannerPath> m_path;

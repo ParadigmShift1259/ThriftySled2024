@@ -38,8 +38,8 @@ CoralManipulatorSubsystem::CoralManipulatorSubsystem()
     frc::Preferences::InitDouble("kCoralManipD", c_defaultCoralManipD);
 
     frc::SmartDashboard::PutNumber("CoralRetractTurns", 3.25);
-    frc::SmartDashboard::PutNumber("ServoDeploy", 0.9);
-    frc::SmartDashboard::PutNumber("ServoRetract", 0.3);
+    frc::SmartDashboard::PutNumber("ServoDeploy", c_sevroDeployDefault);
+    frc::SmartDashboard::PutNumber("ServoRetract", c_sevroRetractDefault);
 }
 
 void CoralManipulatorSubsystem::Periodic()
@@ -108,7 +108,7 @@ void CoralManipulatorSubsystem::RetractCoral(ELevels eLevel)
     auto turns = frc::SmartDashboard::GetNumber("CoralRetractTurns", 3.25);
     if (eLevel == L4)
     {
-        turns += 3.0;
+        turns = 8;
     }
     m_coralPIDController.SetReference(m_coralRelativeEnc.GetPosition() + turns, SparkLowLevel::ControlType::kPosition);
 }

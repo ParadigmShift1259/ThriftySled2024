@@ -145,6 +145,8 @@ void ElevatorSubsystem::Periodic()
 
     frc::SmartDashboard::PutNumber("ElevatorLeadMotorPos Echo", m_leadRelativeEnc.GetPosition());
     frc::SmartDashboard::PutNumber("ElevatorFollowMotorPos Echo", m_followRelativeEnc.GetPosition());
+    frc::SmartDashboard::PutBoolean("ElevatorUpperLimit", m_upperLimit.Get());
+    frc::SmartDashboard::PutBoolean("ElevatorLowerLimit", m_lowerLimit.Get());
   }
 }
 

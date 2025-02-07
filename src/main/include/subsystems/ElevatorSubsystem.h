@@ -54,6 +54,9 @@ public:
 
     bool IsAtPosition(double level);
 
+    bool GetUpperLimit(){return m_upperLimit.Get();}
+    bool GetLowerLimit(){return m_lowerLimit.Get();}
+
     enum Position {
         kDefaultPosition,
         kResetPosition = kDefaultPosition,
@@ -70,7 +73,8 @@ private:
     SparkFlex m_followMotor;
     SparkRelativeEncoder m_followRelativeEnc = m_followMotor.GetEncoder();    
     SparkClosedLoopController m_followPIDController = m_followMotor.GetClosedLoopController();
-    
+    SparkLimitSwitch m_lowerLimit = m_leadMotor.GetReverseLimitSwitch();
+    SparkLimitSwitch m_upperLimit = m_leadMotor.GetForwardLimitSwitch();
 
     wpi::log::DoubleLogEntry m_log;
 

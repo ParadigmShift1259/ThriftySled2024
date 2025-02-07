@@ -23,6 +23,7 @@
 #include <frc2/command/WaitUntilCommand.h>
 #include <frc2/command/button/JoystickButton.h>
 #include <frc2/command/SequentialCommandGroup.h>
+#include <frc2/command/ConditionalCommand.h>
 
 #include <pathplanner/lib/commands/FollowPathCommand.h>
 
@@ -214,10 +215,12 @@ void RobotContainer::ConfigSecondaryButtonBindings()
 
   secondary.LeftBumper().OnTrue(CoralEjectPostCommand(*this).ToPtr());
   secondary.RightBumper().OnTrue(frc2::SequentialCommandGroup{
-    CoralPrepCommand(*this, c_defaultL3Turns)
-    , WaitCommand(0.5_s)
+    CoralPrepCommand(*this, c_defaultL4Turns)
+    , ConditionalCommand (InstantCommand{[this] {m_coral.DeployManipulator(); }, {&m_coral} }, 
+                          InstantCommand{[this] {m_coral.RetractManipulator(); }, {&m_coral} }, [](){return true;})
+    , WaitCommand(0.75_s)
     , CoralEjectCommand(*this)
-    , WaitCommand(0.5_s)
+    , WaitCommand(0.25_s)
     , CoralEjectPostCommand(*this)
   }.ToPtr());
       
@@ -231,6 +234,8 @@ void RobotContainer::ConfigSecondaryButtonBindings()
   secondary.RightStick().OnTrue(&m_intakePark);
   secondary.POVRight().OnTrue(&m_coralDeployManip);
   secondary.POVLeft().OnTrue(&m_coralRetractManip);
+
+  m_netButtonTest.OnChange(PrintCommand("Network button changed").ToPtr());
 
 #ifdef TEST_WHEEL_CONTROL
   auto loop = CommandScheduler::GetInstance().GetDefaultButtonLoop();
