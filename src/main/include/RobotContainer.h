@@ -16,6 +16,7 @@
 #include <frc2/command/button/NetworkButton.h>
 
 #include "Constants.h"
+#include "DashBoardValue.h"
 
 #include "ISubsystemAccess.h"
 
@@ -139,6 +140,7 @@ class RobotContainer : public ISubsystemAccess
   frc2::InstantCommand m_stopRumblePrimary{[this] { m_primaryController.SetRumble(GenericHID::RumbleType::kBothRumble, 0); }, {} };
 
   NetworkButton m_netButtonTest{"NetButtons", "Test"};
+  DashBoardValue<bool> m_dbvFieldRelative{"Drive", "FieldRelative", false};
 
   PathConstraints m_pathConstraints { 0.25_mps, 0.25_mps_sq, 90_deg_per_s, 180_deg_per_s_sq };
   std::shared_ptr<PathPlannerPath> m_path;
