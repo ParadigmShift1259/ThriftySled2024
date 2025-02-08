@@ -163,8 +163,8 @@ private:
     , m_gyro.GetRotation2d()
     , { m_frontLeft.GetPosition() , m_frontRight.GetPosition(), m_rearLeft.GetPosition(), m_rearRight.GetPosition() }
     , frc::Pose2d{}
-    , { 0.1, 0.1, 0.1 }
-    , { 0.7, 0.7, 9999999.0 }
+    , { 0.1, 0.1, 0.1 }       // std deviations 
+    , { 0.7, 0.7, 9999999.0 } // std deviations 
   };
 
   frc::PIDController m_rotationPIDController{ 1.0, 0.0, 0.025 };

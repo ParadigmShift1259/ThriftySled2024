@@ -157,10 +157,10 @@ void RobotContainer::ConfigPrimaryButtonBindings()
   // Keep the bindings in this order
   // A, B, X, Y, Left Bumper, Right Bumper, Back, Start
 
-#if 0
+//#if 0
   constexpr double c_HolomonicP =0.01;
 
-  primary.RightBumper().OnTrue(FollowPathCommand(
+  primary.RightBumper().WhileTrue(FollowPathCommand(
         GetOnTheFlyPath()
       , [this]() { return m_drive.GetPose(); } // Function to supply current robot pose
       , [this]() { return m_drive.GetChassisSpeeds(); }
@@ -180,13 +180,14 @@ void RobotContainer::ConfigPrimaryButtonBindings()
         },
         {&m_drive} // Drive requirements, usually just a single drive subsystem
       ).ToPtr());
-#endif
+//#endif
+
   primary.A().OnTrue(&m_coralEject);
   primary.B().OnTrue(CoralPrepCommand(*this, c_defaultL4Turns).ToPtr());
   primary.X().OnTrue(CoralIntakeCommand(*this).ToPtr());
   primary.Y().OnTrue(&m_coralStop);
   primary.LeftBumper().OnTrue(&m_toggleFieldRelative);
-  primary.RightBumper().OnTrue(&m_toggleSlowSpeed);
+//  primary.RightBumper().OnTrue(&m_toggleSlowSpeed);
   primary.Back().OnTrue(&m_resetOdo);
 
   primary.POVUp().OnTrue(StopAllCommand(*this).ToPtr());
@@ -224,7 +225,14 @@ void RobotContainer::ConfigSecondaryButtonBindings()
     , CoralEjectPostCommand(*this)
   }.ToPtr());
       
-  secondary.Back().OnTrue(&m_elevReset);
+  // secondary.Back().OnTrue(&m_elevReset);
+  secondary.Back().OnTrue(frc2::SequentialCommandGroup{
+    m_setHighSpeedCmd
+    , ElevatorGoToCommand(*this, 2.0)
+    , WaitCommand(0.4_s)
+    , ElevatorGoToCommand(*this, 0.0)
+    , m_elevReset
+  }.ToPtr());
   secondary.Start().OnTrue(&m_coralRetract);
   secondary.POVDown().OnTrue(&m_elevRelPosDown);
   secondary.POVUp().OnTrue(&m_elevRelPosUp);
@@ -384,18 +392,18 @@ std::shared_ptr<PathPlannerPath> RobotContainer::GetOnTheFlyPath()
   // Prevent the path from being flipped if the coordinates are already correct
   path->preventFlipping = true;
 
-  // printf("path waypoints x y angle\n");
-  // for (auto& wp : poses)
-  // {
-  //     printf("%.3f    %.3f    %.3f\n", wp.X().value(), wp.Y().value(), wp.Rotation().Degrees().value());
-  // }
+  printf("path waypoints x y angle\n");
+  for (auto& wp : poses)
+  {
+      printf("%.3f    %.3f    %.3f\n", wp.X().value(), wp.Y().value(), wp.Rotation().Degrees().value());
+  }
 
-  // printf("path points x y angle\n");
-  // auto pts = path->getAllPathPoints();
-  // for (auto& pt : pts)
-  // {
-  //     printf("%.3f    %.3f    %.3f\n", pt.position.X().value(), pt.position.Y().value(), pt.position.Angle().Degrees().value());
-  // }
+  printf("path points x y angle\n");
+  auto pts = path->getAllPathPoints();
+  for (auto& pt : pts)
+  {
+      printf("%.3f    %.3f    %.3f\n", pt.position.X().value(), pt.position.Y().value(), pt.position.Angle().Degrees().value());
+  }
 
   return path;
 }

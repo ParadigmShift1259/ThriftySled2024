@@ -66,7 +66,7 @@ DriveSubsystem::DriveSubsystem()
 
 void DriveSubsystem::Drive(const frc::ChassisSpeeds& speeds, const DriveFeedforwards& dffs)
 {
-  Drive(speeds.vx, speeds.vy, speeds.omega, false);
+  Drive(-speeds.vx, speeds.vy, speeds.omega, false);
 }
 
 void DriveSubsystem::Drive(units::meters_per_second_t xSpeed,
@@ -198,6 +198,7 @@ void DriveSubsystem::Periodic()
   frc::SmartDashboard::PutNumber("currPoseRadians", GetGyroAzimuth().value());
 
   frc::SmartDashboard::PutNumber("azimuthDeg", m_gyro.GetRotation2d().Degrees().value());
+  frc::SmartDashboard::PutNumber("GyroYaw", m_gyro.GetYaw().value());
 
   static int count = 0;
   if (count++ % 25 == 0)
@@ -206,17 +207,18 @@ void DriveSubsystem::Periodic()
   }
 
   // Update limelight for megatag2
-  //LimelightHelpers::SetRobotOrientation("limelight-reef", m_gyro.GetYaw().value(), 0.0, 0.0, 0.0, 0.0, 0.0);
+  LimelightHelpers::SetRobotOrientation("limelight-reef", m_gyro.GetYaw().value(), 0.0, 0.0, 0.0, 0.0, 0.0);
 
   bool doUpdate = true;
-  LimelightHelpers::SetRobotOrientation("limelight-reef", m_poseEstimator.GetEstimatedPosition().Rotation().Degrees().value(), 0.0, 0.0, 0.0, 0.0, 0.0);
+  //LimelightHelpers::SetRobotOrientation("limelight-reef", m_poseEstimator.GetEstimatedPosition().Rotation().Degrees().value(), 0.0, 0.0, 0.0, 0.0, 0.0);
   LimelightHelpers::PoseEstimate mt2 = LimelightHelpers::getBotPoseEstimate_wpiBlue_MegaTag2("limelight-reef");
-  if(fabs(m_gyro.GetTurnRate().value()) > 720.0) {
+  if (fabs(m_gyro.GetTurnRate().value()) > 720.0)
+  {
     doUpdate = false;
   }
-  if(doUpdate){
-    //const wpi::array<double, 3> stdDevs {.6, .6, 9999999};
-    //m_poseEstimator.SetVisionMeasurementStdDevs(stdDevs);
+
+  if (doUpdate)
+  {
     m_poseEstimator.AddVisionMeasurement(mt2.pose, mt2.timestampSeconds);
   }
 }
