@@ -8,6 +8,9 @@
 
 #include <units/math.h>
 
+constexpr units::kilogram_t c_RobotMass = 125_lb;
+constexpr units::kilogram_square_meter_t c_MOI = (c_RobotMass * (0.7903212_sq_m + 0.7903212_sq_m)) / 12.0;
+
 DriveSubsystem::DriveSubsystem()
   : m_gyro(kDrivePigeonCANID)
   , m_moduleCfg
@@ -15,17 +18,18 @@ DriveSubsystem::DriveSubsystem()
         SwerveModule::kWheelRadius
       , kMaxSpeed * 0.85              // true max speed of robot not simply a "max velocity" limit on the robot
       , 1.0                           // wheelCOF coefficient of friction, unknown, docs suggest 1.0
-      , frc::DCMotor::KrakenX60(1)
+      , frc::DCMotor::KrakenX60(1)    // Num motors (per swerve module)
       , SwerveModule::kDriveGearRatio
-      , 100.0_A                        // driveCurrentLimit
+      , 100.0_A                       // driveCurrentLimit
       , 1                             // numMotors
     }
   , m_robotConfig 
     {
-        60_kg
-      , (60_kg * (0.7903212_sq_m + 0.7903212_sq_m)) / 12.0  // Moment of inertia
+        c_RobotMass
+      , c_MOI //(60_kg * (0.7903212_sq_m + 0.7903212_sq_m)) / 12.0  // Moment of inertia
       , m_moduleCfg
-      , { m_frontLeftLocation , m_frontRightLocation, m_rearRightLocation, m_rearLeftLocation }
+      // does order matter here?, { m_frontLeftLocation , m_frontRightLocation, m_rearRightLocation, m_rearLeftLocation }
+      , { m_frontLeftLocation , m_frontRightLocation, m_rearLeftLocation, m_rearRightLocation }
   }
 {
   m_gyro.Reset();
@@ -66,7 +70,7 @@ DriveSubsystem::DriveSubsystem()
 
 void DriveSubsystem::Drive(const frc::ChassisSpeeds& speeds, const DriveFeedforwards& dffs)
 {
-  Drive(-speeds.vx, speeds.vy, speeds.omega, false);
+  Drive(speeds.vx, speeds.vy, speeds.omega, false);
 }
 
 void DriveSubsystem::Drive(units::meters_per_second_t xSpeed,

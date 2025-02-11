@@ -64,7 +64,6 @@ class DashBoardValue
 
  private:
     std::string  m_valueName;
-    T            m_value;
     T            m_defaultValue;
     NetTableSPtr m_spNetTable;
 };

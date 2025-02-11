@@ -7,11 +7,14 @@
 #include <numbers>
 
 //#define LED
+//#define PRACTICE_BINDINGS
 
 constexpr double c_turnGearRatio = 25.0;
 
 constexpr double kMinOut = -1.0;
 constexpr double kMaxOut = 1.0;
+
+enum ELevels { L1, L2, L3, L4 };
 
 namespace DriveConstants
 {

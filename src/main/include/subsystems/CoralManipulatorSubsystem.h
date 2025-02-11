@@ -22,8 +22,6 @@ WPI_UNIGNORE_DEPRECATED
 using namespace ctre::phoenix::motorcontrol::can;
 using namespace rev::spark;
 
-enum ELevels { L1, L2, L3, L4 };
-
 constexpr double c_sevroDeployDefault = 0.85;
 constexpr double c_sevroRetractDefault = 0.3;
 
