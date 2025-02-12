@@ -162,15 +162,12 @@ void RobotContainer::ConfigureBindings()
 void RobotContainer::ConfigPrimaryButtonBindings()
 {
   auto& primary = m_primaryController;
-
  
   // Primary
   // Keep the bindings in this order
   // A, B, X, Y, Left Bumper, Right Bumper, Back, Start
 
 //#if 0
-  constexpr double c_HolomonicP =0.01;
-
   primary.RightBumper().OnTrue(DeferredCommand(GetFollowPathCommand, {&m_drive} ).ToPtr());
 //#endif
 
@@ -341,7 +338,6 @@ void RobotContainer::SetSideSelected(ESideSelected sideSelected)
 
 frc2::CommandPtr RobotContainer::GetFollowPathCommandImpl()
 {
-
   constexpr double c_HolomonicP = 0.01;
 
   return FollowPathCommand(
@@ -422,14 +418,15 @@ std::shared_ptr<PathPlannerPath> RobotContainer::GetOnTheFlyPath()
   // std::vector<frc::Pose2d> poses {  frc::Pose2d { xM, yM, rotationDeg }
   //                                 , frc::Pose2d { xTarget, yTarget, rotationTarget }
   // };
-  double tanAngle = floor(180.0 + atan(yM.value() / xM.value()) * 180.0 / std::numbers::pi);
-  //int tanAngle = atan(yM.value() / xM.value()) * 180.0 / std::numbers::pi;
+  double tanAngle = -floor(180.0 + atan(yM.value() / xM.value()) * 180.0 / std::numbers::pi);
+  //double tanAngle = -atan(yM.value() / xM.value()) * 180.0 / std::numbers::pi;
   printf("tanAngle %.3f\n", tanAngle);
-  frc::SmartDashboard::PutNumber("InitPose", tanAngle);
-  //double dashAngle = frc::SmartDashboard::GetNumber("InitPose", tanAngle);
-  std::vector<frc::Pose2d> poses {  frc::Pose2d { xM, yM, units::angle::degree_t{tanAngle} }
-  // std::vector<frc::Pose2d> poses {  frc::Pose2d { xM, yM, units::angle::degree_t(dashAngle) }
-  // std::vector<frc::Pose2d> poses {  frc::Pose2d { xM, yM, 180_deg }
+  //frc::SmartDashboard::PutNumber("InitPose", tanAngle);
+  double dashAngle = frc::SmartDashboard::GetNumber("InitPose", tanAngle);
+  //std::vector<frc::Pose2d> poses {  frc::Pose2d { xM, yM, units::angle::degree_t{tanAngle} }
+  std::vector<frc::Pose2d> poses {  frc::Pose2d { xM, yM, units::angle::degree_t(dashAngle) }
+  //std::vector<frc::Pose2d> poses {  frc::Pose2d { xM, yM, 180_deg }
+  //std::vector<frc::Pose2d> poses {  frc::Pose2d { xM, yM, 0_deg }
                                   , frc::Pose2d { xTarget, yTarget, 0_deg }
   };
 
@@ -437,98 +434,14 @@ std::shared_ptr<PathPlannerPath> RobotContainer::GetOnTheFlyPath()
       PathPlannerPath::waypointsFromPoses(poses),
       m_pathConstraints,
       std::nullopt, // The ideal starting state, this is only relevant for pre-planned paths, so can be nullopt for on-the-fly paths.
-      GoalEndState(0.0_mps, frc::Rotation2d{ units::angle::degree_t{m_targetRot} } )
+      GoalEndState(0.0_mps, frc::Rotation2d{ 0_deg } )
+      //GoalEndState(0.0_mps, frc::Rotation2d{ units::angle::degree_t{m_targetRot} } )
   );
 
   // Prevent the path from being flipped if the coordinates are already correct
   path->preventFlipping = true;
 
   //frc::SmartDashboard::PutData("On-the-fly path", path.get());
-
-  // printf("init heading %.3f\n", path->getInitialHeading().Degrees().value());
-  // printf("start holonom pose x %.3f y  %.3f rot  %.3f\n", path->getStartingHolonomicPose()->X().value(), path->getStartingHolonomicPose()->Y().value(), path->getStartingHolonomicPose()->Rotation().Degrees().value());
-
-  // printf("input path poses x y angle\n");
-  // for (auto& wp : poses)
-  // {
-  //     printf("%.3f    %.3f    %.3f\n", wp.X().value(), wp.Y().value(), wp.Rotation().Degrees().value());
-  // }
-
-  // printf("path poses x y angle\n");
-  // for (auto& wp : path->getPathPoses())
-  // {
-  //     printf("%.3f    %.3f    %.3f\n", wp.X().value(), wp.Y().value(), wp.Rotation().Degrees().value());
-  // }
-
-  // printf("rot targ pos targ\n");
-  // for (auto& rt : path->getRotationTargets())
-  // {
-  //     printf("%.3f    %.3f\n", rt.getPosition(), rt.getTarget().Degrees().value());
-  // }
-
-  // printf("path points x y angle\n");
-  // auto pts = path->getAllPathPoints();
-  // for (auto& pt : pts)
-  // {
-  //     printf("%.3f    %.3f    %.3f\n", pt.position.X().value(), pt.position.Y().value(), pt.position.Angle().Degrees().value());
-  // }
-
-  return path;
-}
-
-std::shared_ptr<PathPlannerPath> RobotContainer::GetOnTheFlyPathWithPrint()
-{
-  std::shared_ptr<PathPlannerPath> path;
-
-  auto x = m_drive.GetX();
-  auto y = m_drive.GetY();
-  //auto rotation = m_drive.GetGyroAzimuthDeg().value();
-
-  //const units::length::meter_t c_jogLength = 5.0_in;
-
-  // int tagId = m_visionSubsystem.GetTagId();
-  m_targetX = c_targetReefRedX;
-  m_targetY = c_targetReefRedY;            
-  m_targetRot = c_targetReefRedRot;
-
-  frc::SmartDashboard::PutNumber("targetX", m_targetX);
-  frc::SmartDashboard::PutNumber("targetY", m_targetY);
-  frc::SmartDashboard::PutNumber("targetRot", m_targetRot);
-
-  auto xM = units::length::meter_t {x};
-  auto yM = units::length::meter_t {y};
-  //auto rotationDeg = frc::Rotation2d {units::angle::degree_t {rotation}};
-
-  auto xTarget = units::length::meter_t {m_targetX};
-  auto yTarget = units::length::meter_t {m_targetY};
-
-  // https://pathplanner.dev/pplib-create-a-path-on-the-fly.html
-  // Create a vector of waypoints from poses. Each pose represents one waypoint.
-  // The rotation component of the pose should be the direction of travel. Do not use holonomic rotation.
-  // std::vector<frc::Pose2d> poses {  frc::Pose2d { xM, yM, rotationDeg }
-  //                                 , frc::Pose2d { xTarget, yTarget, rotationTarget }
-  // };
-  double tanAngle = floor(180.0 + atan(yM.value() / xM.value()) * 180.0 / std::numbers::pi);
-  //int tanAngle = atan(yM.value() / xM.value()) * 180.0 / std::numbers::pi;
-  printf("tanAngle %.3f\n", tanAngle);
-  //printf("tanAngle %d\n", tanAngle);
-  frc::SmartDashboard::PutNumber("InitPose", tanAngle);
-  //double dashAngle = frc::SmartDashboard::GetNumber("InitPose", tanAngle);
-  std::vector<frc::Pose2d> poses {  frc::Pose2d { xM, yM, units::angle::degree_t(tanAngle) }
-  // std::vector<frc::Pose2d> poses {  frc::Pose2d { xM, yM, units::angle::degree_t(dashAngle) }
-  // std::vector<frc::Pose2d> poses {  frc::Pose2d { xM, yM, 180_deg }
-                                  , frc::Pose2d { xTarget, yTarget, 0_deg }
-  };
-
-  path = std::make_shared<PathPlannerPath>(
-      PathPlannerPath::waypointsFromPoses(poses),
-      m_pathConstraints,
-      std::nullopt, // The ideal starting state, this is only relevant for pre-planned paths, so can be nullopt for on-the-fly paths.
-      GoalEndState(0.0_mps, frc::Rotation2d{ units::angle::degree_t{m_targetRot} } )
-  );
-
-  // Prevent the path from being flipped if the coordinates are already correct
-  path->preventFlipping = true;
 
   printf("init heading %.3f\n", path->getInitialHeading().Degrees().value());
   printf("start holonom pose x %.3f y  %.3f rot  %.3f\n", path->getStartingHolonomicPose()->X().value(), path->getStartingHolonomicPose()->Y().value(), path->getStartingHolonomicPose()->Rotation().Degrees().value());

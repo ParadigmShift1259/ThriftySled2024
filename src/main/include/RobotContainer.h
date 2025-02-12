@@ -124,7 +124,6 @@ class RobotContainer : public ISubsystemAccess
   // frc2::InstantCommand m_resetOdo{[this] {m_drive.ResetOdometry({11.56_m, 8.12_m, 90_deg});}, {&m_drive}};
   // frc2::InstantCommand m_resetOdo{[this] {m_drive.ResetOdometry({530.49_in + 8.75_in, 130.17_in - 15.16_in, 120_deg});}, {&m_drive}};
   frc2::InstantCommand m_resetOdo{[this] {m_drive.ResetOdometry({481.39_in - 17.5_in, 158.5_in, 0_deg});}, {&m_drive}};
-  frc2::InstantCommand m_printPath{[this] {GetOnTheFlyPathWithPrint();}, {}};
 
   frc2::InstantCommand m_elevL4{[this] 
   { 
@@ -166,7 +165,7 @@ class RobotContainer : public ISubsystemAccess
   NetworkButton m_netButtonTest{"NetButtons", "Test"};
   // DashBoardValue<bool> m_dbvFieldRelative{"Drive", "FieldRelative", false};
 
-  PathConstraints m_pathConstraints { 0.25_mps, 0.25_mps_sq, 90_deg_per_s, 180_deg_per_s_sq };
+  PathConstraints m_pathConstraints { 1.0_mps, 1.0_mps_sq, 360_deg_per_s, 720_deg_per_s_sq };
   std::shared_ptr<PathPlannerPath> m_path;
   double m_targetX;
   double m_targetY;
