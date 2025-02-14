@@ -338,7 +338,7 @@ void RobotContainer::SetSideSelected(ESideSelected sideSelected)
 
 frc2::CommandPtr RobotContainer::GetFollowPathCommandImpl()
 {
-  constexpr double c_HolomonicP = 0.01;
+  constexpr double c_HolomonicP = 0.001;
 
   return FollowPathCommand(
         GetOnTheFlyPath()
@@ -390,6 +390,8 @@ std::shared_ptr<PathPlannerPath> RobotContainer::GetOnTheFlyPath()
 {
   std::shared_ptr<PathPlannerPath> path;
 
+  //path = PathPlannerPath::fromPathFile("Tag10Path");
+
   auto x = m_drive.GetX();
   auto y = m_drive.GetY();
   //auto rotation = m_drive.GetGyroAzimuthDeg().value();
@@ -418,13 +420,16 @@ std::shared_ptr<PathPlannerPath> RobotContainer::GetOnTheFlyPath()
   // std::vector<frc::Pose2d> poses {  frc::Pose2d { xM, yM, rotationDeg }
   //                                 , frc::Pose2d { xTarget, yTarget, rotationTarget }
   // };
-  double tanAngle = -floor(180.0 + atan(yM.value() / xM.value()) * 180.0 / std::numbers::pi);
-  //double tanAngle = -atan(yM.value() / xM.value()) * 180.0 / std::numbers::pi;
+  //double tanAngle = -floor(180.0 + atan(yM.value() / xM.value()) * 180.0 / std::numbers::pi);
+
+  double xDelta = xTarget.value() - xM.value();
+  double yDelta = yTarget.value() - yM.value();
+  double tanAngle = atan(yDelta / xDelta) * 180.0 / std::numbers::pi;
   printf("tanAngle %.3f\n", tanAngle);
   //frc::SmartDashboard::PutNumber("InitPose", tanAngle);
-  double dashAngle = frc::SmartDashboard::GetNumber("InitPose", tanAngle);
-  //std::vector<frc::Pose2d> poses {  frc::Pose2d { xM, yM, units::angle::degree_t{tanAngle} }
-  std::vector<frc::Pose2d> poses {  frc::Pose2d { xM, yM, units::angle::degree_t(dashAngle) }
+  //double dashAngle = frc::SmartDashboard::GetNumber("InitPose", tanAngle);
+  std::vector<frc::Pose2d> poses {  frc::Pose2d { xM, yM, units::angle::degree_t{tanAngle} }
+  //std::vector<frc::Pose2d> poses {  frc::Pose2d { xM, yM, units::angle::degree_t(dashAngle) }
   //std::vector<frc::Pose2d> poses {  frc::Pose2d { xM, yM, 180_deg }
   //std::vector<frc::Pose2d> poses {  frc::Pose2d { xM, yM, 0_deg }
                                   , frc::Pose2d { xTarget, yTarget, 0_deg }
@@ -470,6 +475,8 @@ std::shared_ptr<PathPlannerPath> RobotContainer::GetOnTheFlyPath()
   {
       printf("%.3f    %.3f    %.3f\n", pt.position.X().value(), pt.position.Y().value(), pt.position.Angle().Degrees().value());
   }
+
+//  m_drive.ResetOdometry(path->getStartingHolonomicPose().value());
 
   return path;
 }

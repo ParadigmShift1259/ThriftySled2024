@@ -24,6 +24,7 @@ void CoralIntakeCommand::Initialize()
 {
     m_timer.Reset();
     m_timer.Start();
+    m_coralSubsystem.SetManipulator(-0.5);
 #ifdef LED
     m_ledSubsystem.SetCurrentAction(LEDSubsystem::kHasCoral);
 #endif
@@ -31,24 +32,21 @@ void CoralIntakeCommand::Initialize()
 
 void CoralIntakeCommand::Execute()
 {
-    if (m_coralSubsystem.IsCoralPresentInput()){
-        m_isCoralPresent = true;
+    if (m_coralSubsystem.IsCoralPresentOutput()){
         m_coralSubsystem.SetManipulator(-0.5);
 #ifdef LED
         m_ledSubsystem.SetAnimation(c_colorPink, LEDSubsystem::kSolid);
 #endif
-        m_coralSubsystem.SetFeeder(0.5);
     }
 }
 
 bool CoralIntakeCommand::IsFinished()
 {
-    return m_isCoralPresent == true && m_coralSubsystem.IsCoralPresentInput() == false;
+    return m_coralSubsystem.IsCoralPresentOutput() == true && m_coralSubsystem.IsCoralPresentInput() == false;
 }
 
 void CoralIntakeCommand::End(bool interrupted)
 {
-    m_isCoralPresent = false;
     m_coralSubsystem.Stop();
 // #ifdef LED
 //     m_ledSubsystem.SetCurrentAction(LEDSubsystem::kIdle);
