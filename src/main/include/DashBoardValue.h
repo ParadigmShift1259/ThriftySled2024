@@ -43,7 +43,7 @@ class DashBoardValue
         }
     }
     
-    const T& Put(const T& newValue)
+    void Put(const T& newValue)
     {
         if (m_spNetTable)
         {
