@@ -3,7 +3,7 @@
 
 #include <frc/smartdashboard/SmartDashboard.h>
 
-CoralPrepCommand::CoralPrepCommand(ISubsystemAccess& subsystemAccess, double coralLevel)
+CoralPrepCommand::CoralPrepCommand(ISubsystemAccess& subsystemAccess, ELevels coralLevel)
     : m_coralSubsystem(subsystemAccess.GetCoral())
     , m_elevatorSubsystem(subsystemAccess.GetElevator())
 #ifdef LED
@@ -20,7 +20,6 @@ CoralPrepCommand::CoralPrepCommand(ISubsystemAccess& subsystemAccess, double cor
     wpi::log::DataLog& log = subsystemAccess.GetLogger();
     m_logStartCoralPrepCommand = wpi::log::BooleanLogEntry(log, "/CoralPrepCommand/startCommand");
     m_logCoralPrepCommandFlipped = wpi::log::BooleanLogEntry(log, "/CoralPrepCommand/startCommand");
-
 }
 
 void CoralPrepCommand::Initialize()
@@ -28,7 +27,7 @@ void CoralPrepCommand::Initialize()
     auto turns = frc::SmartDashboard::GetNumber("CoralRetractTurns", 3.25);
     m_timer.Reset();
     m_timer.Start();
-    m_blocked = (m_coralLevel == c_defaultL4Turns || m_coralLevel == c_defaultL3Turns) && m_coralSubsystem.IsCoralPresentInput();
+    m_blocked = (m_coralLevel == L4 || m_coralLevel == L3) && m_coralSubsystem.IsCoralPresentInput();
     if (m_blocked)
     {
         return;
@@ -41,25 +40,7 @@ void CoralPrepCommand::Initialize()
     m_elevatorSubsystem.GoToPosition(m_coralLevel);
 #else
     m_elevatorSubsystem.GoToPresetLevel();
-    ELevels eLevel = m_elevatorSubsystem.GetPresetLevel();
-    switch (eLevel)
-    {
-        case L1:
-            m_coralLevel = c_defaultL1Turns;
-            break;
-        case L2:
-            m_coralLevel = c_defaultL2Turns;
-            break;
-        case L3:
-            m_coralLevel = c_defaultL3Turns;
-            break;
-        case L4:
-            m_coralLevel = c_defaultL4Turns;
-            break;
-        default:
-            break;
-    }
-        
+    m_coralLevel = m_elevatorSubsystem.GetPresetLevel();
 #endif
     m_coralEncPos = m_coralSubsystem.GetPosition() + turns;
     m_retract = true;
@@ -69,25 +50,7 @@ void CoralPrepCommand::Execute()
 {
     if (m_elevatorSubsystem.IsAtPosition(m_coralLevel) && m_retract)
     {
-        // m_coralSubsystem.SetManipulator(0.5); This is for L4 only goes all the way back
-#ifdef PRACTICE_BINDINGS
-        ELevels eLevel = L1;
-        if (m_coralLevel == c_defaultL2Turns)
-        {
-            eLevel = L2;
-        }
-        else if (m_coralLevel == c_defaultL3Turns)
-        {
-            eLevel = L3;
-        }
-        else if (m_coralLevel == c_defaultL4Turns)
-        {
-            eLevel = L4;
-        }
-#else
-        ELevels eLevel = m_elevatorSubsystem.GetPresetLevel();
-#endif
-        m_coralSubsystem.RetractCoral(eLevel);
+        m_coralSubsystem.RetractCoral(m_coralLevel);
         m_retract = false;
     }
 

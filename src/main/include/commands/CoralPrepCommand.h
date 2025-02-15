@@ -9,14 +9,13 @@
 class CoralPrepCommand: public frc2::CommandHelper<frc2::Command, CoralPrepCommand>
 {
     public:
-        explicit CoralPrepCommand(ISubsystemAccess& subsystemAccess, double coralLevel);
+        explicit CoralPrepCommand(ISubsystemAccess& subsystemAccess, ELevels coralLevel);
         void Initialize() override;
         void Execute() override;
         bool IsFinished() override;
         void End(bool interrupted) override;
 
     private:
-
         CoralManipulatorSubsystem&        m_coralSubsystem;
         ElevatorSubsystem&                m_elevatorSubsystem;
 #ifdef LED
@@ -25,7 +24,7 @@ class CoralPrepCommand: public frc2::CommandHelper<frc2::Command, CoralPrepComma
 
         frc::Timer m_timer;
 
-        double m_coralLevel = c_defaultL1Turns;
+        ELevels m_coralLevel = L1;
         double m_coralEncPos = 0.0;
         bool m_retract = true;
         bool m_blocked = false;

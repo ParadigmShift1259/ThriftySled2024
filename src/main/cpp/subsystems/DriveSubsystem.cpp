@@ -277,7 +277,8 @@ void DriveSubsystem::ResetOdometry(frc::Pose2d pose)
                                            m_rearLeft.GetPosition(), m_rearRight.GetPosition()};
   printf("m_gyro.GetRotation2d().Degrees %.3f pose.Rotation().Degrees %.3f\n", m_gyro.GetRotation2d().Degrees().value(), pose.Rotation().Degrees().value());
   m_gyro.Set(pose.Rotation().Degrees());
-  m_poseEstimator.ResetPosition(pose.Rotation(), modulePositions, pose);
+//  m_poseEstimator.ResetPosition(pose.Rotation(), modulePositions, pose);
+  m_poseEstimator.ResetPose(pose);
   //m_odometry.ResetPosition(pose.Rotation(), modulePositions, pose);
 }
 

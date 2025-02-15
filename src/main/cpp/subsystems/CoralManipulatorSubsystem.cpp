@@ -5,8 +5,6 @@
 #include <frc/SmartDashBoard/SmartDashboard.h>
 #include <frc/shuffleboard/Shuffleboard.h>
 
-#include <frc/Preferences.h>
-
 using namespace frc;
 using namespace ctre::phoenix::motorcontrol;
 using namespace rev::spark;
@@ -38,8 +36,9 @@ CoralManipulatorSubsystem::CoralManipulatorSubsystem()
     frc::Preferences::InitDouble("kCoralManipD", c_defaultCoralManipD);
 
     frc::SmartDashboard::PutNumber("CoralRetractTurns", 3.25);
-    frc::SmartDashboard::PutNumber("ServoDeploy", c_servoDeployDefault);
-    frc::SmartDashboard::PutNumber("ServoRetract", c_servoRetractDefault);
+
+    frc::Preferences::InitDouble("ServoDeploy", c_servoDeployDefault);
+    frc::Preferences::InitDouble("ServoRetract", c_servoRetractDefault);
 }
 
 void CoralManipulatorSubsystem::Periodic()

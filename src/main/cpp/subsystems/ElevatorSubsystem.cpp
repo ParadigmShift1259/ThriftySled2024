@@ -63,6 +63,10 @@ ElevatorSubsystem::ElevatorSubsystem()
     frc::Preferences::InitDouble("ElevatorPosI", c_defaultElevatorI);
     frc::Preferences::InitDouble("ElevatorPosD", c_defaultElevatorD);
     frc::Preferences::InitDouble("ElevatorPosFF", c_defaultElevatorFF);
+    frc::Preferences::InitDouble("ElevatorL4", c_defaultL4Turns);
+    // frc::Preferences::InitDouble("ElevatorL3", c_defaultL3Turns);
+    // frc::Preferences::InitDouble("ElevatorL2", c_defaultL2Turns);
+    // frc::Preferences::InitDouble("ElevatorL1", c_defaultL1Turns);
 
     frc::SmartDashboard::PutNumber("ElevatorLeadMotorPos", 1.0);
     frc::SmartDashboard::PutNumber("ElevatorFollowMotorPos", 1.0);
@@ -143,16 +147,36 @@ void ElevatorSubsystem::Periodic()
         m_followPIDController.SetReference(m_position, SparkBase::ControlType::kPosition, m_slot);
     }
 
-    if (fabs(m_position - currentPos) < 0.25) 
-    {
-        Stop();
-    }
+    // if (fabs(m_position - currentPos) < 0.25) 
+    // {
+    //     Stop();
+    // }
 
     frc::SmartDashboard::PutNumber("ElevatorLeadMotorPos Echo", m_leadRelativeEnc.GetPosition());
     frc::SmartDashboard::PutNumber("ElevatorFollowMotorPos Echo", m_followRelativeEnc.GetPosition());
     frc::SmartDashboard::PutBoolean("ElevatorUpperLimit", m_upperLimit.Get());
     frc::SmartDashboard::PutBoolean("ElevatorLowerLimit", m_lowerLimit.Get());
   }
+}
+
+double ElevatorSubsystem::GetPositionForLevel(ELevels eLevel)
+{
+    static double positions[] = { c_defaultL1Turns, c_defaultL2Turns, c_defaultL3Turns, c_algaeRemovalL3_4, c_algaeRemovalL2_3 };
+    double position;
+    if (eLevel == L4)
+    {
+        position = frc::Preferences::GetDouble("ElevatorL4", c_defaultL4Turns);
+    }
+    else
+    {
+        position = positions[eLevel]; 
+    }
+     return position;
+}
+
+void ElevatorSubsystem::GoToPosition(ELevels eLevel)
+{
+    GoToPosition(GetPositionForLevel(eLevel));  
 }
 
 void ElevatorSubsystem::GoToPosition(double position)
@@ -170,7 +194,6 @@ void ElevatorSubsystem::GoToPosition(double position)
     }
     m_leadPIDController.SetReference(position, SparkBase::ControlType::kPosition, m_slot);
     m_followPIDController.SetReference(position, SparkBase::ControlType::kPosition, m_slot);
-
 }
 
 void ElevatorSubsystem::GotoPositionRel(double relPos)
@@ -186,9 +209,10 @@ void ElevatorSubsystem::GotoPositionRel(double relPos)
     GoToPosition(m_leadRelativeEnc.GetPosition() + relPos);
 }
 
-bool ElevatorSubsystem::IsAtPosition(double level)
+bool ElevatorSubsystem::IsAtPosition(ELevels level)
 {
-    double difference = fabs(m_leadRelativeEnc.GetPosition() - level);
+    double levelPos = GetPositionForLevel(level);
+    double difference = fabs(m_leadRelativeEnc.GetPosition() - levelPos);
     return difference > -0.53 && difference < 0.5;
 }
 
@@ -203,22 +227,5 @@ void ElevatorSubsystem::SetPresetLevel(ELevels level)
 
 void ElevatorSubsystem::GoToPresetLevel()
 {
-    switch (m_level)
-    {
-    case L1:
-        GoToPosition(c_defaultL1Turns);
-        break;
-    case L2:
-        GoToPosition(c_defaultL2Turns);
-        break;
-    case L3:
-        GoToPosition(c_defaultL3Turns);
-        break;
-    case L4:
-        GoToPosition(c_defaultL4Turns);
-        break;
-    
-    default:
-        break;
-    }
+    GoToPosition(m_level);
 }
