@@ -100,7 +100,6 @@ class RobotContainer : public ISubsystemAccess
   SlewRateLimiter<units::scalar> m_xspeedLimiter{3 / 1_s, -3 / 1_s};
   SlewRateLimiter<units::scalar> m_yspeedLimiter{3 / 1_s, -3 / 1_s};
   SlewRateLimiter<units::scalar> m_rotLimiter{3 / 1_s};
-  SlewRateLimiter<units::scalar> m_yawRotationLimiter{3 / 1_s};
   // TODO Make sure field relative starts how the drive team wants
   bool m_fieldRelative = true;
   bool m_isAutoRunning = false;
@@ -148,6 +147,7 @@ class RobotContainer : public ISubsystemAccess
 
   frc2::InstantCommand m_intakeAlign{[this] { m_intake.AlignIntake(); }, {&m_intake} };
   frc2::InstantCommand m_intakePark{[this] { m_intake.ParkIntakeForClimb(); }, {&m_intake} };
+  frc2::InstantCommand m_intakeParkAtZero{[this] { m_intake.ParkIntakeAtZero(); }, {&m_intake} };
 
   frc2::InstantCommand m_coralEject{[this]
   { 

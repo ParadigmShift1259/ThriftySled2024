@@ -38,8 +38,8 @@ CoralManipulatorSubsystem::CoralManipulatorSubsystem()
     frc::Preferences::InitDouble("kCoralManipD", c_defaultCoralManipD);
 
     frc::SmartDashboard::PutNumber("CoralRetractTurns", 3.25);
-    frc::SmartDashboard::PutNumber("ServoDeploy", c_sevroDeployDefault);
-    frc::SmartDashboard::PutNumber("ServoRetract", c_sevroRetractDefault);
+    frc::SmartDashboard::PutNumber("ServoDeploy", c_servoDeployDefault);
+    frc::SmartDashboard::PutNumber("ServoRetract", c_servoRetractDefault);
 }
 
 void CoralManipulatorSubsystem::Periodic()

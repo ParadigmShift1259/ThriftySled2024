@@ -284,15 +284,17 @@ void RobotContainer::ConfigButtonBoxBindings()
   buttonBox.Back().OnTrue(&m_elevRelPosUp);
   buttonBox.LeftStick().OnTrue(&m_elevRelPosDown);
 
-  //buttonBox.B().OnTrue(&m_coralStop);
+  buttonBox.B().OnTrue(&m_intakeParkAtZero);
   
+
   buttonBox.Start().OnTrue(&m_elevL3_4);
   buttonBox.RightStick().OnTrue(&m_elevL2_3);
 
   buttonBox.A().OnTrue(frc2::SequentialCommandGroup{
     CoralPrepCommand(*this, c_defaultL4Turns)
     , ConditionalCommand (InstantCommand{[this] {m_coral.DeployManipulator(); }, {&m_coral} }, 
-                          InstantCommand{[this] {m_coral.RetractManipulator(); }, {&m_coral} }, [](){return true;})
+                          InstantCommand{[
+                            this] {m_coral.RetractManipulator(); }, {&m_coral} }, [this](){return m_elevator.GetPresetLevel() == L4;})
     , WaitCommand(0.75_s)
     , CoralEjectCommand(*this)
     , WaitCommand(0.25_s)
