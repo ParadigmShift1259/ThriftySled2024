@@ -57,6 +57,10 @@ public:
     bool GetUpperLimit(){return m_upperLimit.Get();}
     bool GetLowerLimit(){return m_lowerLimit.Get();}
 
+    void SetPresetLevel(ELevels level);
+    ELevels GetPresetLevel() {return m_level;}
+    void GoToPresetLevel();
+
     enum Position {
         kDefaultPosition,
         kResetPosition = kDefaultPosition,
@@ -83,4 +87,6 @@ private:
 
     double m_position = 0.0;
     ClosedLoopSlot m_slot = ClosedLoopSlot::kSlot0;
+
+    ELevels m_level = L1;
 };

@@ -32,6 +32,7 @@ public:
     void AlignIntake();
     // Retracts the intake into the robot
     void ParkIntakeForClimb();
+    void ParkIntakeAtZero();
     void GoToPosition(double turns);
     double GetPosition() { return m_deployRelativeEnc.GetPosition(); }
     void Stop() { Set(0.0); }

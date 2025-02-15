@@ -32,7 +32,30 @@ void CoralPrepCommand::Initialize()
     m_ledSubsystem.SetCurrentAction(LEDSubsystem::kPreCoral);
     m_ledSubsystem.SetAnimation(c_colorPink, LEDSubsystem::kStrobe);  //TODO Replace constant color with var based on left/right & Set height based on level
 #endif
+#ifdef PRACTICE_BINDINGS
     m_elevatorSubsystem.GoToPosition(m_coralLevel);
+#else
+    m_elevatorSubsystem.GoToPresetLevel();
+    ELevels eLevel = m_elevatorSubsystem.GetPresetLevel();
+    switch (eLevel)
+    {
+        case L1:
+            m_coralLevel = c_defaultL1Turns;
+            break;
+        case L2:
+            m_coralLevel = c_defaultL2Turns;
+            break;
+        case L3:
+            m_coralLevel = c_defaultL3Turns;
+            break;
+        case L4:
+            m_coralLevel = c_defaultL4Turns;
+            break;
+        default:
+            break;
+    }
+        
+#endif
     m_coralEncPos = m_coralSubsystem.GetPosition() + turns;
     m_retract = true;
 }
@@ -42,6 +65,7 @@ void CoralPrepCommand::Execute()
     if (m_elevatorSubsystem.IsAtPosition(m_coralLevel) && m_retract)
     {
         // m_coralSubsystem.SetManipulator(0.5); This is for L4 only goes all the way back
+#ifdef PRACTICE_BINDINGS
         ELevels eLevel = L1;
         if (m_coralLevel == c_defaultL2Turns)
         {
@@ -55,12 +79,11 @@ void CoralPrepCommand::Execute()
         {
             eLevel = L4;
         }
+#else
+        ELevels eLevel = m_elevatorSubsystem.GetPresetLevel();
+#endif
         m_coralSubsystem.RetractCoral(eLevel);
         m_retract = false;
-        // if (m_coralLevel == c_defaultL4Turns)
-        // {
-        //     m_coralSubsystem.DeployManipulator();
-        // }
     }
 
 }

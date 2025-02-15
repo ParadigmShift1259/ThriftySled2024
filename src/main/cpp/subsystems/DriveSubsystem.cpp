@@ -8,6 +8,9 @@
 
 #include <units/math.h>
 
+constexpr units::kilogram_t c_RobotMass = 125_lb;
+constexpr units::kilogram_square_meter_t c_MOI = (c_RobotMass * (0.7903212_sq_m + 0.7903212_sq_m)) / 12.0;
+
 DriveSubsystem::DriveSubsystem()
   : m_gyro(kDrivePigeonCANID)
   , m_moduleCfg
@@ -15,17 +18,18 @@ DriveSubsystem::DriveSubsystem()
         SwerveModule::kWheelRadius
       , kMaxSpeed * 0.85              // true max speed of robot not simply a "max velocity" limit on the robot
       , 1.0                           // wheelCOF coefficient of friction, unknown, docs suggest 1.0
-      , frc::DCMotor::KrakenX60(1)
+      , frc::DCMotor::KrakenX60(1)    // Num motors (per swerve module)
       , SwerveModule::kDriveGearRatio
-      , 100.0_A                        // driveCurrentLimit
+      , 100.0_A                       // driveCurrentLimit
       , 1                             // numMotors
     }
   , m_robotConfig 
     {
-        60_kg
-      , (60_kg * (0.7903212_sq_m + 0.7903212_sq_m)) / 12.0  // Moment of inertia
+        c_RobotMass
+      , c_MOI //(60_kg * (0.7903212_sq_m + 0.7903212_sq_m)) / 12.0  // Moment of inertia
       , m_moduleCfg
-      , { m_frontLeftLocation , m_frontRightLocation, m_rearRightLocation, m_rearLeftLocation }
+      // does order matter here?, { m_frontLeftLocation , m_frontRightLocation, m_rearRightLocation, m_rearLeftLocation }
+      , { m_frontLeftLocation , m_frontRightLocation, m_rearLeftLocation, m_rearRightLocation }
   }
 {
   m_gyro.Reset();
@@ -66,7 +70,7 @@ DriveSubsystem::DriveSubsystem()
 
 void DriveSubsystem::Drive(const frc::ChassisSpeeds& speeds, const DriveFeedforwards& dffs)
 {
-  Drive(-speeds.vx, speeds.vy, speeds.omega, false);
+  Drive(-speeds.vx, -speeds.vy, speeds.omega, false);
 }
 
 void DriveSubsystem::Drive(units::meters_per_second_t xSpeed,
@@ -225,7 +229,9 @@ void DriveSubsystem::Periodic()
 
 frc::Pose2d DriveSubsystem::GetPose()
 {
-  return m_poseEstimator.GetEstimatedPosition();
+  auto pose = frc::Pose2d { m_poseEstimator.GetEstimatedPosition().X(), m_poseEstimator.GetEstimatedPosition().Y(), frc::Rotation2d { m_gyro.GetYaw()} };
+  return pose;
+//  return m_poseEstimator.GetEstimatedPosition();
 //  return m_odometry.GetPose();
 
 }
@@ -258,6 +264,11 @@ void DriveSubsystem::UpdateOdometry()
   //                  {m_frontLeft.GetPosition(), m_frontRight.GetPosition(),
   //                   m_rearLeft.GetPosition(),  m_rearRight.GetPosition()});
 
+  auto pose = m_poseEstimator.GetEstimatedPosition();
+  frc::SmartDashboard::PutNumber("PoseX", pose.X().to<double>());
+  frc::SmartDashboard::PutNumber("Posey", pose.Y().to<double>());
+  frc::SmartDashboard::PutNumber("PoseRot", pose.Rotation().Degrees().to<double>());
+
   m_publisher.Set(m_poseEstimator.GetEstimatedPosition());
   //m_publisher.Set(m_odometry.GetPose());
 }
@@ -267,11 +278,11 @@ void DriveSubsystem::ResetOdometry(frc::Pose2d pose)
   // frc::SmartDashboard::PutNumber("ResetX", pose.X().to<double>());
   // frc::SmartDashboard::PutNumber("Resety", pose.Y().to<double>());
   // frc::SmartDashboard::PutNumber("ResetRot", pose.Rotation().Degrees().to<double>());
-  //printf ("resetx %.3f resety %.3f resetrot %.3f\n", pose.X().value(), pose.Y().value(), pose.Rotation().Degrees().value());
+  printf ("resetx %.3f resety %.3f resetrot %.3f\n", pose.X().value(), pose.Y().value(), pose.Rotation().Degrees().value());
 
   SwerveModulePositions modulePositions = {m_frontLeft.GetPosition(), m_frontRight.GetPosition(),
                                            m_rearLeft.GetPosition(), m_rearRight.GetPosition()};
-  // printf("m_gyro.GetRotation2d().Degrees %.3f pose.Rotation().Degrees %.3f\n", m_gyro.GetRotation2d().Degrees().value(), pose.Rotation().Degrees().value());
+  printf("m_gyro.GetRotation2d().Degrees %.3f pose.Rotation().Degrees %.3f\n", m_gyro.GetRotation2d().Degrees().value(), pose.Rotation().Degrees().value());
   m_gyro.Set(pose.Rotation().Degrees());
   m_poseEstimator.ResetPosition(pose.Rotation(), modulePositions, pose);
   //m_odometry.ResetPosition(pose.Rotation(), modulePositions, pose);

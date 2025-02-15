@@ -22,10 +22,8 @@ WPI_UNIGNORE_DEPRECATED
 using namespace ctre::phoenix::motorcontrol::can;
 using namespace rev::spark;
 
-enum ELevels { L1, L2, L3, L4 };
-
-constexpr double c_sevroDeployDefault = 0.85;
-constexpr double c_sevroRetractDefault = 0.3;
+constexpr double c_servoDeployDefault = 0.8;
+constexpr double c_servoRetractDefault = 0.3;
 
 class CoralManipulatorSubsystem : public frc2::SubsystemBase
 {
@@ -39,9 +37,9 @@ public:
     /// \param speed         Desired motor speed to run, ranging from [-1, 1]
     void SetFeeder(double speed);
     /// Deploys the manipulator out of the robot
-    void DeployManipulator() {double sp = frc::SmartDashboard::GetNumber("ServoDeploy", c_sevroDeployDefault); m_deployServo.Set(sp); }
+    void DeployManipulator() {double sp = frc::SmartDashboard::GetNumber("ServoDeploy", c_servoDeployDefault); m_deployServo.Set(sp); }
     // Retracts the manipulator into the robot
-    void RetractManipulator() {double sp = frc::SmartDashboard::GetNumber("ServoRetract", c_sevroRetractDefault);m_deployServo.Set(sp); }
+    void RetractManipulator() {double sp = frc::SmartDashboard::GetNumber("ServoRetract", c_servoRetractDefault);m_deployServo.Set(sp); }
     void GoToPosition(double turns);
     double GetPosition() { return m_coralRelativeEnc.GetPosition(); }
     bool IsCoralPresentInput() { return m_photoEyeIn.Get(); }

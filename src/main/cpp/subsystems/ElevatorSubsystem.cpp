@@ -68,6 +68,11 @@ ElevatorSubsystem::ElevatorSubsystem()
     frc::SmartDashboard::PutNumber("ElevatorFollowMotorPos", 1.0);
 
     frc::SmartDashboard::PutNumber("ElevatorGoToRel", 1.0);
+
+    frc::SmartDashboard::PutBoolean("L1", false);
+    frc::SmartDashboard::PutBoolean("L2", false);
+    frc::SmartDashboard::PutBoolean("L3", false);
+    frc::SmartDashboard::PutBoolean("L4", false);
 }
 
 void ElevatorSubsystem::Periodic()
@@ -187,3 +192,33 @@ bool ElevatorSubsystem::IsAtPosition(double level)
     return difference > -0.53 && difference < 0.5;
 }
 
+void ElevatorSubsystem::SetPresetLevel(ELevels level)
+{
+    m_level = level;
+    frc::SmartDashboard::PutBoolean("L1", (m_level == L1));
+    frc::SmartDashboard::PutBoolean("L2", (m_level == L2));
+    frc::SmartDashboard::PutBoolean("L3", (m_level == L3));
+    frc::SmartDashboard::PutBoolean("L4", (m_level == L4));
+}
+
+void ElevatorSubsystem::GoToPresetLevel()
+{
+    switch (m_level)
+    {
+    case L1:
+        GoToPosition(c_defaultL1Turns);
+        break;
+    case L2:
+        GoToPosition(c_defaultL2Turns);
+        break;
+    case L3:
+        GoToPosition(c_defaultL3Turns);
+        break;
+    case L4:
+        GoToPosition(c_defaultL4Turns);
+        break;
+    
+    default:
+        break;
+    }
+}

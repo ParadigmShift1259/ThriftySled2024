@@ -163,8 +163,8 @@ private:
     , m_gyro.GetRotation2d()
     , { m_frontLeft.GetPosition() , m_frontRight.GetPosition(), m_rearLeft.GetPosition(), m_rearRight.GetPosition() }
     , frc::Pose2d{}
-    , { 0.1, 0.1, 0.1 }       // std deviations 
-    , { 0.7, 0.7, 9999999.0 } // std deviations 
+    , { 0.1, 0.1, 0.1 }       // std deviations of the pose estimate; increase these numbers to trust your state estimate less.
+    , { 0.7, 0.7, 9999999.0 } // std deviations of the vision pose measurement; increase these numbers to trust the vision pose measurement less.
   };
 
   frc::PIDController m_rotationPIDController{ 1.0, 0.0, 0.025 };

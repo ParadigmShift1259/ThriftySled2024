@@ -100,6 +100,11 @@ void IntakeSubsystem::ParkIntakeForClimb()
     m_deployPIDController.SetReference(turns, SparkBase::ControlType::kPosition, c_intakeGeneralPIDSlot);
 }
 
+void IntakeSubsystem::ParkIntakeAtZero()
+{
+    m_deployPIDController.SetReference(0.0, SparkBase::ControlType::kPosition, c_intakeGeneralPIDSlot);
+}
+
 void IntakeSubsystem::GoToPosition(double turns)
 {
     m_deployPIDController.SetReference(turns, SparkBase::ControlType::kPosition, c_intakeGeneralPIDSlot);

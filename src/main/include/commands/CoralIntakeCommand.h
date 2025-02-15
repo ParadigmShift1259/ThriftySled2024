@@ -24,8 +24,6 @@ class CoralIntakeCommand: public frc2::CommandHelper<frc2::Command, CoralIntakeC
 
         frc::Timer m_timer;
 
-        bool m_isCoralPresent = false;
-
 		wpi::log::BooleanLogEntry m_logStartCoralIntakeCommand;
 		wpi::log::BooleanLogEntry m_logCoralIntakeCommandFlipped;
 };
