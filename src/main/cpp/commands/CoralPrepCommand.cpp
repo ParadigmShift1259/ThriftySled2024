@@ -28,6 +28,11 @@ void CoralPrepCommand::Initialize()
     auto turns = frc::SmartDashboard::GetNumber("CoralRetractTurns", 3.25);
     m_timer.Reset();
     m_timer.Start();
+    m_blocked = (m_coralLevel == c_defaultL4Turns || m_coralLevel == c_defaultL3Turns) && m_coralSubsystem.IsCoralPresentInput();
+    if (m_blocked)
+    {
+        return;
+    }
 #ifdef LED
     m_ledSubsystem.SetCurrentAction(LEDSubsystem::kPreCoral);
     m_ledSubsystem.SetAnimation(c_colorPink, LEDSubsystem::kStrobe);  //TODO Replace constant color with var based on left/right & Set height based on level
@@ -89,9 +94,8 @@ void CoralPrepCommand::Execute()
 }
 
 bool CoralPrepCommand::IsFinished()
-{
-    // return m_coralSubsystem.IsCoralPresentOutput() == false; for L4 only
-    return fabs(m_coralSubsystem.GetPosition() - m_coralEncPos) <= 0.5 || m_timer.HasElapsed(2.0_s);
+{   
+    return m_blocked || fabs(m_coralSubsystem.GetPosition() - m_coralEncPos) <= 0.5 || m_timer.HasElapsed(2.0_s);
 }
 
 void CoralPrepCommand::End(bool interrupted)

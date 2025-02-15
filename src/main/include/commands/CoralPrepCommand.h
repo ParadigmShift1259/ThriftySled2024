@@ -28,6 +28,7 @@ class CoralPrepCommand: public frc2::CommandHelper<frc2::Command, CoralPrepComma
         double m_coralLevel = c_defaultL1Turns;
         double m_coralEncPos = 0.0;
         bool m_retract = true;
+        bool m_blocked = false;
 
 		wpi::log::BooleanLogEntry m_logStartCoralPrepCommand;
 		wpi::log::BooleanLogEntry m_logCoralPrepCommandFlipped;

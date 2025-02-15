@@ -6,6 +6,7 @@
 
 #include <frc/filter/SlewRateLimiter.h>
 #include <frc/smartdashboard/SmartDashboard.h>
+#include <frc/smartdashboard/SendableChooser.h>
 #include <frc/GenericHID.h>
 
 #include <frc2/command/button/CommandXboxController.h>
@@ -51,7 +52,21 @@ class RobotContainer : public ISubsystemAccess
   // END ISubsystemAcces Implementation
   
   wpi::log::DataLog&         GetLogger() override { return DataLogManager::GetLog(); }
-  frc2::CommandPtr           GetAutonomousCommand();
+  Command*                   GetAutonomousCommand();
+  // enum EAutoPath
+  // {
+  //     kAutoPathDefault
+  //   , kAutoPathTestAuto = kAutoPathDefault
+  //   , kAutoPathDoNothing
+  //   // Keep the emun in sync with the LUT
+  // };
+  // std::vector<std::string> m_pathPlannerLUT
+  // { 
+  //     "Test Auto" 
+  //   , "DoNothingAuto"       // These strings are the names of the PathPlanner .path files
+  // };
+//  frc::SendableChooser<EAutoPath> m_chooser;
+  frc::SendableChooser<Command*> m_chooser;
   void StartUp() { m_intake.AlignIntake(); }
 
   // ConfigureRobotLEDs called by Robot class, passes enabled state via dashboard value "Robot Enabled"

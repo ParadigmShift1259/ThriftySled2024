@@ -39,7 +39,7 @@ void CoralEjectPostCommand::Execute()
 
 bool CoralEjectPostCommand::IsFinished()
 {
-    return m_elevatorSubsystem.GetLowerLimit();
+    return m_elevatorSubsystem.GetLowerLimit() || m_timer.HasElapsed(2.0_s);
 }
 
 void CoralEjectPostCommand::End(bool interrupted)

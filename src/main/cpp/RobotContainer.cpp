@@ -29,6 +29,9 @@
 #include <frc2/command/DeferredCommand.h>
 
 #include <pathplanner/lib/commands/FollowPathCommand.h>
+#include <pathplanner/lib/auto/AutoBuilder.h>
+#include <pathplanner/lib/path/PathPoint.h>
+#include <pathplanner/lib/auto/NamedCommands.h>
 
 RobotContainer* RobotContainer::m_pThis = nullptr;
 
@@ -54,7 +57,7 @@ RobotContainer::RobotContainer()
           [this](auto initPose) { m_drive.ResetOdometry(initPose); }, // Function used to reset odometry at the beginning of auto
           [this]() { return m_drive.GetChassisSpeeds(); },
           [this](frc::ChassisSpeeds speeds) { m_drive.Drive(speeds.vx, speeds.vy, speeds.omega, false); }, // Output function that accepts field relative ChassisSpeeds
-          std::make_shared<PPHolonomicDriveController>(PIDConstants(5.0, 0.0, 0.0), PIDConstants(5.0, 0.0, 0.0)),
+          std::make_shared<PPHolonomicDriveController>(PIDConstants(2.0, 0.0, 0.0), PIDConstants(2.0, 0.0, 0.0)),
           m_drive.GetRobotCfg(),
           [this]() 
           {
@@ -68,20 +71,8 @@ RobotContainer::RobotContainer()
           &m_drive // Drive requirements, usually just a single drive subsystem
       );
   }
-
-  // std::vector<frc::Pose2d> poses
-  // {  
-  //       frc::Pose2d ( 0_m, 0_m, frc::Rotation2d ( 0_deg ) )
-  //     , frc::Pose2d ( 0_m, 0_m, frc::Rotation2d ( 0_deg ) )
-  // };
-
-  // //std::shared_ptr<PathPlannerPath> path = std::make_shared<PathPlannerPath>(
-  // m_path = std::make_shared<PathPlannerPath>(
-  //     PathPlannerPath::waypointsFromPoses(poses),
-  //     m_pathConstraints,
-  //     std::nullopt, // The ideal starting state, this is only relevant for pre-planned paths, so can be nullopt for on-the-fly paths.
-  //     GoalEndState(0.0_mps, frc::Rotation2d{ 0_deg } )
-  // );
+  m_chooser = AutoBuilder::buildAutoChooser("Test Auto");	
+  frc::SmartDashboard::PutData("Auto", &m_chooser);
 
   SetDefaultCommands();
   ConfigureBindings();
@@ -92,11 +83,6 @@ RobotContainer::RobotContainer()
   frc::SmartDashboard::PutBoolean("RightSelected", false);
   frc::SmartDashboard::PutBoolean("LeftSelected", false);
 }
-
-// frc2::CommandPtr RobotContainer::GetAutonomousCommand() {
-//   // An example command will be run in autonomous
-//   return autos::ExampleAuto(&m_subsystem);
-// }
 
 void RobotContainer::Periodic()
 {
@@ -326,6 +312,11 @@ void RobotContainer::ConfigButtonBoxBindings()
 }
 #endif
 
+Command* RobotContainer::GetAutonomousCommand()
+{
+  return m_chooser.GetSelected();
+}
+
 void RobotContainer::StopAll()
 {
   m_elevator.Stop();
@@ -340,7 +331,7 @@ void RobotContainer::SetSideSelected(ESideSelected sideSelected)
 
 frc2::CommandPtr RobotContainer::GetFollowPathCommandImpl()
 {
-  constexpr double c_HolomonicP = 0.001;
+  constexpr double c_HolomonicP = 0.01;
 
   return FollowPathCommand(
         GetOnTheFlyPath()
