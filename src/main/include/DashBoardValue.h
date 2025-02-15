@@ -43,7 +43,7 @@ class DashBoardValue
         }
     }
     
-    const T& Put(const T& newValue)
+    void Put(const T& newValue)
     {
         if (m_spNetTable)
         {
@@ -64,7 +64,6 @@ class DashBoardValue
 
  private:
     std::string  m_valueName;
-    T            m_value;
     T            m_defaultValue;
     NetTableSPtr m_spNetTable;
 };
