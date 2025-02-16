@@ -6,6 +6,7 @@
 
 #include <frc/filter/SlewRateLimiter.h>
 #include <frc/smartdashboard/SmartDashboard.h>
+#include <frc/smartdashboard/SendableChooser.h>
 #include <frc/GenericHID.h>
 
 #include <frc2/command/button/CommandXboxController.h>
@@ -51,7 +52,21 @@ class RobotContainer : public ISubsystemAccess
   // END ISubsystemAcces Implementation
   
   wpi::log::DataLog&         GetLogger() override { return DataLogManager::GetLog(); }
-  frc2::CommandPtr           GetAutonomousCommand();
+  Command*                   GetAutonomousCommand();
+  // enum EAutoPath
+  // {
+  //     kAutoPathDefault
+  //   , kAutoPathTestAuto = kAutoPathDefault
+  //   , kAutoPathDoNothing
+  //   // Keep the emun in sync with the LUT
+  // };
+  // std::vector<std::string> m_pathPlannerLUT
+  // { 
+  //     "Test Auto" 
+  //   , "DoNothingAuto"       // These strings are the names of the PathPlanner .path files
+  // };
+//  frc::SendableChooser<EAutoPath> m_chooser;
+  frc::SendableChooser<Command*> m_chooser;
   void StartUp() { m_intake.AlignIntake(); }
 
   // ConfigureRobotLEDs called by Robot class, passes enabled state via dashboard value "Robot Enabled"
@@ -127,12 +142,12 @@ class RobotContainer : public ISubsystemAccess
   frc2::InstantCommand m_elevL4{[this] 
   { 
     m_drive.SetSlowSpeed(true);
-    m_elevator.GoToPosition(c_defaultL4Turns); }, {&m_elevator} 
+    m_elevator.GoToPosition(L4); }, {&m_elevator} 
   };
-  frc2::InstantCommand m_elevL3{[this] { m_drive.SetSlowSpeed(true); m_elevator.GoToPosition(c_defaultL3Turns); }, {&m_elevator} };
-  frc2::InstantCommand m_elevL2{[this] { m_drive.SetSlowSpeed(true); m_elevator.GoToPosition(c_defaultL2Turns); }, {&m_elevator} };
-  frc2::InstantCommand m_elevL2_3{[this] { m_drive.SetSlowSpeed(true); m_elevator.GoToPosition(c_algaeRemovalL2_3); }, {&m_elevator} };
-  frc2::InstantCommand m_elevL3_4{[this] { m_drive.SetSlowSpeed(true); m_elevator.GoToPosition(c_algaeRemovalL3_4); }, {&m_elevator} };
+  frc2::InstantCommand m_elevL3{[this] { m_drive.SetSlowSpeed(true); m_elevator.GoToPosition(L3); }, {&m_elevator} };
+  frc2::InstantCommand m_elevL2{[this] { m_drive.SetSlowSpeed(true); m_elevator.GoToPosition(L2); }, {&m_elevator} };
+  frc2::InstantCommand m_elevL2_3{[this] { m_drive.SetSlowSpeed(true); m_elevator.GoToPosition(algaeRemovalL2_3); }, {&m_elevator} };
+  frc2::InstantCommand m_elevL3_4{[this] { m_drive.SetSlowSpeed(true); m_elevator.GoToPosition(algaeRemovalL3_4); }, {&m_elevator} };
   frc2::InstantCommand m_setL1{[this] { m_elevator.SetPresetLevel(L1); }, {&m_elevator} };
   frc2::InstantCommand m_setL2{[this] { m_elevator.SetPresetLevel(L2); }, {&m_elevator} };
   frc2::InstantCommand m_setL3{[this] { m_elevator.SetPresetLevel(L3); }, {&m_elevator} };
@@ -147,7 +162,7 @@ class RobotContainer : public ISubsystemAccess
 
   frc2::InstantCommand m_intakeAlign{[this] { m_intake.AlignIntake(); }, {&m_intake} };
   frc2::InstantCommand m_intakePark{[this] { m_intake.ParkIntakeForClimb(); }, {&m_intake} };
-  frc2::InstantCommand m_intakeParkAtZero{[this] { m_intake.ParkIntakeAtZero(); }, {&m_intake} };
+  //frc2::InstantCommand m_intakeParkAtZero{[this] { m_intake.ParkIntakeAtZero(); }, {&m_intake} };
 
   frc2::InstantCommand m_coralEject{[this]
   { 
