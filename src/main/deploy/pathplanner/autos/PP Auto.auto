@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "FirstCoral"
+            "pathName": "10m to 12m  Path"
           }
         }
       ]
@@ -15,5 +15,5 @@
   },
   "resetOdom": true,
   "folder": null,
-  "choreoAuto": true
+  "choreoAuto": false
 }

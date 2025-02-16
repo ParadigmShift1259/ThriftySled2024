@@ -14,8 +14,8 @@ using namespace frc;
 constexpr double kIngestSpeed = 1.0;
 constexpr double kReleaseSpeed = -1.0;
 
-constexpr double c_LoadCoralPosition = 21.0;
-constexpr double c_ParkForClimbPosition = 37.5;
+constexpr double c_LoadCoralPosition = 10.0;
+constexpr double c_ParkForClimbPosition = 25.0;
 
 class IntakeSubsystem : public frc2::SubsystemBase
 {

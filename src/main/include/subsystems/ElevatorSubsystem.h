@@ -28,7 +28,7 @@ using namespace rev::spark;
 constexpr double c_defaultResetTurns = 0.0;
 constexpr double c_defaultParkTurns = 0.0;
 constexpr double c_defaultL1Turns = 0.0;
-constexpr double c_defaultL2Turns =  2.5; // originally 2.0
+constexpr double c_defaultL2Turns =  3.0; // originally 2.0
 constexpr double c_defaultL3Turns = 15.5; 
 constexpr double c_defaultL4Turns = 40.0;
 constexpr double c_defaultLoadTurns = 10.0;
@@ -45,14 +45,14 @@ public:
 
     void Stop() { m_followMotor.StopMotor(); m_leadMotor.StopMotor(); }
 
-    void GoToPosition(double position);
+    void GoToPosition(ELevels eLevel);
 
     void ElevatorReset(){ m_leadRelativeEnc.SetPosition(0.0); m_followRelativeEnc.SetPosition(0.0);}
 
     double GetCurrentPosition(){return m_leadRelativeEnc.GetPosition();}
     void GotoPositionRel(double relPos);
 
-    bool IsAtPosition(double level);
+    bool IsAtPosition(ELevels level);
 
     bool GetUpperLimit(){return m_upperLimit.Get();}
     bool GetLowerLimit(){return m_lowerLimit.Get();}
@@ -69,6 +69,9 @@ public:
     };
 
 private:
+    void GoToPosition(double position);
+    double GetPositionForLevel(ELevels eLevel);
+
     SparkBaseConfig m_leadConfig{};
     SparkBaseConfig m_followConfig{};
     SparkFlex m_leadMotor;

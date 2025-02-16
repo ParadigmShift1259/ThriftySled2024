@@ -8,6 +8,7 @@
 #include <frc/Servo.h>
 
 #include <frc/SmartDashboard/SmartDashboard.h>
+#include <frc/Preferences.h>
 
 #include <frc/Timer.h>
 #include <frc2/command/SubsystemBase.h>
@@ -37,9 +38,9 @@ public:
     /// \param speed         Desired motor speed to run, ranging from [-1, 1]
     void SetFeeder(double speed);
     /// Deploys the manipulator out of the robot
-    void DeployManipulator() {double sp = frc::SmartDashboard::GetNumber("ServoDeploy", c_servoDeployDefault); m_deployServo.Set(sp); }
+    void DeployManipulator() {double sp = frc::Preferences::GetDouble("ServoDeploy", c_servoDeployDefault); m_deployServo.Set(sp); }
     // Retracts the manipulator into the robot
-    void RetractManipulator() {double sp = frc::SmartDashboard::GetNumber("ServoRetract", c_servoRetractDefault);m_deployServo.Set(sp); }
+    void RetractManipulator() {double sp = frc::Preferences::GetDouble("ServoRetract", c_servoRetractDefault);m_deployServo.Set(sp); }
     void GoToPosition(double turns);
     double GetPosition() { return m_coralRelativeEnc.GetPosition(); }
     bool IsCoralPresentInput() { return m_photoEyeIn.Get(); }

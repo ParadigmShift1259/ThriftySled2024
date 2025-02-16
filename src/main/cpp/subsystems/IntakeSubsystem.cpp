@@ -33,8 +33,8 @@ IntakeSubsystem::IntakeSubsystem()
     frc::Preferences::InitDouble("kIntakeDeployI", c_defaultIntakeI);
     frc::Preferences::InitDouble("kIntakeDeployD", c_defaultIntakeD);
 
-    frc::SmartDashboard::PutNumber("IntakePosTurns", c_LoadCoralPosition);
-    frc::SmartDashboard::PutNumber("IntakeParkTurns", c_ParkForClimbPosition);
+    frc::Preferences::InitDouble("IntakePosTurns", c_LoadCoralPosition);
+    frc::Preferences::InitDouble("IntakeParkTurns", c_ParkForClimbPosition);
 }
 
 void IntakeSubsystem::Periodic()
@@ -88,14 +88,14 @@ void IntakeSubsystem::Set(double speed)
 
 void IntakeSubsystem::AlignIntake()
 {
-    double turns = frc::SmartDashboard::GetNumber("IntakePosTurns", c_LoadCoralPosition);
+    double turns = frc::Preferences::GetDouble("IntakePosTurns", c_LoadCoralPosition);
     //printf("dep extend turns %.3f\n", turns);
     m_deployPIDController.SetReference(turns, SparkBase::ControlType::kPosition, c_intakeGeneralPIDSlot);
 }
 
 void IntakeSubsystem::ParkIntakeForClimb()
 {
-    double turns = frc::SmartDashboard::GetNumber("IntakeParkTurns", c_ParkForClimbPosition);
+    double turns = frc::Preferences::GetDouble("IntakeParkTurns", c_ParkForClimbPosition);
     //printf("dep retract turns %.3f\n", turns);
     m_deployPIDController.SetReference(turns, SparkBase::ControlType::kPosition, c_intakeGeneralPIDSlot);
 }

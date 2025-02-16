@@ -33,13 +33,13 @@ void CoralEjectPostCommand::Execute()
 {
     if(m_timer.HasElapsed(0.25_s)) //Waiting to get robot clear of reef
     {
-        m_elevatorSubsystem.GoToPosition(c_defaultL1Turns);
+        m_elevatorSubsystem.GoToPosition(L1);
     }
 }
 
 bool CoralEjectPostCommand::IsFinished()
 {
-    return m_elevatorSubsystem.GetLowerLimit();
+    return m_elevatorSubsystem.GetLowerLimit() || m_timer.HasElapsed(2.0_s);
 }
 
 void CoralEjectPostCommand::End(bool interrupted)

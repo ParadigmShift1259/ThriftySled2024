@@ -3,12 +3,12 @@
 
 #include <frc/smartdashboard/SmartDashboard.h>
 
-ElevatorGoToCommand::ElevatorGoToCommand(ISubsystemAccess& subsystemAccess, double position)
+ElevatorGoToCommand::ElevatorGoToCommand(ISubsystemAccess& subsystemAccess, ELevels eLevel)
     : m_elevatorSubsystem(subsystemAccess.GetElevator())
 #ifdef LED
     , m_ledSubsystem(subsystemAccess.GetLED())
 #endif
-    , m_position(position)
+    , m_level(eLevel)
 {
 #ifdef LED
     AddRequirements(frc2::Requirements{&subsystemAccess.GetElevator(), &subsystemAccess.GetLED()});
@@ -19,7 +19,6 @@ ElevatorGoToCommand::ElevatorGoToCommand(ISubsystemAccess& subsystemAccess, doub
     wpi::log::DataLog& log = subsystemAccess.GetLogger();
     m_logStartElevatorGoToCommand = wpi::log::BooleanLogEntry(log, "/ElevatorGoToCommand/startCommand");
     m_logElevatorGoToCommandFlipped = wpi::log::BooleanLogEntry(log, "/ElevatorGoToCommand/startCommand");
-
 }
 
 void ElevatorGoToCommand::Initialize()
@@ -30,7 +29,7 @@ void ElevatorGoToCommand::Initialize()
 
 void ElevatorGoToCommand::Execute()
 {
-    m_elevatorSubsystem.GoToPosition(m_position);
+    m_elevatorSubsystem.GoToPosition(m_level);
 }
 
 bool ElevatorGoToCommand::IsFinished()

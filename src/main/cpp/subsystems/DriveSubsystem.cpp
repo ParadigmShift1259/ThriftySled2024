@@ -200,23 +200,16 @@ void DriveSubsystem::Periodic()
   m_logRobotPoseTheta.Append(pose.Rotation().Degrees().to<double>());
   m_logGyroPitch.Append(m_gyro.GetPitch()); 
   frc::SmartDashboard::PutNumber("currPoseRadians", GetGyroAzimuth().value());
-
   frc::SmartDashboard::PutNumber("azimuthDeg", m_gyro.GetRotation2d().Degrees().value());
   frc::SmartDashboard::PutNumber("GyroYaw", m_gyro.GetYaw().value());
-
-  static int count = 0;
-  if (count++ % 25 == 0)
-  {
-    frc::SmartDashboard::PutBoolean("SlowSpeed", m_currentMaxSpeed == kLowSpeed);
-  }
+  frc::SmartDashboard::PutBoolean("SlowSpeed", m_currentMaxSpeed == kLowSpeed);
 
   // Update limelight for megatag2
   LimelightHelpers::SetRobotOrientation("limelight-reef", m_gyro.GetYaw().value(), 0.0, 0.0, 0.0, 0.0, 0.0);
 
   bool doUpdate = true;
-  //LimelightHelpers::SetRobotOrientation("limelight-reef", m_poseEstimator.GetEstimatedPosition().Rotation().Degrees().value(), 0.0, 0.0, 0.0, 0.0, 0.0);
   LimelightHelpers::PoseEstimate mt2 = LimelightHelpers::getBotPoseEstimate_wpiBlue_MegaTag2("limelight-reef");
-  if (fabs(m_gyro.GetTurnRate().value()) > 720.0)
+  if (mt2.tagCount == 0 || fabs(m_gyro.GetTurnRate().value()) > 720.0)
   {
     doUpdate = false;
   }
@@ -284,7 +277,8 @@ void DriveSubsystem::ResetOdometry(frc::Pose2d pose)
                                            m_rearLeft.GetPosition(), m_rearRight.GetPosition()};
   printf("m_gyro.GetRotation2d().Degrees %.3f pose.Rotation().Degrees %.3f\n", m_gyro.GetRotation2d().Degrees().value(), pose.Rotation().Degrees().value());
   m_gyro.Set(pose.Rotation().Degrees());
-  m_poseEstimator.ResetPosition(pose.Rotation(), modulePositions, pose);
+//  m_poseEstimator.ResetPosition(pose.Rotation(), modulePositions, pose);
+  m_poseEstimator.ResetPose(pose);
   //m_odometry.ResetPosition(pose.Rotation(), modulePositions, pose);
 }
 
@@ -298,7 +292,7 @@ void DriveSubsystem::WheelsForward()
   m_bOverrideXboxInput = true;
   frc::SwerveModuleState sms;
   sms.angle = frc::Rotation2d{0.0_deg};
-  sms.speed = 0.25_mps;
+  sms.speed = 0.1_mps;
   SetAllDesiredState(sms);
 }
 

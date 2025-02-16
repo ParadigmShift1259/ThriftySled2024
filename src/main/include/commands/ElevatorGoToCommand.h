@@ -9,7 +9,7 @@
 class ElevatorGoToCommand: public frc2::CommandHelper<frc2::Command, ElevatorGoToCommand>
 {
     public:
-        explicit ElevatorGoToCommand(ISubsystemAccess& subsystemAccess, double position);
+        explicit ElevatorGoToCommand(ISubsystemAccess& subsystemAccess, ELevels eLevel);
         void Initialize() override;
         void Execute() override;
         bool IsFinished() override;
@@ -22,7 +22,7 @@ class ElevatorGoToCommand: public frc2::CommandHelper<frc2::Command, ElevatorGoT
         LEDSubsystem&                     m_ledSubsystem;
 #endif
 
-        double m_position = 0.0;
+        ELevels m_level = L1;
 
         frc::Timer m_timer;
 
