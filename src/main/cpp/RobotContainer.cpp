@@ -271,12 +271,13 @@ void RobotContainer::ConfigButtonBoxBindings()
     , WaitCommand(0.125_s)
     , InstantCommand{[this](){m_drive.Stop();}, {&m_drive}}
   }.ToPtr());
-  buttonBox.RightTrigger().OnTrue(&m_setRight);
+  buttonBox.RightTrigger().OnTrue(CoralIntakeCommand(*this).ToPtr());
   
   buttonBox.Back().OnTrue(&m_elevRelPosUp);
   buttonBox.LeftStick().OnTrue(&m_elevRelPosDown);
 
   //buttonBox.B().OnTrue(&m_intakeParkAtZero);
+  buttonBox.B().OnTrue(&m_intakeAlign);
 
   buttonBox.Start().OnTrue(&m_elevL3_4);
   buttonBox.RightStick().OnTrue(&m_elevL2_3);
