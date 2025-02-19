@@ -48,6 +48,7 @@ SwerveModule::SwerveModule(const int driveMotorCanId, const int turningMotorCanI
   currentLimitConfigs.WithSupplyCurrentLimitEnable(true);
   currentLimitConfigs.WithSupplyCurrentLowerLimit(70.0_A); //Will do nothing right now, larger than SupplyCurrentLimit
   currentLimitConfigs.WithSupplyCurrentLowerTime(0.85_s);
+
   m_driveMotor.SetPosition(units::angle::turn_t(0.0));
 
   constexpr double kDriveP = 0.0025; // 0.1;
@@ -115,6 +116,11 @@ SwerveModule::SwerveModule(const int driveMotorCanId, const int turningMotorCanI
 #endif
   frc::SmartDashboard::PutNumber("NewRef", 0.0);
   frc::SmartDashboard::PutNumber("Offset" + m_id, 0.0);
+
+  auto pos = m_driveMotor.GetPosition().GetValue().value();
+  frc::SmartDashboard::PutNumber("DrvTurns" + m_id, pos);
+  frc::SmartDashboard::PutNumber("DrvMtrs" + m_id, kWheelCircumfMeters.value() * pos);
+  frc::SmartDashboard::PutNumber("DrvGrRt" + m_id, kWheelCircumfMeters.value() * pos / units::angle::turn_t(kDriveGearRatio).value());
 }
 
 void SwerveModule::Periodic()
@@ -162,7 +168,12 @@ void SwerveModule::Periodic()
   frc::SmartDashboard::PutNumber("Abs Pos" + m_id, absPos);
   frc::SmartDashboard::PutNumber("Abs Pos Offset" + m_id, m_offset);  
   frc::SmartDashboard::PutNumber("Turn Enc Pos" + m_id, GetTurnPosition().to<double>());
-  
+
+  auto pos = m_driveMotor.GetPosition().GetValue().value();
+  frc::SmartDashboard::PutNumber("DrvTurns" + m_id, pos);
+  frc::SmartDashboard::PutNumber("DrvMtrs" + m_id, kWheelCircumfMeters.value() * pos);
+  frc::SmartDashboard::PutNumber("DrvGrRt" + m_id, kWheelCircumfMeters.value() * pos / units::angle::turn_t(kDriveGearRatio).value());
+
   m_logTurningEncoderPosition.Append(GetTurnPosition().to<double>());
   m_logAbsoluteEncoderPosition.Append(absPos);
 }
@@ -200,17 +211,17 @@ units::radian_t SwerveModule::GetTurnPosition()
 
 units::meters_per_second_t SwerveModule::CalcMetersPerSec()
 {
-  return kWheelCircumfMeters * m_driveMotor.GetVelocity().GetValue() / units::angle::turn_t(1.0);
+  return kWheelCircumfMeters * m_driveMotor.GetVelocity().GetValue() / units::angle::turn_t(kDriveGearRatio);
 }
 
 frc::SwerveModulePosition SwerveModule::GetPosition()
 {
-  return {CalcMeters(), GetTurnPosition() };
+  return { CalcMeters(), GetTurnPosition() };
 }
 
 units::meter_t SwerveModule::CalcMeters()
 {
-  return kWheelCircumfMeters * m_driveMotor.GetPosition().GetValue() / units::angle::turn_t(1.0);
+  return kWheelCircumfMeters * m_driveMotor.GetPosition().GetValue() / units::angle::turn_t(kDriveGearRatio);
 }
 
 void SwerveModule::SetDesiredState(frc::SwerveModuleState& referenceState)

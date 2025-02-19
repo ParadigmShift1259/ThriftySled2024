@@ -151,12 +151,6 @@ private:
   ModuleConfig m_moduleCfg;
   RobotConfig m_robotConfig;
 
-  // frc::SwerveDriveOdometry<4> m_odometry{
-  //     m_kinematics,
-  //     m_gyro.GetRotation2d(),
-  //     {m_frontLeft.GetPosition(), m_frontRight.GetPosition(),
-  //      m_rearLeft.GetPosition(), m_rearRight.GetPosition()}};
-
   frc::SwerveDrivePoseEstimator<4> m_poseEstimator
   {
       m_kinematics

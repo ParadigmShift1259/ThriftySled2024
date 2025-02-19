@@ -193,7 +193,6 @@ void DriveSubsystem::Periodic()
 
   // Log Odometry Values
   frc::Pose2d pose = m_poseEstimator.GetEstimatedPosition();
-  //frc::Pose2d pose = m_odometry.GetPose();
 
   m_logRobotPoseX.Append(pose.X().to<double>());
   m_logRobotPoseY.Append(pose.Y().to<double>());
@@ -224,9 +223,6 @@ frc::Pose2d DriveSubsystem::GetPose()
 {
   auto pose = frc::Pose2d { m_poseEstimator.GetEstimatedPosition().X(), m_poseEstimator.GetEstimatedPosition().Y(), frc::Rotation2d { m_gyro.GetYaw()} };
   return pose;
-//  return m_poseEstimator.GetEstimatedPosition();
-//  return m_odometry.GetPose();
-
 }
 
 frc::ChassisSpeeds DriveSubsystem::GetChassisSpeeds()
@@ -249,21 +245,18 @@ void DriveSubsystem::ResyncAbsRelEnc()
 
 void DriveSubsystem::UpdateOdometry()
 {
-   m_poseEstimator.Update(m_gyro.GetRotation2d(),
-                    {m_frontLeft.GetPosition(), m_frontRight.GetPosition(),
-                     m_rearLeft.GetPosition(),  m_rearRight.GetPosition()});
+   auto pose = m_poseEstimator.Update(m_gyro.GetRotation2d(),
+                                      {m_frontLeft.GetPosition(), m_frontRight.GetPosition(),
+                                      m_rearLeft.GetPosition(),  m_rearRight.GetPosition()});
 
-  // m_odometry.Update(m_gyro.GetRotation2d(),
-  //                  {m_frontLeft.GetPosition(), m_frontRight.GetPosition(),
-  //                   m_rearLeft.GetPosition(),  m_rearRight.GetPosition()});
+  auto flpos = m_frontLeft.GetPosition();
+  frc::SmartDashboard::PutNumber("FLPos", flpos.distance.value());
 
-  auto pose = m_poseEstimator.GetEstimatedPosition();
   frc::SmartDashboard::PutNumber("PoseX", pose.X().to<double>());
   frc::SmartDashboard::PutNumber("Posey", pose.Y().to<double>());
   frc::SmartDashboard::PutNumber("PoseRot", pose.Rotation().Degrees().to<double>());
 
-  m_publisher.Set(m_poseEstimator.GetEstimatedPosition());
-  //m_publisher.Set(m_odometry.GetPose());
+  m_publisher.Set(pose);
 }
 
 void DriveSubsystem::ResetOdometry(frc::Pose2d pose)
@@ -277,9 +270,7 @@ void DriveSubsystem::ResetOdometry(frc::Pose2d pose)
                                            m_rearLeft.GetPosition(), m_rearRight.GetPosition()};
   printf("m_gyro.GetRotation2d().Degrees %.3f pose.Rotation().Degrees %.3f\n", m_gyro.GetRotation2d().Degrees().value(), pose.Rotation().Degrees().value());
   m_gyro.Set(pose.Rotation().Degrees());
-//  m_poseEstimator.ResetPosition(pose.Rotation(), modulePositions, pose);
   m_poseEstimator.ResetPose(pose);
-  //m_odometry.ResetPosition(pose.Rotation(), modulePositions, pose);
 }
 
 void DriveSubsystem::SetHeading(units::degree_t heading)

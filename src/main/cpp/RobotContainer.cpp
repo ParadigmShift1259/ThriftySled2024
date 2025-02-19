@@ -33,9 +33,14 @@
 #include <pathplanner/lib/path/PathPoint.h>
 #include <pathplanner/lib/auto/NamedCommands.h>
 
+#include <frc/smartdashboard/Field2d.h>
+#include <pathplanner/lib/util/PathPlannerLogging.h>
+
+frc::Field2d m_field;
+
 RobotContainer* RobotContainer::m_pThis = nullptr;
 
-  // Configure the button bindings
+// Configure the button bindings
 RobotContainer::RobotContainer() 
   : m_drive()
 #ifdef USE_ORCESTRA
@@ -49,6 +54,29 @@ RobotContainer::RobotContainer()
   //---------------------------------------------------------
 
   frc::SmartDashboard::PutNumber("InitPose", 180.0);
+
+    frc::SmartDashboard::PutData("Field", &m_field);
+    
+    // Logging callback for current robot pose
+    PathPlannerLogging::setLogCurrentPoseCallback([this](frc::Pose2d pose)
+    {
+        // Do whatever you want with the pose here
+        m_field.SetRobotPose(pose);
+    });
+
+    // Logging callback for target robot pose
+    PathPlannerLogging::setLogTargetPoseCallback([this](frc::Pose2d pose)
+    {
+        // Do whatever you want with the pose here
+        m_field.GetObject("target pose")->SetPose(pose);
+    });
+
+    // Logging callback for the active path, this is sent as a vector of poses
+    PathPlannerLogging::setLogActivePathCallback([this](std::vector<frc::Pose2d> poses) 
+    {
+        // Do whatever you want with the poses here
+        m_field.GetObject("path")->SetPoses(poses);
+    });
 
   if (!AutoBuilder::isConfigured())
   {
@@ -71,7 +99,7 @@ RobotContainer::RobotContainer()
           &m_drive // Drive requirements, usually just a single drive subsystem
       );
   }
-  m_chooser = AutoBuilder::buildAutoChooser("Test Auto");	
+  m_chooser = AutoBuilder::buildAutoChooser();	
   frc::SmartDashboard::PutData("Auto", &m_chooser);
 
   SetDefaultCommands();
@@ -82,6 +110,7 @@ RobotContainer::RobotContainer()
 
   frc::SmartDashboard::PutBoolean("RightSelected", false);
   frc::SmartDashboard::PutBoolean("LeftSelected", false);
+  frc::SmartDashboard::PutNumber("MatchTime", frc::DriverStation::GetMatchTime().value());
 }
 
 void RobotContainer::Periodic()
@@ -93,6 +122,7 @@ void RobotContainer::Periodic()
     RobotContainer::ConfigureRobotLEDs();
   }
   // m_dbvFieldRelative.Put(m_fieldRelative);
+  frc::SmartDashboard::PutNumber("MatchTime", frc::DriverStation::GetMatchTime().value());
 }
 
 void RobotContainer::SetDefaultCommands()
@@ -271,13 +301,15 @@ void RobotContainer::ConfigButtonBoxBindings()
     , WaitCommand(0.125_s)
     , InstantCommand{[this](){m_drive.Stop();}, {&m_drive}}
   }.ToPtr());
-  buttonBox.RightTrigger().OnTrue(CoralIntakeCommand(*this).ToPtr());
+//  buttonBox.RightTrigger().OnTrue(CoralIntakeCommand(*this).ToPtr());
   
   buttonBox.Back().OnTrue(&m_elevRelPosUp);
+  
   buttonBox.LeftStick().OnTrue(&m_elevRelPosDown);
 
   //buttonBox.B().OnTrue(&m_intakeParkAtZero);
-  buttonBox.B().OnTrue(&m_intakeAlign);
+  //buttonBox.B().OnTrue(&m_intakeAlign);
+  buttonBox.B().OnTrue(CoralIntakeCommand(*this).ToPtr());
 
   buttonBox.Start().OnTrue(&m_elevL3_4);
   buttonBox.RightStick().OnTrue(&m_elevL2_3);
