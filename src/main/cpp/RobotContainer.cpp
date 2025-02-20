@@ -84,8 +84,8 @@ RobotContainer::RobotContainer()
           [this]() { return m_drive.GetPose(); }, // Function to supply current robot pose
           [this](auto initPose) { m_drive.ResetOdometry(initPose); }, // Function used to reset odometry at the beginning of auto
           [this]() { return m_drive.GetChassisSpeeds(); },
-          [this](frc::ChassisSpeeds speeds) { m_drive.Drive(speeds.vx, speeds.vy, speeds.omega, false); }, // Output function that accepts field relative ChassisSpeeds
-          std::make_shared<PPHolonomicDriveController>(PIDConstants(2.0, 0.0, 0.0), PIDConstants(2.0, 0.0, 0.0)),
+          [this](frc::ChassisSpeeds speeds) { m_drive.Drive(-speeds.vx, -speeds.vy, -speeds.omega, false); }, // Output function that accepts field relative ChassisSpeeds
+          std::make_shared<PPHolonomicDriveController>(PIDConstants(0.1, 0.0, 0.0), PIDConstants(0.1, 0.0, 0.0)),
           m_drive.GetRobotCfg(),
           [this]() 
           {
@@ -123,6 +123,8 @@ void RobotContainer::Periodic()
   }
   // m_dbvFieldRelative.Put(m_fieldRelative);
   frc::SmartDashboard::PutNumber("MatchTime", frc::DriverStation::GetMatchTime().value());
+  m_field.SetRobotPose(m_drive.GetPose());
+  frc::SmartDashboard::PutData("Field", &m_field);
 }
 
 void RobotContainer::SetDefaultCommands()

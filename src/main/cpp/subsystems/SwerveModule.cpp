@@ -211,7 +211,9 @@ units::radian_t SwerveModule::GetTurnPosition()
 
 units::meters_per_second_t SwerveModule::CalcMetersPerSec()
 {
-  return kWheelCircumfMeters * m_driveMotor.GetVelocity().GetValue() / units::angle::turn_t(kDriveGearRatio);
+  // We multiply by -1 if the motor is reversed so that velocity is calculated in the same direction
+  double reverse = m_driveMotorReversed ? 1.0 : -1.0;
+  return reverse * kWheelCircumfMeters * m_driveMotor.GetVelocity().GetValue() / units::angle::turn_t(kDriveGearRatio);
 }
 
 frc::SwerveModulePosition SwerveModule::GetPosition()
@@ -221,7 +223,9 @@ frc::SwerveModulePosition SwerveModule::GetPosition()
 
 units::meter_t SwerveModule::CalcMeters()
 {
-  return kWheelCircumfMeters * m_driveMotor.GetPosition().GetValue() / units::angle::turn_t(kDriveGearRatio);
+  // We multiply by -1 if the motor is reversed so that distance is calculated in the same direction
+  double reverse = m_driveMotorReversed ? 1.0 : -1.0;
+  return reverse * kWheelCircumfMeters * m_driveMotor.GetPosition().GetValue() / units::angle::turn_t(kDriveGearRatio);
 }
 
 void SwerveModule::SetDesiredState(frc::SwerveModuleState& referenceState)
