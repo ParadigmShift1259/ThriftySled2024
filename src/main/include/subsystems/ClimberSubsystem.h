@@ -18,14 +18,15 @@ WPI_IGNORE_DEPRECATED
 WPI_UNIGNORE_DEPRECATED
 
 #include <rev/SparkFlex.h>
+#include <rev/SparkMax.h>
 
 using namespace ctre::phoenix::motorcontrol::can;
 using namespace ctre::phoenix::motorcontrol;
 using namespace rev::spark;
 
-constexpr double c_defaultResetTurns = 0.0;
-constexpr double c_defaultParkTurns = -30.0;
-constexpr double c_defaultHighTurns = -150.0;
+// constexpr double c_defaultResetTurns = 0.0;
+// constexpr double c_defaultParkTurns = -30.0;
+// constexpr double c_defaultHighTurns = -150.0;
 
 class ClimberSubsystem : public frc2::SubsystemBase
 {
@@ -44,6 +45,9 @@ public:
 
     void GoToPosition(double position);
 
+    void GoToPositionRel(double position);
+
+
     // enum Position {
     //     kDefaultPosition,
     //     kResetPosition = kDefaultPosition,
@@ -52,7 +56,7 @@ public:
     // };
 
 private:
-    SparkFlex m_motor;
+    SparkMax m_motor;
     SparkRelativeEncoder m_relativeEnc = m_motor.GetEncoder();    
     SparkClosedLoopController m_closedLoopController = m_motor.GetClosedLoopController();
 

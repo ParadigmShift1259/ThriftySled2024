@@ -21,7 +21,7 @@ constexpr int kDrivePigeonCANID = 1;
 
 constexpr int kLEDCANID = 1;
 
-constexpr int kClimbMotorCANID = 22;
+constexpr int kClimbMotorCANID = 16;
 
 constexpr int kElevatorLeadMotorCANID = 23;
 constexpr int kElevatorFollowMotorCANID = 24;

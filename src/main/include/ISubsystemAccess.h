@@ -10,6 +10,7 @@
 #include "subsystems/ElevatorSubsystem.h"
 #include "subsystems/CoralManipulatorSubsystem.h"
 #include "subsystems/IntakeSubsystem.h"
+#include "subsystems/ClimberSubsystem.h"
 #ifdef LED
 #include "subsystems/LEDSubsystem.h"
 #endif
@@ -25,6 +26,7 @@ public:
     virtual VisionSubsystem&           GetVision() = 0;
     virtual ElevatorSubsystem&         GetElevator() = 0;
     virtual CoralManipulatorSubsystem& GetCoral() = 0; 
+    virtual ClimberSubsystem&          GetClimber() = 0;
 #ifdef LED
     virtual LEDSubsystem&              GetLED() = 0;
 #endif

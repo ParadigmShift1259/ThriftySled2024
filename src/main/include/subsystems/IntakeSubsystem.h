@@ -34,6 +34,7 @@ public:
     void ParkIntakeForClimb();
     void ParkIntakeAtZero();
     void GoToPosition(double turns);
+    void GoToPositionRel(double turns);
     double GetPosition() { return m_deployRelativeEnc.GetPosition(); }
     void Stop() { Set(0.0); }
 

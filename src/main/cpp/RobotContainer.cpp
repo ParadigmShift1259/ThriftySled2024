@@ -190,8 +190,10 @@ void RobotContainer::ConfigPrimaryButtonBindings()
 //#endif
 
   primary.A().OnTrue(&m_coralEject);
-  primary.B().OnTrue(CoralPrepCommand(*this, L4).ToPtr());
-  primary.X().OnTrue(CoralIntakeCommand(*this).ToPtr());
+  // primary.B().OnTrue(CoralPrepCommand(*this, L4).ToPtr());
+  // primary.X().OnTrue(CoralIntakeCommand(*this).ToPtr());
+  primary.B().OnTrue(&m_ClimberDeploy);
+  primary.X().OnTrue(&m_ClimberDeployRel);
   primary.Y().OnTrue(&m_coralStop);
   primary.LeftBumper().OnTrue(&m_toggleFieldRelative);
   primary.Start().OnTrue(&m_toggleSlowSpeed);
@@ -199,6 +201,7 @@ void RobotContainer::ConfigPrimaryButtonBindings()
 
   primary.POVUp().OnTrue(StopAllCommand(*this).ToPtr());
   primary.POVDown().OnTrue(InstantCommand([this]{GetOnTheFlyPath();},{&m_drive}).ToPtr());
+  primary.POVRight().OnTrue(&m_intakeRel);
 
 //   primary.POVUp().OnTrue(GoToPositionCommand(*this, eJogForward, m_path).ToPtr());
 //   primary.POVDown().OnTrue(GoToPositionCommand(*this, eJogBackward, m_path).ToPtr());

@@ -13,7 +13,7 @@ constexpr ClosedLoopSlot c_defaultClimbDownPIDSlot = rev::spark::ClosedLoopSlot:
 constexpr ClosedLoopSlot c_defaultClimbUpPIDSlot = rev::spark::ClosedLoopSlot::kSlot1;
 
 constexpr double c_defaultClimbDownP = 0.006;
-constexpr double c_defaultClimbUpP = 0.07;
+constexpr double c_defaultClimbUpP = 0.1;
 constexpr double c_defaultClimbI = 0.0;
 constexpr double c_defaultClimbD = 0.0;
 constexpr double c_defaultClimbFF = 0.00000;
@@ -44,9 +44,9 @@ ClimberSubsystem::ClimberSubsystem()
     // m_motor.ConfigPeakOutputReverse(kMaxOut * -1.0);
     frc::SmartDashboard::PutNumber("ClimbmotorDirection", c_defaultDirection);
 
-    frc::SmartDashboard::PutNumber("ClimbHiTurns", c_defaultHighTurns);
-    frc::SmartDashboard::PutNumber("ClimbParkTurns", c_defaultParkTurns);
-    frc::SmartDashboard::PutNumber("ClimbResetTurns", c_defaultResetTurns);
+    // frc::SmartDashboard::PutNumber("ClimbHiTurns", c_defaultHighTurns);
+    // frc::SmartDashboard::PutNumber("ClimbParkTurns", c_defaultParkTurns);
+    // frc::SmartDashboard::PutNumber("ClimbResetTurns", c_defaultResetTurns);
 
     frc::Preferences::InitDouble("kClimbPosDownP", c_defaultClimbDownP);
     frc::Preferences::InitDouble("kClimbPosUpP", c_defaultClimbUpP);
@@ -55,6 +55,8 @@ ClimberSubsystem::ClimberSubsystem()
     frc::Preferences::InitDouble("kClimbPosFF", c_defaultClimbFF);
 
     frc::SmartDashboard::PutNumber("ClimbmotorPos", 1.0);
+
+    frc::SmartDashboard::PutNumber("ClimberRel", 1.0);
 
 }
 
@@ -120,9 +122,17 @@ void ClimberSubsystem::Periodic()
   }
 }
 
+void ClimberSubsystem::GoToPositionRel(double relPos)
+{
+    relPos = frc::SmartDashboard::GetNumber("ClimberRel", 1.0);
+    // printf("GotoPositionRel enc %.3f relPos %.3f newPos %.3f\n", m_leadRelativeEnc.GetPosition(), relPos, m_leadRelativeEnc.GetPosition() + relPos);
+    GoToPosition(m_relativeEnc.GetPosition() + relPos);
+
+}
+
 void ClimberSubsystem::GoToPosition(double position)
 {
-    ClosedLoopSlot slot = position < -70.0 ? c_defaultClimbUpPIDSlot : c_defaultClimbDownPIDSlot;
+    ClosedLoopSlot slot = c_defaultClimbUpPIDSlot;
     m_closedLoopController.SetReference(position, SparkBase::ControlType::kPosition, slot);
 
 }

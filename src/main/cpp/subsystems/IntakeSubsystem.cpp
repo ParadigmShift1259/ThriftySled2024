@@ -35,6 +35,9 @@ IntakeSubsystem::IntakeSubsystem()
 
     frc::Preferences::InitDouble("IntakePosTurns", c_LoadCoralPosition);
     frc::Preferences::InitDouble("IntakeParkTurns", c_ParkForClimbPosition);
+
+    frc::SmartDashboard::PutNumber("IntakeRel", 1.0);
+
 }
 
 void IntakeSubsystem::Periodic()
@@ -108,4 +111,10 @@ void IntakeSubsystem::ParkIntakeAtZero()
 void IntakeSubsystem::GoToPosition(double turns)
 {
     m_deployPIDController.SetReference(turns, SparkBase::ControlType::kPosition, c_intakeGeneralPIDSlot);
+}
+
+void IntakeSubsystem::GoToPositionRel(double relPos)
+{
+    relPos = frc::SmartDashboard::GetNumber("IntakeRel", 1.0);
+    m_deployPIDController.SetReference(m_deployRelativeEnc.GetPosition() + relPos, SparkBase::ControlType::kPosition, c_intakeGeneralPIDSlot);
 }

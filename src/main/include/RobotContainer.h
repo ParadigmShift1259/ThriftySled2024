@@ -46,6 +46,7 @@ class RobotContainer : public ISubsystemAccess
   ElevatorSubsystem&         GetElevator() override { return m_elevator; }
   CoralManipulatorSubsystem& GetCoral() override { return m_coral; }
   IntakeSubsystem&           GetIntake() override { return m_intake; }
+  ClimberSubsystem&          GetClimber() override { return m_climber; }
 #ifdef LED
   LEDSubsystem&              GetLED() override { return m_led; }
 #endif
@@ -102,6 +103,7 @@ class RobotContainer : public ISubsystemAccess
   ElevatorSubsystem m_elevator;
   CoralManipulatorSubsystem m_coral;
   IntakeSubsystem m_intake;
+  ClimberSubsystem m_climber;
 #ifdef LED
   LEDSubsystem m_led;
 #endif
@@ -163,6 +165,7 @@ class RobotContainer : public ISubsystemAccess
 
   frc2::InstantCommand m_intakeAlign{[this] { m_intake.AlignIntake(); }, {&m_intake} };
   frc2::InstantCommand m_intakePark{[this] { m_intake.ParkIntakeForClimb(); }, {&m_intake} };
+  frc2::InstantCommand m_intakeRel{[this] { m_intake.GoToPositionRel(1.0); }, {&m_intake} };
   //frc2::InstantCommand m_intakeParkAtZero{[this] { m_intake.ParkIntakeAtZero(); }, {&m_intake} };
 
   frc2::InstantCommand m_coralEject{[this]
@@ -177,6 +180,9 @@ class RobotContainer : public ISubsystemAccess
 
   frc2::InstantCommand m_rumblePrimary{[this] { m_primaryController.SetRumble(GenericHID::RumbleType::kBothRumble, 1); }, {} };
   frc2::InstantCommand m_stopRumblePrimary{[this] { m_primaryController.SetRumble(GenericHID::RumbleType::kBothRumble, 0); }, {} };
+
+  frc2::InstantCommand m_ClimberDeploy{[this] { m_climber.GoToPosition(0.0);}, {&m_climber} };
+  frc2::InstantCommand m_ClimberDeployRel{[this] { m_climber.GoToPositionRel(1.0);}, {&m_climber} };
 
   NetworkButton m_netButtonTest{"NetButtons", "Test"};
   // DashBoardValue<bool> m_dbvFieldRelative{"Drive", "FieldRelative", false};
