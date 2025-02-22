@@ -127,7 +127,6 @@ void ClimberSubsystem::GoToPositionRel(double relPos)
     relPos = frc::SmartDashboard::GetNumber("ClimberRel", 1.0);
     // printf("GotoPositionRel enc %.3f relPos %.3f newPos %.3f\n", m_leadRelativeEnc.GetPosition(), relPos, m_leadRelativeEnc.GetPosition() + relPos);
     GoToPosition(m_relativeEnc.GetPosition() + relPos);
-
 }
 
 void ClimberSubsystem::GoToPosition(double position)

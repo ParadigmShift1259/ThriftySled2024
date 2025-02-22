@@ -16,20 +16,17 @@ CoralEjectCommand::CoralEjectCommand(ISubsystemAccess& subsystemAccess)
     AddRequirements(frc2::Requirements{&subsystemAccess.GetCoral(), &subsystemAccess.GetElevator()});
 #endif
     wpi::log::DataLog& log = subsystemAccess.GetLogger();
-    m_logStartCoralEjectCommand = wpi::log::BooleanLogEntry(log, "/CoralEjectCommand/startCommand");
-    m_logCoralEjectCommandFlipped = wpi::log::BooleanLogEntry(log, "/CoralEjectCommand/startCommand");
-
+    m_logStartCommand = wpi::log::BooleanLogEntry(log, "/CoralEjectCommand/startCommand");
 }
 
 void CoralEjectCommand::Initialize()
 {
+    m_logStartCommand.Append(true);
 #ifdef LED
     m_ledSubsystem.SetCurrentAction(LEDSubsystem::kDefaultAction);
     m_ledSubsystem.SetAnimation(c_defaultColor, LEDSubsystem::kSolid);
 #endif
-    m_timer.Reset();
-    m_timer.Start();
-    
+   
     m_coralSubsystem.EjectCoral(false);
 }
 
@@ -47,5 +44,5 @@ void CoralEjectCommand::End(bool interrupted)
 {
     m_coralSubsystem.RetractManipulator();
     m_coralSubsystem.Stop(); //Stops coral eject motors
-    // printf("Coral Eject End \n");
+    m_logStartCommand.Append(false);
 }

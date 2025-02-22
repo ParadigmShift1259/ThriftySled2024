@@ -47,34 +47,55 @@ RobotContainer::RobotContainer()
   , m_orchestra("output.chrp")
 #endif
 {
-  m_pThis = this;
-  //---------------------------------------------------------
-  //printf("************************Calling SilenceJoystickConnectionWarning - Wisco2024 Day 1 only REMOVE!!!!!\n");
-  DriverStation::SilenceJoystickConnectionWarning(true);
-  //---------------------------------------------------------
+    m_pThis = this;
+    //---------------------------------------------------------
+    //printf("************************Calling SilenceJoystickConnectionWarning - Wisco2024 Day 1 only REMOVE!!!!!\n");
+    DriverStation::SilenceJoystickConnectionWarning(true);
+    //---------------------------------------------------------
 
-  frc::SmartDashboard::PutNumber("InitPose", 180.0);
+    wpi::log::DataLog& log = GetLogger();
+
+    m_logRobotPoseX = wpi::log::DoubleLogEntry(log, "/path/robotX");
+    m_logRobotPoseY = wpi::log::DoubleLogEntry(log, "/path/robotY");
+    m_logRobotPoseRot = wpi::log::DoubleLogEntry(log, "/path/robotRot");
+
+    m_logTargetPoseX = wpi::log::DoubleLogEntry(log, "/path/targetX");
+    m_logTargetPoseY = wpi::log::DoubleLogEntry(log, "/path/targetY");
+    m_logTargetPoseRot = wpi::log::DoubleLogEntry(log, "/path/targetRot");
+
+    frc::SmartDashboard::PutNumber("InitPose", 180.0);
 
     frc::SmartDashboard::PutData("Field", &m_field);
     
     // Logging callback for current robot pose
     PathPlannerLogging::setLogCurrentPoseCallback([this](frc::Pose2d pose)
     {
-        // Do whatever you want with the pose here
+        //printf("curr pose x %.3f y %.3f Rot %.3f\n", pose.X().value(), pose.Y().value(), pose.Rotation().Degrees().value());
+        m_logRobotPoseX.Append(pose.X().value());
+        m_logRobotPoseY.Append(pose.Y().value());
+        m_logRobotPoseRot.Append(pose.Rotation().Degrees().value());
+
         m_field.SetRobotPose(pose);
     });
 
     // Logging callback for target robot pose
     PathPlannerLogging::setLogTargetPoseCallback([this](frc::Pose2d pose)
     {
-        // Do whatever you want with the pose here
+        //printf("targ pose x %.3f y %.3f Rot %.3f\n", pose.X().value(), pose.Y().value(), pose.Rotation().Degrees().value());
+        m_logTargetPoseX.Append(pose.X().value());
+        m_logTargetPoseY.Append(pose.Y().value());
+        m_logTargetPoseRot.Append(pose.Rotation().Degrees().value());
         m_field.GetObject("target pose")->SetPose(pose);
     });
 
     // Logging callback for the active path, this is sent as a vector of poses
     PathPlannerLogging::setLogActivePathCallback([this](std::vector<frc::Pose2d> poses) 
     {
-        // Do whatever you want with the poses here
+        for (auto& pose : poses)
+        {
+          printf("actv pose x %.3f y %.3f Rot %.3f\n", pose.X().value(), pose.Y().value(), pose.Rotation().Degrees().value());
+
+        }
         m_field.GetObject("path")->SetPoses(poses);
     });
 
@@ -85,15 +106,15 @@ RobotContainer::RobotContainer()
           [this](auto initPose) { m_drive.ResetOdometry(initPose); }, // Function used to reset odometry at the beginning of auto
           [this]() { return m_drive.GetChassisSpeeds(); },
           [this](frc::ChassisSpeeds speeds) { m_drive.Drive(-speeds.vx, -speeds.vy, -speeds.omega, false); }, // Output function that accepts field relative ChassisSpeeds
-          std::make_shared<PPHolonomicDriveController>(PIDConstants(0.1, 0.0, 0.0), PIDConstants(0.1, 0.0, 0.0)),
+          std::make_shared<PPHolonomicDriveController>(PIDConstants(2.5, 0.0, 0.0), PIDConstants(2.0, 0.0, 0.0)),
           m_drive.GetRobotCfg(),
           [this]() 
           {
-              auto alliance = frc::DriverStation::GetAlliance();
-              if (alliance)
-              {
-                  return alliance.value() == frc::DriverStation::Alliance::kRed;
-              }
+              // auto alliance = frc::DriverStation::GetAlliance();
+              // if (alliance)
+              // {
+              //     return alliance.value() == frc::DriverStation::Alliance::kRed;
+              // }
               return false; 
           }, // Should the path be automatically mirrored depending on alliance color. Optional, defaults to true
           &m_drive // Drive requirements, usually just a single drive subsystem
@@ -389,10 +410,10 @@ frc2::CommandPtr RobotContainer::GetFollowPathCommandImpl()
             // This will flip the path being followed to the red side of the field.
             // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
 
-            auto alliance = DriverStation::GetAlliance();
-            if (alliance) {
-                return alliance.value() == DriverStation::Alliance::kRed;
-            }
+            // auto alliance = DriverStation::GetAlliance();
+            // if (alliance) {
+            //     return alliance.value() == DriverStation::Alliance::kRed;
+            // }
             return false;
         },
         {&m_drive} // Drive requirements, usually just a single drive subsystem

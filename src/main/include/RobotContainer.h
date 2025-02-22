@@ -84,7 +84,7 @@ class RobotContainer : public ISubsystemAccess
   void ConfigureBindings();
   void ConfigPrimaryButtonBindings();
   void ConfigSecondaryButtonBindings();
-#define USE_BUTTON_BOX
+//#define USE_BUTTON_BOX
 #ifdef USE_BUTTON_BOX
   void ConfigButtonBoxBindings();
 #endif
@@ -192,6 +192,14 @@ class RobotContainer : public ISubsystemAccess
   double m_targetX;
   double m_targetY;
   double m_targetRot;
+
+	wpi::log::DoubleLogEntry m_logRobotPoseX;
+	wpi::log::DoubleLogEntry m_logRobotPoseY;
+	wpi::log::DoubleLogEntry m_logRobotPoseRot;
+
+	wpi::log::DoubleLogEntry m_logTargetPoseX;
+	wpi::log::DoubleLogEntry m_logTargetPoseY;
+	wpi::log::DoubleLogEntry m_logTargetPoseRot;
 
 //#define TEST_WHEEL_CONTROL
 #ifdef TEST_WHEEL_CONTROL

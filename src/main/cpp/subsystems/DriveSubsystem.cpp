@@ -221,8 +221,9 @@ void DriveSubsystem::Periodic()
 
 frc::Pose2d DriveSubsystem::GetPose()
 {
-  auto pose = frc::Pose2d { m_poseEstimator.GetEstimatedPosition().X(), m_poseEstimator.GetEstimatedPosition().Y(), frc::Rotation2d { m_gyro.GetYaw()} };
-  return pose;
+  //auto pose = frc::Pose2d { m_poseEstimator.GetEstimatedPosition().X(), m_poseEstimator.GetEstimatedPosition().Y(), frc::Rotation2d { m_gyro.GetYaw()} };
+  //return pose;
+  return m_poseEstimator.GetEstimatedPosition();
 }
 
 frc::ChassisSpeeds DriveSubsystem::GetChassisSpeeds()
