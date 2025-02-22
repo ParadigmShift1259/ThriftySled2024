@@ -267,10 +267,12 @@ void DriveSubsystem::ResetOdometry(frc::Pose2d pose)
   // frc::SmartDashboard::PutNumber("ResetRot", pose.Rotation().Degrees().to<double>());
   printf ("resetx %.3f resety %.3f resetrot %.3f\n", pose.X().value(), pose.Y().value(), pose.Rotation().Degrees().value());
 
-  SwerveModulePositions modulePositions = {m_frontLeft.GetPosition(), m_frontRight.GetPosition(),
-                                           m_rearLeft.GetPosition(), m_rearRight.GetPosition()};
-  printf("m_gyro.GetRotation2d().Degrees %.3f pose.Rotation().Degrees %.3f\n", m_gyro.GetRotation2d().Degrees().value(), pose.Rotation().Degrees().value());
+  // SwerveModulePositions modulePositions = {m_frontLeft.GetPosition(), m_frontRight.GetPosition(),
+  //                                          m_rearLeft.GetPosition(), m_rearRight.GetPosition()};
   m_gyro.Set(pose.Rotation().Degrees());
+
+  printf("m_gyro.GetRotation2d().Degrees %.3f pose.Rotation().Degrees %.3f\n", m_gyro.GetRotation2d().Degrees().value(), pose.Rotation().Degrees().value());
+
   m_poseEstimator.ResetPose(pose);
 }
 
