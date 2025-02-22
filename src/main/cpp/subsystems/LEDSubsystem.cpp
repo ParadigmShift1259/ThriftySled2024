@@ -72,7 +72,7 @@ void LEDSubsystem::Periodic()
   // m_log.Append(add_data_here);
 }
 
-void LEDSubsystem::SetAnimation(Color color, EAnimation animate)
+void LEDSubsystem::SetAnimation(RBGAColor color, EAnimation animate)
 {
   switch (animate)
   {

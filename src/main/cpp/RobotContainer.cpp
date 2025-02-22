@@ -106,15 +106,15 @@ RobotContainer::RobotContainer()
           [this](auto initPose) { m_drive.ResetOdometry(initPose); }, // Function used to reset odometry at the beginning of auto
           [this]() { return m_drive.GetChassisSpeeds(); },
           [this](frc::ChassisSpeeds speeds) { m_drive.Drive(-speeds.vx, -speeds.vy, -speeds.omega, false); }, // Output function that accepts field relative ChassisSpeeds
-          std::make_shared<PPHolonomicDriveController>(PIDConstants(2.5, 0.0, 0.0), PIDConstants(2.0, 0.0, 0.0)),
+          std::make_shared<PPHolonomicDriveController>(PIDConstants(2.5, 0.0, 0.0), PIDConstants(2.5, 0.0, 0.0)),
           m_drive.GetRobotCfg(),
           [this]() 
           {
-              // auto alliance = frc::DriverStation::GetAlliance();
-              // if (alliance)
-              // {
-              //     return alliance.value() == frc::DriverStation::Alliance::kRed;
-              // }
+              auto alliance = frc::DriverStation::GetAlliance();
+              if (alliance)
+              {
+                  return alliance.value() == frc::DriverStation::Alliance::kRed;
+              }
               return false; 
           }, // Should the path be automatically mirrored depending on alliance color. Optional, defaults to true
           &m_drive // Drive requirements, usually just a single drive subsystem
@@ -410,10 +410,10 @@ frc2::CommandPtr RobotContainer::GetFollowPathCommandImpl()
             // This will flip the path being followed to the red side of the field.
             // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
 
-            // auto alliance = DriverStation::GetAlliance();
-            // if (alliance) {
-            //     return alliance.value() == DriverStation::Alliance::kRed;
-            // }
+            auto alliance = DriverStation::GetAlliance();
+            if (alliance) {
+                return alliance.value() == DriverStation::Alliance::kRed;
+            }
             return false;
         },
         {&m_drive} // Drive requirements, usually just a single drive subsystem

@@ -6,7 +6,7 @@
 
 #include <numbers>
 
-//#define LED
+#define LED
 //#define PRACTICE_BINDINGS
 
 constexpr double c_turnGearRatio = 25.0;

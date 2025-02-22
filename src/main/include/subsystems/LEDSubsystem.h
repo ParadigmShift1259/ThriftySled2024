@@ -17,7 +17,7 @@
 
 using namespace ctre::phoenix::led;
 
-struct Color
+struct RBGAColor
 {
   int red = 0;
   int green = 0;
@@ -26,15 +26,15 @@ struct Color
 };
 
 //                                                 red green blue white
-const Color c_colorPink   = {  80,  10,  15,   0 };
-const Color c_colorGreen  = {  13,  80,   0,   0 };
-const Color c_colorRed    = { 255,   0,   0,   0 };
-const Color c_colorOrange = {  43,   6,   0, 255 };
-const Color c_colorYellow = { 255,   0,   0,   0 };
-const Color c_colorBlack  = {   0,   0,   0,   0 };
-const Color c_colorWhite  = { 255, 255, 255,  10 };
+const RBGAColor c_colorPink   = {  80,  10,  15,   0 };
+const RBGAColor c_colorGreen  = {  13,  80,   0,   0 };
+const RBGAColor c_colorRed    = { 255,   0,   0,   0 };
+const RBGAColor c_colorOrange = {  43,   6,   0, 255 };
+const RBGAColor c_colorYellow = { 255,   0,   0,   0 };
+const RBGAColor c_colorBlack  = {   0,   0,   0,   0 };
+const RBGAColor c_colorWhite  = { 255, 255, 255,  10 };
 
-const Color c_defaultColor = c_colorWhite;
+const RBGAColor c_defaultColor = c_colorWhite;
 
 class LEDSubsystem : public frc2::SubsystemBase
 {
@@ -67,21 +67,21 @@ class LEDSubsystem : public frc2::SubsystemBase
       kClimbFinish
     };
 
-    void SetAnimation(Color rgbw, EAnimation animate);
+    void SetAnimation(RBGAColor rgbw, EAnimation animate);
 
     bool IsRobotBusy() { return m_currentAction != kIdle; }
 
-    void SetDefaultColor(Color color) { m_defaultColor = color; }
-    Color GetDefaultColor() { return m_defaultColor; }
+    void SetDefaultColor(RBGAColor color) { m_defaultColor = color; }
+    RBGAColor GetDefaultColor() { return m_defaultColor; }
 
     void SetCurrentAction(ECurrentAction action) { m_currentAction = action; }
     ECurrentAction GetCurrentAction() { return m_currentAction; }
     
   private:
     // Convienince function to set LED color by accessing color struct components
-    void SetColor(const Color& color) { m_candle.SetLEDs(color.red, color.green, color.blue, color.white, c_ledOffset, c_ledNum); }
+    void SetColor(const RBGAColor& color) { m_candle.SetLEDs(color.red, color.green, color.blue, color.white, c_ledOffset, c_ledNum); }
     // Convienince function to set an animation color by accessing color struct components
-    void SetColor(BaseTwoSizeAnimation& animation, const Color& color)
+    void SetColor(BaseTwoSizeAnimation& animation, const RBGAColor& color)
     {
       animation.SetR(color.red);
       animation.SetG(color.green);
@@ -118,7 +118,7 @@ class LEDSubsystem : public frc2::SubsystemBase
     // int ledOffset    Where to start the animation; default 0
     LarsonAnimation m_larsonAnimation{0, 0, 0, 0, c_defaultSpeed, c_ledNum, LarsonAnimation::Front, 3, c_ledOffset};
 
-    Color           m_defaultColor;
+    RBGAColor       m_defaultColor;
     ECurrentAction  m_currentAction;
 };
 

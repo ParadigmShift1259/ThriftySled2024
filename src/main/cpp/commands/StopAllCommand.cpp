@@ -35,7 +35,7 @@ void StopAllCommand::Initialize()
   m_drive.Stop();
 #ifdef LED
   m_led.SetAnimation(m_led.GetDefaultColor(), LEDSubsystem::kSolid);
-  m_led.SetCurrentAction(LEDSubsystem::CurrentAction::kIdle);
+  m_led.SetCurrentAction(LEDSubsystem::ECurrentAction::kIdle);
 #endif
   //m_vision.DisableShooterLEDs();
 }
