@@ -28,7 +28,11 @@
 #include "ConstantsCANIDs.h"
 #include "subsystems/SwerveModule.h"
 #include "PigeonGyro.h"
+
+#define SIMULATION
+#ifndef SIMULATION
 #include "LimelightHelpers.h"
+#endif
 
 static constexpr units::meters_per_second_t kMaxSpeed = 18.9_fps;  // L3 Gear Ratio Falcon Max Speed
 static constexpr units::meters_per_second_t kLowSpeed = 1.0_fps;  // L3 Gear Ratio Falcon Max Speed
@@ -69,7 +73,7 @@ public:
 
   void UpdateOdometry() override;
   void ResetOdometry(frc::Pose2d pose) override;
-  void SetHeading(units::degree_t heading) override;
+  //void SetHeading(units::degree_t heading) override;
   void Periodic() override;
   double GetPitch() override { return m_gyro.GetPitch(); }
   frc::Pose2d GetPose() override;

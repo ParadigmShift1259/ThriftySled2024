@@ -28,14 +28,14 @@ units::degree_t PigeonGyro::GetYaw()
 }
 
 
-void PigeonGyro::Reset()
-{
-#ifdef USE_PIGEON_2
-    m_gyro.SetYaw(units::degree_t(0.0));
-#else
-    m_gyro.SetFusedHeading(0.0);
-#endif
-}
+// void PigeonGyro::Reset()
+// {
+// #ifdef USE_PIGEON_2
+//     m_gyro.SetYaw(units::degree_t(0.0));
+// #else
+//     m_gyro.SetFusedHeading(0.0);
+// #endif
+// }
 
 void PigeonGyro::Set(units::degree_t yaw)
 {
@@ -44,10 +44,13 @@ void PigeonGyro::Set(units::degree_t yaw)
 
 units::degrees_per_second_t PigeonGyro::GetTurnRate()
 {
-    double turnRates [3] = {0, 0, 0};
-    turnRates[0] = m_gyro.GetAngularVelocityXDevice().GetValueAsDouble();
-    turnRates[1] = m_gyro.GetAngularVelocityYDevice().GetValueAsDouble();
-    turnRates[2] = m_gyro.GetAngularVelocityZDevice().GetValueAsDouble();
-    // m_gyro.GetRawGyro(turnRates);
-    return units::degrees_per_second_t(turnRates[2]); 
+    //return m_gyro.GetAngularVelocityZDevice().GetValue();
+    return m_gyro.GetAngularVelocityZWorld().GetValue();
+
+    // double turnRates [3] = {0, 0, 0};
+    // turnRates[0] = m_gyro.GetAngularVelocityXDevice().GetValueAsDouble();
+    // turnRates[1] = m_gyro.GetAngularVelocityYDevice().GetValueAsDouble();
+    // turnRates[2] = m_gyro.GetAngularVelocityZDevice().GetValueAsDouble();
+    // // m_gyro.GetRawGyro(turnRates);
+    // return units::degrees_per_second_t(turnRates[2]); 
 }

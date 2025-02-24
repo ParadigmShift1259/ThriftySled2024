@@ -178,8 +178,9 @@ class RobotContainer : public ISubsystemAccess
   frc2::InstantCommand m_rumblePrimary{[this] { m_primaryController.SetRumble(GenericHID::RumbleType::kBothRumble, 1); }, {} };
   frc2::InstantCommand m_stopRumblePrimary{[this] { m_primaryController.SetRumble(GenericHID::RumbleType::kBothRumble, 0); }, {} };
 
-  NetworkButton m_netButtonTest{"NetButtons", "Test"};
-  // DashBoardValue<bool> m_dbvFieldRelative{"Drive", "FieldRelative", false};
+  DashBoardValue<bool> m_dbvFieldRelative{"Drive", "FieldRelative", false};
+//  NetworkButton m_netButtonTest{"NetButtons", "Test"};
+//  NetworkButton m_netButtonTest{"Drive", "Test"};
 
   PathConstraints m_pathConstraints { 1.0_mps, 1.0_mps_sq, 360_deg_per_s, 720_deg_per_s_sq };
   std::shared_ptr<PathPlannerPath> m_path;

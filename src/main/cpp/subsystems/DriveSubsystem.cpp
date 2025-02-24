@@ -32,7 +32,7 @@ DriveSubsystem::DriveSubsystem()
       , { m_frontLeftLocation , m_frontRightLocation, m_rearLeftLocation, m_rearRightLocation }
   }
 {
-  m_gyro.Reset();
+  // do not reset the gyro, the pose estimator will take care of the offset m_gyro.Reset();
 
   wpi::log::DataLog& log = frc::DataLogManager::GetLog();
   m_logRobotPoseX = wpi::log::DoubleLogEntry(log, "/odometry/robotPoseX");
@@ -115,7 +115,8 @@ void DriveSubsystem::RotationDrive(units::meters_per_second_t xSpeed
                                  , units::radian_t rot
                                  , bool fieldRelative) 
 {  
-  auto error = rot - m_gyro.GetRotation2d().Radians();//m_gyro->GetHeadingAsRot2d().Radians().to<double>();
+  //auto error = rot - m_gyro.GetRotation2d().Radians();
+  auto error = rot - m_poseEstimator.GetEstimatedPosition().Rotation().Radians();
   frc::SmartDashboard::PutNumber("turnError", error.value());
   if (error.to<double>() > std::numbers::pi)
   {
@@ -203,12 +204,16 @@ void DriveSubsystem::Periodic()
   frc::SmartDashboard::PutNumber("GyroYaw", m_gyro.GetYaw().value());
   frc::SmartDashboard::PutBoolean("SlowSpeed", m_currentMaxSpeed == kLowSpeed);
 
+#ifndef SIMULATION
   // Update limelight for megatag2
-  LimelightHelpers::SetRobotOrientation("limelight-reef", m_gyro.GetYaw().value(), 0.0, 0.0, 0.0, 0.0, 0.0);
+//  LimelightHelpers::SetRobotOrientation("limelight-reef", m_gyro.GetYaw().value(), 0.0, 0.0, 0.0, 0.0, 0.0);
+  // Use the pose estimator rotation instead of the gyro since we are not resetting the gyro
+  LimelightHelpers::SetRobotOrientation("limelight-reef", pose.Rotation().Degrees().value(), 0.0, 0.0, 0.0, 0.0, 0.0);
 
   bool doUpdate = true;
   LimelightHelpers::PoseEstimate mt2 = LimelightHelpers::getBotPoseEstimate_wpiBlue_MegaTag2("limelight-reef");
-  if (mt2.tagCount == 0 || fabs(m_gyro.GetTurnRate().value()) > 720.0)
+  if (mt2.tagCount == 0 || fabs((m_gyro.GetTurnRate() - 720.0_deg_per_s).value()))
+  //if (mt2.tagCount == 0 || fabs(m_gyro.GetTurnRate().value()) > 720.0)
   {
     doUpdate = false;
   }
@@ -217,12 +222,14 @@ void DriveSubsystem::Periodic()
   {
     m_poseEstimator.AddVisionMeasurement(mt2.pose, mt2.timestampSeconds);
   }
+#endif
 }
 
 frc::Pose2d DriveSubsystem::GetPose()
 {
-  auto pose = frc::Pose2d { m_poseEstimator.GetEstimatedPosition().X(), m_poseEstimator.GetEstimatedPosition().Y(), frc::Rotation2d { m_gyro.GetYaw()} };
-  return pose;
+  return m_poseEstimator.GetEstimatedPosition();
+//  auto pose = frc::Pose2d { m_poseEstimator.GetEstimatedPosition().X(), m_poseEstimator.GetEstimatedPosition().Y(), frc::Rotation2d { m_gyro.GetYaw()} };
+//  return pose;
 }
 
 frc::ChassisSpeeds DriveSubsystem::GetChassisSpeeds()
@@ -266,17 +273,18 @@ void DriveSubsystem::ResetOdometry(frc::Pose2d pose)
   // frc::SmartDashboard::PutNumber("ResetRot", pose.Rotation().Degrees().to<double>());
   printf ("resetx %.3f resety %.3f resetrot %.3f\n", pose.X().value(), pose.Y().value(), pose.Rotation().Degrees().value());
 
-  SwerveModulePositions modulePositions = {m_frontLeft.GetPosition(), m_frontRight.GetPosition(),
-                                           m_rearLeft.GetPosition(), m_rearRight.GetPosition()};
+  // SwerveModulePositions modulePositions = {m_frontLeft.GetPosition(), m_frontRight.GetPosition(),
+  //                                          m_rearLeft.GetPosition(), m_rearRight.GetPosition()};
   printf("m_gyro.GetRotation2d().Degrees %.3f pose.Rotation().Degrees %.3f\n", m_gyro.GetRotation2d().Degrees().value(), pose.Rotation().Degrees().value());
-  m_gyro.Set(pose.Rotation().Degrees());
+  // do not set the gyro, the pose estimator keeps track of the offset 
+  //m_gyro.Set(pose.Rotation().Degrees());
   m_poseEstimator.ResetPose(pose);
 }
 
-void DriveSubsystem::SetHeading(units::degree_t heading)
-{
-  m_gyro.Set(heading);
-}
+// void DriveSubsystem::SetHeading(units::degree_t heading)
+// {
+//   m_gyro.Set(heading);
+// }
 
 void DriveSubsystem::WheelsForward()
 {

@@ -111,17 +111,26 @@ RobotContainer::RobotContainer()
   frc::SmartDashboard::PutBoolean("RightSelected", false);
   frc::SmartDashboard::PutBoolean("LeftSelected", false);
   frc::SmartDashboard::PutNumber("MatchTime", frc::DriverStation::GetMatchTime().value());
+
+  frc2::NetworkButton
+  (
+    nt::NetworkTableInstance::GetDefault().GetBooleanTopic("/Drive/FieldRelative")).OnChange
+    (
+      frc2::cmd::RunOnce([this] { m_fieldRelative = !m_fieldRelative; }, {}
+    )
+  );
 }
 
 void RobotContainer::Periodic()
 {
-  m_drive.Periodic();
   static int count = 0;
   if (count++ % 25 == 0)
   {
     RobotContainer::ConfigureRobotLEDs();
   }
-  // m_dbvFieldRelative.Put(m_fieldRelative);
+  
+  m_dbvFieldRelative.Put(m_fieldRelative);
+
   frc::SmartDashboard::PutNumber("MatchTime", frc::DriverStation::GetMatchTime().value());
   m_field.SetRobotPose(m_drive.GetPose());
   frc::SmartDashboard::PutData("Field", &m_field);
@@ -251,7 +260,7 @@ void RobotContainer::ConfigSecondaryButtonBindings()
   secondary.POVRight().OnTrue(&m_coralDeployManip);
   secondary.POVLeft().OnTrue(&m_coralRetractManip);
 
-  m_netButtonTest.OnChange(PrintCommand("Network button changed").ToPtr());
+  //m_netButtonTest.OnChange(PrintCommand("Network button changed").ToPtr());
 
 #ifdef TEST_WHEEL_CONTROL
   auto loop = CommandScheduler::GetInstance().GetDefaultButtonLoop();
@@ -355,7 +364,10 @@ void RobotContainer::ConfigButtonBoxBindings()
 Command* RobotContainer::GetAutonomousCommand()
 {
   printf("auto chosen %s\n", m_chooser.GetSelected()->GetName().c_str());
-  return m_chooser.GetSelected();
+  //return m_chooser.GetSelected();
+  PathPlannerAuto* pPpa = (PathPlannerAuto*)m_chooser.GetSelected();
+  //pPpa->activePath().
+  return pPpa;
 }
 
 void RobotContainer::StopAll()
