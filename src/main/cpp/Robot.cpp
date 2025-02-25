@@ -19,6 +19,7 @@ void Robot::RobotInit() {}
 void Robot::RobotPeriodic()
 {
   frc2::CommandScheduler::GetInstance().Run();
+  m_container.Periodic();
 }
 
 /**
@@ -47,8 +48,9 @@ void Robot::DisabledExit()
  * This autonomous runs the autonomous command selected by your {@link
  * RobotContainer} class.
  */
-void Robot::AutonomousInit() {
-  // m_container.StartUp();
+void Robot::AutonomousInit()
+{
+  m_container.StartUp();
 
   m_autonomousCommand = m_container.GetAutonomousCommand();
   if (m_autonomousCommand)
@@ -60,7 +62,7 @@ void Robot::AutonomousInit() {
 void Robot::AutonomousPeriodic() {}
 
 void Robot::TeleopInit() {
-  // m_container.StartUp();
+  m_container.StartUp();
   // This makes sure that the autonomous stops running when
   // teleop starts running. If you want the autonomous to
   // continue until interrupted by another command, remove

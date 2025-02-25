@@ -136,7 +136,12 @@ RobotContainer::RobotContainer()
 
 void RobotContainer::Periodic()
 {
-  m_drive.Periodic();
+  if (m_timer.IsRunning() && m_timer.HasElapsed(0.75_s))
+  {
+    m_intake.ParkIntakeForLoad();
+    m_timer.Stop();
+  }
+
   static int count = 0;
   if (count++ % 25 == 0)
   {
@@ -215,10 +220,11 @@ void RobotContainer::ConfigPrimaryButtonBindings()
   // primary.X().OnTrue(CoralIntakeCommand(*this).ToPtr());
   primary.B().OnTrue(&m_ClimberDeploy);
   primary.X().OnTrue(&m_ClimberDeployRel);
+primary.Back().OnTrue(&m_ClimberRetract);//Temp
   primary.Y().OnTrue(&m_coralStop);
   primary.LeftBumper().OnTrue(&m_toggleFieldRelative);
   primary.Start().OnTrue(&m_toggleSlowSpeed);
-  primary.Back().OnTrue(&m_resetOdo);
+//  primary.Back().OnTrue(&m_resetOdo);
 
   primary.POVUp().OnTrue(StopAllCommand(*this).ToPtr());
   primary.POVDown().OnTrue(InstantCommand([this]{GetOnTheFlyPath();},{&m_drive}).ToPtr());

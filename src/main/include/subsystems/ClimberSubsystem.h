@@ -24,9 +24,9 @@ using namespace ctre::phoenix::motorcontrol::can;
 using namespace ctre::phoenix::motorcontrol;
 using namespace rev::spark;
 
-// constexpr double c_defaultResetTurns = 0.0;
-// constexpr double c_defaultParkTurns = -30.0;
-// constexpr double c_defaultHighTurns = -150.0;
+constexpr double c_defaultClimbResetTurns = 0.0;
+constexpr double c_defaultClimbDeployTurns = 480.0;
+constexpr double c_defaultClimbDeployRelTurns = 10.0;
 
 class ClimberSubsystem : public frc2::SubsystemBase
 {

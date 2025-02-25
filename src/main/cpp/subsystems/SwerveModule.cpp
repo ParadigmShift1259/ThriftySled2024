@@ -88,7 +88,7 @@ SwerveModule::SwerveModule(const int driveMotorCanId, const int turningMotorCanI
   frc::SmartDashboard::PutNumber("SwrvI", m_turnI);
   frc::SmartDashboard::PutNumber("SwrvD", m_turnD);
   m_turningConfig.closedLoop.Pid(m_turnP, m_turnI, m_turnD);
-  m_turningConfig.SmartCurrentLimit(20).SetIdleMode(SparkBaseConfig::IdleMode::kBrake);
+  m_turningConfig.SmartCurrentLimit(40).SetIdleMode(SparkBaseConfig::IdleMode::kBrake);
   
   m_turningMotor.Configure(m_turningConfig, SparkFlex::ResetMode::kNoResetSafeParameters, SparkFlex::PersistMode::kPersistParameters); // TODO: VERIFY CONFIGURATION
   m_timer.Reset();

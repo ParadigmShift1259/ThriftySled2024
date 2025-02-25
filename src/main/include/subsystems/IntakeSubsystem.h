@@ -14,7 +14,8 @@ using namespace frc;
 constexpr double kIngestSpeed = 1.0;
 constexpr double kReleaseSpeed = -1.0;
 
-constexpr double c_LoadCoralPosition = 10.0;
+constexpr double c_InitalDeployPosition = 12.0;
+constexpr double c_LoadCoralPosition = 9.238;
 constexpr double c_ParkForClimbPosition = 25.0;
 
 class IntakeSubsystem : public frc2::SubsystemBase
@@ -28,11 +29,12 @@ public:
     /// Drives the intake at a given speed
     /// \param speed         Desired motor speed to run, ranging from [-1, 1]
     void Set(double speed);
-    /// Extends the intake out of the robot
+    /// Extends the intake past the pin pop
     void AlignIntake();
-    // Retracts the intake into the robot
+    /// Sets the intake position for loading coral
+    void ParkIntakeForLoad();
+    /// Sets the intake out of the way for climb
     void ParkIntakeForClimb();
-    void ParkIntakeAtZero();
     void GoToPosition(double turns);
     void GoToPositionRel(double turns);
     double GetPosition() { return m_deployRelativeEnc.GetPosition(); }

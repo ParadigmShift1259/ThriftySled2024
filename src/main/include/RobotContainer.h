@@ -8,6 +8,7 @@
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <frc/smartdashboard/SendableChooser.h>
 #include <frc/GenericHID.h>
+#include <frc/Timer.h>
 
 #include <frc2/command/button/CommandXboxController.h>
 #include <frc2/command/button/CommandJoystick.h>
@@ -68,7 +69,12 @@ class RobotContainer : public ISubsystemAccess
   // };
 //  frc::SendableChooser<EAutoPath> m_chooser;
   frc::SendableChooser<Command*> m_chooser;
-  void StartUp() { m_intake.AlignIntake(); }
+  void StartUp()
+  { 
+    m_intake.AlignIntake();
+    m_timer.Reset();
+    m_timer.Start();
+  }
 
   // ConfigureRobotLEDs called by Robot class, passes enabled state via dashboard value "Robot Enabled"
   void ConfigureRobotLEDs();
@@ -84,7 +90,7 @@ class RobotContainer : public ISubsystemAccess
   void ConfigureBindings();
   void ConfigPrimaryButtonBindings();
   void ConfigSecondaryButtonBindings();
-//#define USE_BUTTON_BOX
+#define USE_BUTTON_BOX
 #ifdef USE_BUTTON_BOX
   void ConfigButtonBoxBindings();
 #endif
@@ -181,8 +187,9 @@ class RobotContainer : public ISubsystemAccess
   frc2::InstantCommand m_rumblePrimary{[this] { m_primaryController.SetRumble(GenericHID::RumbleType::kBothRumble, 1); }, {} };
   frc2::InstantCommand m_stopRumblePrimary{[this] { m_primaryController.SetRumble(GenericHID::RumbleType::kBothRumble, 0); }, {} };
 
-  frc2::InstantCommand m_ClimberDeploy{[this] { m_climber.GoToPosition(0.0);}, {&m_climber} };
-  frc2::InstantCommand m_ClimberDeployRel{[this] { m_climber.GoToPositionRel(1.0);}, {&m_climber} };
+  frc2::InstantCommand m_ClimberDeploy{[this] { m_climber.GoToPosition(c_defaultClimbDeployTurns);}, {&m_climber} };
+  frc2::InstantCommand m_ClimberRetract{[this] { m_climber.GoToPosition(c_defaultClimbResetTurns);}, {&m_climber} };
+  frc2::InstantCommand m_ClimberDeployRel{[this] { m_climber.GoToPositionRel(c_defaultClimbDeployRelTurns);}, {&m_climber} };
 
   NetworkButton m_netButtonTest{"NetButtons", "Test"};
   // DashBoardValue<bool> m_dbvFieldRelative{"Drive", "FieldRelative", false};
@@ -192,6 +199,8 @@ class RobotContainer : public ISubsystemAccess
   double m_targetX;
   double m_targetY;
   double m_targetRot;
+
+  frc::Timer m_timer;
 
 	wpi::log::DoubleLogEntry m_logRobotPoseX;
 	wpi::log::DoubleLogEntry m_logRobotPoseY;
