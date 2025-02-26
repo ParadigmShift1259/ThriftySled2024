@@ -28,6 +28,7 @@ struct RBGAColor
 //                                                 red green blue white
 const RBGAColor c_colorPink   = {  80,  10,  15,   0 };
 const RBGAColor c_colorGreen  = {  13,  80,   0,   0 };
+const RBGAColor c_colorBlue   = {   0,   0, 255,   0 };
 const RBGAColor c_colorRed    = { 255,   0,   0,   0 };
 const RBGAColor c_colorOrange = {  43,   6,   0, 255 };
 const RBGAColor c_colorYellow = { 255,   0,   0,   0 };

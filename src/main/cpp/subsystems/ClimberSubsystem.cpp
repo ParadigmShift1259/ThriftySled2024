@@ -140,3 +140,8 @@ void ClimberSubsystem::Set(double speed)
 {
     m_motor.Set(speed);
 }
+
+double ClimberSubsystem::GetPosition() 
+{
+    return m_relativeEnc.GetPosition();
+}

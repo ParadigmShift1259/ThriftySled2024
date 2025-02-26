@@ -178,6 +178,10 @@ class RobotContainer : public ISubsystemAccess
   { 
     bool down = (m_elevator.GetCurrentPosition() < 2.0);
     m_coral.EjectCoral(down); 
+#ifdef LED
+    m_led.SetCurrentAction(LEDSubsystem::kDefaultAction);
+#endif
+
   }, {&m_coral} };
   frc2::InstantCommand m_coralStop{[this] { m_coral.Stop(); }, {&m_coral} };
   frc2::InstantCommand m_coralRetract{[this] { m_coral.RetractCoral(L1); }, {&m_coral} };
@@ -187,8 +191,24 @@ class RobotContainer : public ISubsystemAccess
   frc2::InstantCommand m_rumblePrimary{[this] { m_primaryController.SetRumble(GenericHID::RumbleType::kBothRumble, 1); }, {} };
   frc2::InstantCommand m_stopRumblePrimary{[this] { m_primaryController.SetRumble(GenericHID::RumbleType::kBothRumble, 0); }, {} };
 
-  frc2::InstantCommand m_ClimberDeploy{[this] { m_climber.GoToPosition(c_defaultClimbDeployTurns);}, {&m_climber} };
-  frc2::InstantCommand m_ClimberRetract{[this] { m_climber.GoToPosition(c_defaultClimbResetTurns);}, {&m_climber} };
+  frc2::InstantCommand m_ClimberDeploy{[this] 
+  { 
+#ifdef LED
+    m_led.SetCurrentAction(LEDSubsystem::kClimbing);
+    m_led.SetAnimation(c_colorGreen, LEDSubsystem::kFlow);
+#endif
+    m_climber.GoToPosition(c_defaultClimbDeployTurns);
+  }, {&m_climber} };
+  frc2::InstantCommand m_ClimberRetract{[this] 
+  { 
+#ifdef LED
+    m_led.SetAnimation(c_colorBlue, LEDSubsystem::kFlow);
+#endif
+    m_climber.GoToPosition(c_defaultClimbResetTurns);
+#ifdef LED
+    m_led.SetCurrentAction(LEDSubsystem::kClimbFinish);
+#endif
+  }, {&m_climber} };
   frc2::InstantCommand m_ClimberDeployRel{[this] { m_climber.GoToPositionRel(c_defaultClimbDeployRelTurns);}, {&m_climber} };
 
   NetworkButton m_netButtonTest{"NetButtons", "Test"};

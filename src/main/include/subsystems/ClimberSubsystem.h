@@ -47,6 +47,8 @@ public:
 
     void GoToPositionRel(double position);
 
+    double GetPosition();
+
 
     // enum Position {
     //     kDefaultPosition,

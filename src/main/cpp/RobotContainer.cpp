@@ -10,6 +10,8 @@
 #include "commands/CoralEjectCommand.h"
 #include "commands/CoralEjectPostCommand.h"
 #include "commands/StopAllCommand.h"
+#include "commands/ClimbRetractCommand.h"
+#include "commands/ClimbDeployCommand.h"
 
 #include <frc/MathUtil.h>
 #include <frc/smartdashboard/SmartDashboard.h>
@@ -218,9 +220,9 @@ void RobotContainer::ConfigPrimaryButtonBindings()
   primary.A().OnTrue(&m_coralEject);
   // primary.B().OnTrue(CoralPrepCommand(*this, L4).ToPtr());
   // primary.X().OnTrue(CoralIntakeCommand(*this).ToPtr());
-  primary.B().OnTrue(&m_ClimberDeploy);
+  primary.B().OnTrue(ClimbDeployCommand(*this).ToPtr());
   primary.X().OnTrue(&m_ClimberDeployRel);
-primary.Back().OnTrue(&m_ClimberRetract);//Temp
+  primary.Back().OnTrue(ClimbRetractCommand(*this).ToPtr()); // Temp
   primary.Y().OnTrue(&m_coralStop);
   primary.LeftBumper().OnTrue(&m_toggleFieldRelative);
   primary.Start().OnTrue(&m_toggleSlowSpeed);

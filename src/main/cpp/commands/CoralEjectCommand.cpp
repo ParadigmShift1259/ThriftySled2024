@@ -23,8 +23,7 @@ void CoralEjectCommand::Initialize()
 {
     m_logStartCommand.Append(true);
 #ifdef LED
-    m_ledSubsystem.SetCurrentAction(LEDSubsystem::kDefaultAction);
-    m_ledSubsystem.SetAnimation(c_defaultColor, LEDSubsystem::kSolid);
+    // m_ledSubsystem.SetCurrentAction(LEDSubsystem::kDefaultAction);
 #endif
    
     m_coralSubsystem.EjectCoral(false);
@@ -32,7 +31,10 @@ void CoralEjectCommand::Initialize()
 
 void CoralEjectCommand::Execute()
 {
-    
+#ifdef LED 
+    m_ledSubsystem.SetCurrentAction(LEDSubsystem::kDefaultAction);
+    m_ledSubsystem.SetAnimation(c_defaultColor, LEDSubsystem::kSolid);
+#endif
 }
 
 bool CoralEjectCommand::IsFinished()
