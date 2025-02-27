@@ -8,24 +8,22 @@
 
 class CoralIntakeCommand: public frc2::CommandHelper<frc2::Command, CoralIntakeCommand>
 {
-    public:
-        explicit CoralIntakeCommand(ISubsystemAccess& subsystemAccess);
-        void Initialize() override;
-        void Execute() override;
-        bool IsFinished() override;
-        void End(bool interrupted) override;
+  public:
+    explicit CoralIntakeCommand(ISubsystemAccess& subsystemAccess);
+    void Initialize() override;
+    void Execute() override;
+    bool IsFinished() override;
+    void End(bool interrupted) override;
 
-    private:
-
-        CoralManipulatorSubsystem&        m_coralSubsystem;
+  private:
+    CoralManipulatorSubsystem&        m_coralSubsystem;
 #ifdef LED
-        LEDSubsystem&                     m_ledSubsystem;
+    LEDSubsystem&                     m_ledSubsystem;
 #endif
 
-        frc::Timer m_timer;
+    frc::Timer m_timer;
 
-		wpi::log::BooleanLogEntry m_logStartCoralIntakeCommand;
-		wpi::log::BooleanLogEntry m_logCoralIntakeCommandFlipped;
+	wpi::log::BooleanLogEntry     m_logStartCommand;
 };
 
 

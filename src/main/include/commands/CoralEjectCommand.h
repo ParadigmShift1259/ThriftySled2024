@@ -16,11 +16,10 @@ class CoralEjectCommand: public frc2::CommandHelper<frc2::Command, CoralEjectCom
         void End(bool interrupted) override;
 
     private:
-        CoralManipulatorSubsystem&        m_coralSubsystem;
-        ElevatorSubsystem&                m_elevatorSubsystem;
+        CoralManipulatorSubsystem&  m_coralSubsystem;
 #ifdef LED
-        LEDSubsystem&                     m_ledSubsystem;
+        LEDSubsystem&               m_ledSubsystem;
 #endif
 
-		wpi::log::BooleanLogEntry m_logStartCommand;
+		wpi::log::BooleanLogEntry   m_logStartCommand;
 };

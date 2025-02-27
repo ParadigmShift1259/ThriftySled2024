@@ -112,11 +112,11 @@ RobotContainer::RobotContainer()
           m_drive.GetRobotCfg(),
           [this]() 
           {
-              // auto alliance = frc::DriverStation::GetAlliance();
-              // if (alliance)
-              // {
-              //     return alliance.value() == frc::DriverStation::Alliance::kRed;
-              // }
+              auto alliance = frc::DriverStation::GetAlliance();
+              if (alliance)
+              {
+                  return alliance.value() == frc::DriverStation::Alliance::kRed;
+              }
               return false; 
           }, // Should the path be automatically mirrored depending on alliance color. Optional, defaults to true
           &m_drive // Drive requirements, usually just a single drive subsystem
@@ -134,6 +134,23 @@ RobotContainer::RobotContainer()
   frc::SmartDashboard::PutBoolean("RightSelected", false);
   frc::SmartDashboard::PutBoolean("LeftSelected", false);
   frc::SmartDashboard::PutNumber("MatchTime", frc::DriverStation::GetMatchTime().value());
+
+  frc2::NetworkButton
+  (
+    nt::NetworkTableInstance::GetDefault().GetBooleanTopic("/Drive/FieldRelative")).OnChange
+    (
+      frc2::cmd::RunOnce([this] { m_fieldRelative = !m_fieldRelative; }, {}
+    )
+  );
+
+  frc2::NetworkButton
+  (
+    //nt::NetworkTableInstance::GetDefault().GetBooleanTopic(m_dbvRunIntakeStartup.Path())).OnChange
+    nt::NetworkTableInstance::GetDefault().GetBooleanTopic("/Intake/RunStartup")).OnChange
+    (
+      frc2::cmd::RunOnce([this] { if (m_runIntakeStartup) StartUp(); m_runIntakeStartup = false; }, {}
+    )
+  );
 }
 
 void RobotContainer::Periodic()
@@ -149,7 +166,10 @@ void RobotContainer::Periodic()
   {
     RobotContainer::ConfigureRobotLEDs();
   }
-  // m_dbvFieldRelative.Put(m_fieldRelative);
+  
+  m_dbvFieldRelative.Put(m_fieldRelative);
+  m_dbvRunIntakeStartup.Put(m_runIntakeStartup);
+
   frc::SmartDashboard::PutNumber("MatchTime", frc::DriverStation::GetMatchTime().value());
   m_field.SetRobotPose(m_drive.GetPose());
   frc::SmartDashboard::PutData("Field", &m_field);
@@ -217,11 +237,17 @@ void RobotContainer::ConfigPrimaryButtonBindings()
   primary.RightBumper().OnTrue(DeferredCommand(GetFollowPathCommand, {&m_drive} ).ToPtr());
 //#endif
 
-  primary.A().OnTrue(&m_coralEject);
-  // primary.B().OnTrue(CoralPrepCommand(*this, L4).ToPtr());
-  // primary.X().OnTrue(CoralIntakeCommand(*this).ToPtr());
-  primary.B().OnTrue(ClimbDeployCommand(*this).ToPtr());
-  primary.X().OnTrue(&m_ClimberDeployRel);
+  primary.A().OnTrue(frc2::SequentialCommandGroup{
+      m_setHighSpeedCmd
+    , CoralEjectCommand(*this)
+    , ElevatorGoToCommand(*this, L2)
+    , WaitCommand(0.4_s)
+    , ElevatorGoToCommand(*this, L1)
+  }.ToPtr());
+  primary.B().OnTrue(CoralPrepCommand(*this, L4).ToPtr());
+  primary.X().OnTrue(CoralIntakeCommand(*this).ToPtr());
+  // primary.B().OnTrue(ClimbDeployCommand(*this).ToPtr());
+  // primary.X().OnTrue(&m_ClimberDeployRel);
   primary.Back().OnTrue(ClimbRetractCommand(*this).ToPtr()); // Temp
   primary.Y().OnTrue(&m_coralStop);
   primary.LeftBumper().OnTrue(&m_toggleFieldRelative);
@@ -230,7 +256,6 @@ void RobotContainer::ConfigPrimaryButtonBindings()
 
   primary.POVUp().OnTrue(StopAllCommand(*this).ToPtr());
   primary.POVDown().OnTrue(InstantCommand([this]{GetOnTheFlyPath();},{&m_drive}).ToPtr());
-  primary.POVRight().OnTrue(&m_intakeRel);
 
 //   primary.POVUp().OnTrue(GoToPositionCommand(*this, eJogForward, m_path).ToPtr());
 //   primary.POVDown().OnTrue(GoToPositionCommand(*this, eJogBackward, m_path).ToPtr());
@@ -283,7 +308,7 @@ void RobotContainer::ConfigSecondaryButtonBindings()
   secondary.POVRight().OnTrue(&m_coralDeployManip);
   secondary.POVLeft().OnTrue(&m_coralRetractManip);
 
-  m_netButtonTest.OnChange(PrintCommand("Network button changed").ToPtr());
+  //m_netButtonTest.OnChange(PrintCommand("Network button changed").ToPtr());
 
 #ifdef TEST_WHEEL_CONTROL
   auto loop = CommandScheduler::GetInstance().GetDefaultButtonLoop();
@@ -343,8 +368,11 @@ void RobotContainer::ConfigButtonBoxBindings()
 
   //buttonBox.B().OnTrue(&m_intakeParkAtZero);
   //buttonBox.B().OnTrue(&m_intakeAlign);
-  buttonBox.B().OnTrue(CoralIntakeCommand(*this).ToPtr());
-
+  buttonBox.B().OnTrue(frc2::SequentialCommandGroup{
+      CoralIntakeCommand(*this)
+    , m_setL3
+    , m_elevL3
+  }.ToPtr());
   buttonBox.Start().OnTrue(&m_elevL3_4);
   buttonBox.RightStick().OnTrue(&m_elevL2_3);
 
@@ -387,7 +415,10 @@ void RobotContainer::ConfigButtonBoxBindings()
 Command* RobotContainer::GetAutonomousCommand()
 {
   printf("auto chosen %s\n", m_chooser.GetSelected()->GetName().c_str());
-  return m_chooser.GetSelected();
+  //return m_chooser.GetSelected();
+  PathPlannerAuto* pPpa = (PathPlannerAuto*)m_chooser.GetSelected();
+  //pPpa->activePath().
+  return pPpa;
 }
 
 void RobotContainer::StopAll()

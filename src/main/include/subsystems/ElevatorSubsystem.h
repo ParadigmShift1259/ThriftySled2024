@@ -32,8 +32,9 @@ constexpr double c_defaultL2Turns =  3.0; // originally 2.0
 constexpr double c_defaultL3Turns = 15.5; 
 constexpr double c_defaultL4Turns = 40.0;
 constexpr double c_defaultLoadTurns = 10.0;
-constexpr double c_algaeRemovalL3_4 = 28.0;
-constexpr double c_algaeRemovalL2_3 = 14.0;
+constexpr double c_algaeRemovalL3_4 = 33.0;
+constexpr double c_algaeRemovalL2_3 = 20.75;
+constexpr double c_algaeRemovalGripBall = -4.0;
 
 class ElevatorSubsystem : public frc2::SubsystemBase
 {

@@ -36,7 +36,7 @@ public:
   
   virtual void UpdateOdometry() = 0;
   virtual void ResetOdometry(frc::Pose2d pose) = 0;
-  virtual void SetHeading(units::degree_t heading) = 0;
+  //virtual void SetHeading(units::degree_t heading) = 0;
   virtual double GetPitch() = 0;
   virtual frc::Pose2d GetPose() = 0;
   virtual frc::ChassisSpeeds GetChassisSpeeds() = 0;

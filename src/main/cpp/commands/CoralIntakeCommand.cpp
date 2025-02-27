@@ -15,13 +15,12 @@ CoralIntakeCommand::CoralIntakeCommand(ISubsystemAccess& subsystemAccess)
     AddRequirements(frc2::Requirements{&subsystemAccess.GetCoral()});
 #endif
     wpi::log::DataLog& log = subsystemAccess.GetLogger();
-    m_logStartCoralIntakeCommand = wpi::log::BooleanLogEntry(log, "/CoralIntakeCommand/startCommand");
-    m_logCoralIntakeCommandFlipped = wpi::log::BooleanLogEntry(log, "/CoralIntakeCommand/startCommand");
-
+    m_logStartCommand = wpi::log::BooleanLogEntry(log, "/CoralIntakeCommand/startCommand");
 }
 
 void CoralIntakeCommand::Initialize()
 {
+    m_logStartCommand.Append(true);
     m_timer.Reset();
     m_timer.Start();
     m_coralSubsystem.SetManipulator(-0.5);
@@ -32,8 +31,8 @@ void CoralIntakeCommand::Initialize()
 
 void CoralIntakeCommand::Execute()
 {
-    if (m_coralSubsystem.IsCoralPresentOutput()){
-        m_coralSubsystem.SetManipulator(-0.5);
+    if (m_coralSubsystem.IsCoralPresentOutput())
+    {
 #ifdef LED
         m_ledSubsystem.SetAnimation(c_colorPink, LEDSubsystem::kSolid);
 #endif
@@ -48,7 +47,5 @@ bool CoralIntakeCommand::IsFinished()
 void CoralIntakeCommand::End(bool interrupted)
 {
     m_coralSubsystem.Stop();
-// #ifdef LED
-//     m_ledSubsystem.SetCurrentAction(LEDSubsystem::kIdle);
-// #endif
+    m_logStartCommand.Append(false);
 }

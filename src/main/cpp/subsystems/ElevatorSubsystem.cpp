@@ -161,7 +161,7 @@ void ElevatorSubsystem::Periodic()
 
 double ElevatorSubsystem::GetPositionForLevel(ELevels eLevel)
 {
-    static double positions[] = { c_defaultL1Turns, c_defaultL2Turns, c_defaultL3Turns, c_algaeRemovalL3_4, c_algaeRemovalL2_3 };
+    static double positions[] = { c_defaultL1Turns, c_defaultL2Turns, c_defaultL3Turns, c_defaultL4Turns, c_algaeRemovalL3_4, c_algaeRemovalL2_3 };
     double position;
     if (eLevel == L4)
     {
@@ -181,14 +181,13 @@ void ElevatorSubsystem::GoToPosition(ELevels eLevel)
 
 void ElevatorSubsystem::GoToPosition(double position)
 {
-    std::clamp(position, 0.0, 40.0);
-    m_position = position;
+    m_position = std::clamp(position, 0.0, 40.0);
     
     frc::SmartDashboard::PutNumber("ElevatorLeadMotorPos", position);
     frc::SmartDashboard::PutNumber("ElevatorFollowMotorPos", position);
 
     m_slot = c_defaultElevatorUpPIDSlot;
-    if(position < 1.5)
+    if (m_position < 1.5)
     {
         m_slot = c_defaultElevatorDownPIDSlot;
     }
@@ -200,7 +199,7 @@ void ElevatorSubsystem::GotoPositionRel(double relPos)
 {
     bool bDown = relPos < 0.0;
     relPos = frc::SmartDashboard::GetNumber("ElevatorGoToRel", 1.0);
-    std::clamp(relPos, -10.0, 10.0);
+    relPos = std::clamp(relPos, -10.0, 10.0);
     if(bDown)
     {
         relPos *= -1.0;

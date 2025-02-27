@@ -5,8 +5,12 @@
 #include "Robot.h"
 
 #include <frc2/command/CommandScheduler.h>
+#include <cameraserver/CameraServer.h>
 
-void Robot::RobotInit() {}
+void Robot::RobotInit()
+{
+  frc::CameraServer::StartAutomaticCapture();  
+}
 
 /**
  * This function is called every 20 ms, no matter the mode. Use
@@ -61,8 +65,9 @@ void Robot::AutonomousInit()
 
 void Robot::AutonomousPeriodic() {}
 
-void Robot::TeleopInit() {
-  m_container.StartUp();
+void Robot::TeleopInit()
+{
+  //m_container.StartUp();
   // This makes sure that the autonomous stops running when
   // teleop starts running. If you want the autonomous to
   // continue until interrupted by another command, remove

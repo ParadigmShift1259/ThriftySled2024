@@ -1,5 +1,6 @@
 #include <networktables/NetworkTable.h>
 #include <networktables/NetworkTableInstance.h>
+//#include <format>
 
 using namespace nt;
 
@@ -61,6 +62,10 @@ class DashBoardValue
             }
         }
     }
+ 
+    //const std::string& ValueName() const { return m_valueName; }
+    //const std::string& TableName() const { return m_spNetTable ? m_spNetTable->GetPath() : "unkTable"; }
+    //const std::string Path() const { return std::format("/{}/{}", m_spNetTable ? m_spNetTable->GetPath() : "unkTable", m_valueName); }
 
  private:
     std::string  m_valueName;

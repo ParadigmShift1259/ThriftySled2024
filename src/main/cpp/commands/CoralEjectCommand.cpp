@@ -5,15 +5,14 @@
 
 CoralEjectCommand::CoralEjectCommand(ISubsystemAccess& subsystemAccess)
     : m_coralSubsystem(subsystemAccess.GetCoral())
-    , m_elevatorSubsystem(subsystemAccess.GetElevator())
 #ifdef LED
     , m_ledSubsystem(subsystemAccess.GetLED())
 #endif
 {
 #ifdef LED
-    AddRequirements(frc2::Requirements{&subsystemAccess.GetCoral(), &subsystemAccess.GetElevator(), &subsystemAccess.GetLED()});
+    AddRequirements(frc2::Requirements{&subsystemAccess.GetCoral(), &subsystemAccess.GetLED()});
 #else
-    AddRequirements(frc2::Requirements{&subsystemAccess.GetCoral(), &subsystemAccess.GetElevator()});
+    AddRequirements(frc2::Requirements{&subsystemAccess.GetCoral()});
 #endif
     wpi::log::DataLog& log = subsystemAccess.GetLogger();
     m_logStartCommand = wpi::log::BooleanLogEntry(log, "/CoralEjectCommand/startCommand");
@@ -22,19 +21,15 @@ CoralEjectCommand::CoralEjectCommand(ISubsystemAccess& subsystemAccess)
 void CoralEjectCommand::Initialize()
 {
     m_logStartCommand.Append(true);
-#ifdef LED
-    // m_ledSubsystem.SetCurrentAction(LEDSubsystem::kDefaultAction);
-#endif
-   
     m_coralSubsystem.EjectCoral(false);
-}
-
-void CoralEjectCommand::Execute()
-{
 #ifdef LED 
     m_ledSubsystem.SetCurrentAction(LEDSubsystem::kDefaultAction);
     m_ledSubsystem.SetAnimation(c_defaultColor, LEDSubsystem::kSolid);
 #endif
+}
+
+void CoralEjectCommand::Execute()
+{
 }
 
 bool CoralEjectCommand::IsFinished()

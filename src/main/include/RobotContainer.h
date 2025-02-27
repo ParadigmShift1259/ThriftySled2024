@@ -126,6 +126,9 @@ class RobotContainer : public ISubsystemAccess
   // TODO Make sure field relative starts how the drive team wants
   bool m_fieldRelative = true;
   bool m_isAutoRunning = false;
+  bool m_runIntakeStartup = true;
+  DashBoardValue<bool> m_dbvFieldRelative{"Drive", "FieldRelative", m_fieldRelative};
+  DashBoardValue<bool> m_dbvRunIntakeStartup{"Intake", "RunStartup", m_runIntakeStartup};
 
   ESideSelected m_sideSelected = Unselected;
 
@@ -171,18 +174,8 @@ class RobotContainer : public ISubsystemAccess
 
   frc2::InstantCommand m_intakeAlign{[this] { m_intake.AlignIntake(); }, {&m_intake} };
   frc2::InstantCommand m_intakePark{[this] { m_intake.ParkIntakeForClimb(); }, {&m_intake} };
-  frc2::InstantCommand m_intakeRel{[this] { m_intake.GoToPositionRel(1.0); }, {&m_intake} };
   //frc2::InstantCommand m_intakeParkAtZero{[this] { m_intake.ParkIntakeAtZero(); }, {&m_intake} };
 
-  frc2::InstantCommand m_coralEject{[this]
-  { 
-    bool down = (m_elevator.GetCurrentPosition() < 2.0);
-    m_coral.EjectCoral(down); 
-#ifdef LED
-    m_led.SetCurrentAction(LEDSubsystem::kDefaultAction);
-#endif
-
-  }, {&m_coral} };
   frc2::InstantCommand m_coralStop{[this] { m_coral.Stop(); }, {&m_coral} };
   frc2::InstantCommand m_coralRetract{[this] { m_coral.RetractCoral(L1); }, {&m_coral} };
   frc2::InstantCommand m_coralDeployManip{[this] {m_coral.DeployManipulator(); }, {&m_coral} };
@@ -210,9 +203,6 @@ class RobotContainer : public ISubsystemAccess
 #endif
   }, {&m_climber} };
   frc2::InstantCommand m_ClimberDeployRel{[this] { m_climber.GoToPositionRel(c_defaultClimbDeployRelTurns);}, {&m_climber} };
-
-  NetworkButton m_netButtonTest{"NetButtons", "Test"};
-  // DashBoardValue<bool> m_dbvFieldRelative{"Drive", "FieldRelative", false};
 
   PathConstraints m_pathConstraints { 1.0_mps, 1.0_mps_sq, 360_deg_per_s, 720_deg_per_s_sq };
   std::shared_ptr<PathPlannerPath> m_path;

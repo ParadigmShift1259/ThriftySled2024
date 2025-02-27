@@ -17,7 +17,6 @@ WPI_IGNORE_DEPRECATED
 #include <ctre/phoenix/motorcontrol/can/TalonSRX.h>
 WPI_UNIGNORE_DEPRECATED
 
-#include <rev/SparkFlex.h>
 #include <rev/SparkMax.h>
 
 using namespace ctre::phoenix::motorcontrol::can;
