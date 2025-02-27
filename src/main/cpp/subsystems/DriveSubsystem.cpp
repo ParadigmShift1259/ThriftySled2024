@@ -5,6 +5,7 @@
 #include "subsystems/DriveSubsystem.h"
 
 #include <frc/smartdashboard/SmartDashboard.h>
+#include <frc/RobotBase.h>
 
 #include <units/math.h>
 
@@ -212,22 +213,24 @@ void DriveSubsystem::Periodic()
   frc::SmartDashboard::PutBoolean("SlowSpeed", m_currentMaxSpeed == kLowSpeed);
 
 #ifndef SIMULATION
-  // Update limelight for megatag2
-//  LimelightHelpers::SetRobotOrientation("limelight-reef", m_gyro.GetYaw().value(), 0.0, 0.0, 0.0, 0.0, 0.0);
-  // Use the pose estimator rotation instead of the gyro since we are not resetting the gyro
-  LimelightHelpers::SetRobotOrientation("limelight-reef", pose.Rotation().Degrees().value(), 0.0, 0.0, 0.0, 0.0, 0.0);
+  //if (frc::RobotBase::IsReal())
+  //{
+    // Update limelight for megatag2
+    // Use the pose estimator rotation instead of the gyro since we are not resetting the gyro
+    LimelightHelpers::SetRobotOrientation("limelight-reef", pose.Rotation().Degrees().value(), 0.0, 0.0, 0.0, 0.0, 0.0);
 
-  bool doUpdate = true;
-  LimelightHelpers::PoseEstimate mt2 = LimelightHelpers::getBotPoseEstimate_wpiBlue_MegaTag2("limelight-reef");
-  if (mt2.tagCount == 0 || fabs((m_gyro.GetTurnRate() - 720.0_deg_per_s).value()))
-  {
-    doUpdate = false;
-  }
+    bool doUpdate = true;
+    LimelightHelpers::PoseEstimate mt2 = LimelightHelpers::getBotPoseEstimate_wpiBlue_MegaTag2("limelight-reef");
+    if (mt2.tagCount == 0 || fabs((m_gyro.GetTurnRate() - 720.0_deg_per_s).value()))
+    {
+      doUpdate = false;
+    }
 
-  if (doUpdate)
-  {
-    m_poseEstimator.AddVisionMeasurement(mt2.pose, mt2.timestampSeconds);
-  }
+    if (doUpdate)
+    {
+      m_poseEstimator.AddVisionMeasurement(mt2.pose, mt2.timestampSeconds);
+    }
+  //}
 #endif
 }
 

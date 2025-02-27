@@ -137,16 +137,17 @@ RobotContainer::RobotContainer()
 
   frc2::NetworkButton
   (
-    nt::NetworkTableInstance::GetDefault().GetBooleanTopic("/Drive/FieldRelative")).OnChange
+    nt::NetworkTableInstance::GetDefault().GetBooleanTopic(m_dbvFieldRelative.Path())).OnChange
     (
       frc2::cmd::RunOnce([this] { m_fieldRelative = !m_fieldRelative; }, {}
     )
   );
 
+  auto x = m_dbvRunIntakeStartup.Path();
+
   frc2::NetworkButton
   (
-    //nt::NetworkTableInstance::GetDefault().GetBooleanTopic(m_dbvRunIntakeStartup.Path())).OnChange
-    nt::NetworkTableInstance::GetDefault().GetBooleanTopic("/Intake/RunStartup")).OnChange
+    nt::NetworkTableInstance::GetDefault().GetBooleanTopic(m_dbvRunIntakeStartup.Path())).OnChange
     (
       frc2::cmd::RunOnce([this] { if (m_runIntakeStartup) StartUp(); m_runIntakeStartup = false; }, {}
     )

@@ -55,19 +55,7 @@ class RobotContainer : public ISubsystemAccess
   
   wpi::log::DataLog&         GetLogger() override { return DataLogManager::GetLog(); }
   Command*                   GetAutonomousCommand();
-  // enum EAutoPath
-  // {
-  //     kAutoPathDefault
-  //   , kAutoPathTestAuto = kAutoPathDefault
-  //   , kAutoPathDoNothing
-  //   // Keep the emun in sync with the LUT
-  // };
-  // std::vector<std::string> m_pathPlannerLUT
-  // { 
-  //     "Test Auto" 
-  //   , "DoNothingAuto"       // These strings are the names of the PathPlanner .path files
-  // };
-//  frc::SendableChooser<EAutoPath> m_chooser;
+
   frc::SendableChooser<Command*> m_chooser;
   void StartUp()
   { 

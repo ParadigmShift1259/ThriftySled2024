@@ -63,9 +63,13 @@ class DashBoardValue
         }
     }
  
-    //const std::string& ValueName() const { return m_valueName; }
-    //const std::string& TableName() const { return m_spNetTable ? m_spNetTable->GetPath() : "unkTable"; }
-    //const std::string Path() const { return std::format("/{}/{}", m_spNetTable ? m_spNetTable->GetPath() : "unkTable", m_valueName); }
+    const std::string c_slash{"/"};
+    const std::string Path() const 
+    {
+         std::string path = std::string{m_spNetTable ? m_spNetTable->GetPath() : "/unkTable"};
+         path += c_slash + m_valueName; 
+         return path;
+    }
 
  private:
     std::string  m_valueName;
