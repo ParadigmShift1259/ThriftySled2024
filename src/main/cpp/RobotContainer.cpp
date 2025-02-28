@@ -93,11 +93,11 @@ RobotContainer::RobotContainer()
     // Logging callback for the active path, this is sent as a vector of poses
     PathPlannerLogging::setLogActivePathCallback([this](std::vector<frc::Pose2d> poses) 
     {
-        for (auto& pose : poses)
-        {
-          printf("actv pose x %.3f y %.3f Rot %.3f\n", pose.X().value(), pose.Y().value(), pose.Rotation().Degrees().value());
+        // for (auto& pose : poses)
+        // {
+        //   printf("actv pose x %.3f y %.3f Rot %.3f\n", pose.X().value(), pose.Y().value(), pose.Rotation().Degrees().value());
 
-        }
+        // }
         m_field.GetObject("path")->SetPoses(poses);
     });
 
@@ -436,9 +436,10 @@ void RobotContainer::SetSideSelected(ESideSelected sideSelected)
 
 frc2::CommandPtr RobotContainer::GetFollowPathCommandImpl()
 {
-  constexpr double c_HolomonicP = 0.01;
+  constexpr double c_HolomonicP = 2.0;
 
-  return FollowPathCommand(
+   return frc2::SequentialCommandGroup{
+      FollowPathCommand(
         GetOnTheFlyPath()
       , [this]() { return m_drive.GetPose(); } // Function to supply current robot pose
       , [this]() { return m_drive.GetChassisSpeeds(); }
@@ -457,7 +458,30 @@ frc2::CommandPtr RobotContainer::GetFollowPathCommandImpl()
             return false;
         },
         {&m_drive} // Drive requirements, usually just a single drive subsystem
-      ).ToPtr();
+      )
+    , InstantCommand([this] (){ m_drive.Stop(); }, {&m_drive})
+  }.ToPtr();
+
+  // return FollowPathCommand(
+  //       GetOnTheFlyPath()
+  //     , [this]() { return m_drive.GetPose(); } // Function to supply current robot pose
+  //     , [this]() { return m_drive.GetChassisSpeeds(); }
+  //     , [this](const frc::ChassisSpeeds& speeds, const DriveFeedforwards &dffs) { m_drive.Drive(speeds, dffs); } // Output function that accepts field relative ChassisSpeeds
+  //     , std::dynamic_pointer_cast<PathFollowingController>(std::make_shared<PPHolonomicDriveController>(PIDConstants(c_HolomonicP, 0.0, 0.0), PIDConstants(c_HolomonicP, 0.0, 0.0)))
+  //     , m_drive.GetRobotCfg()
+  //     , [this]() {
+  //           // Boolean supplier that controls when the path will be mirrored for the red alliance
+  //           // This will flip the path being followed to the red side of the field.
+  //           // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+
+  //           auto alliance = DriverStation::GetAlliance();
+  //           if (alliance) {
+  //               return alliance.value() == DriverStation::Alliance::kRed;
+  //           }
+  //           return false;
+  //       },
+  //       {&m_drive} // Drive requirements, usually just a single drive subsystem
+  //     ).ToPtr();
 }
 
 const double c_tolerance = 0.02;
@@ -497,7 +521,7 @@ std::shared_ptr<PathPlannerPath> RobotContainer::GetOnTheFlyPath()
   //const units::length::meter_t c_jogLength = 5.0_in;
 
   // int tagId = m_visionSubsystem.GetTagId();
-  m_targetX = c_targetReefRedX;
+  m_targetX = c_targetReefRedX - 0.25;
   m_targetY = c_targetReefRedY;            
   m_targetRot = c_targetReefRedRot;
 
@@ -561,6 +585,9 @@ std::shared_ptr<PathPlannerPath> RobotContainer::GetOnTheFlyPath()
       printf("%.3f    %.3f    %.3f\n", wp.X().value(), wp.Y().value(), wp.Rotation().Degrees().value());
   }
 
+  //RotationTarget rt(0.1, 0_deg);
+  //path->getRotationTargets().push_back(rt);
+
   printf("rot targ pos targ\n");
   for (auto& rt : path->getRotationTargets())
   {
@@ -574,7 +601,7 @@ std::shared_ptr<PathPlannerPath> RobotContainer::GetOnTheFlyPath()
       printf("%.3f    %.3f    %.3f\n", pt.position.X().value(), pt.position.Y().value(), pt.position.Angle().Degrees().value());
   }
 
-//  m_drive.ResetOdometry(path->getStartingHolonomicPose().value());
+  m_drive.ResetOdometry(path->getPathPoses()[0]);
 
   return path;
 }

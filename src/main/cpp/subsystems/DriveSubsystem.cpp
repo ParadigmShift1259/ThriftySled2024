@@ -71,7 +71,7 @@ DriveSubsystem::DriveSubsystem()
 
 void DriveSubsystem::Drive(const frc::ChassisSpeeds& speeds, const DriveFeedforwards& dffs)
 {
-  Drive(-speeds.vx, -speeds.vy, speeds.omega, false);
+  Drive(-speeds.vx, -speeds.vy, -speeds.omega, false);
 }
 
 void DriveSubsystem::Drive(units::meters_per_second_t xSpeed,
@@ -221,7 +221,7 @@ void DriveSubsystem::Periodic()
 
     bool doUpdate = true;
     LimelightHelpers::PoseEstimate mt2 = LimelightHelpers::getBotPoseEstimate_wpiBlue_MegaTag2("limelight-reef");
-    if (mt2.tagCount == 0 || fabs((m_gyro.GetTurnRate() - 720.0_deg_per_s).value()))
+    if (mt2.tagCount == 0 || fabs(m_gyro.GetTurnRate().value()) > 720.0)
     {
       doUpdate = false;
     }
