@@ -34,8 +34,8 @@
 #include "LimelightHelpers.h"
 #endif
 
-static constexpr units::meters_per_second_t kMaxSpeed = 18.9_fps;  // L3 Gear Ratio Falcon Max Speed
-static constexpr units::meters_per_second_t kLowSpeed = 1.0_fps;  // L3 Gear Ratio Falcon Max Speed
+static constexpr units::meters_per_second_t kMaxSpeed = 16.8_fps;  // Thrifty 18P13 Gear Ratio Kraken Max Speed
+static constexpr units::meters_per_second_t kLowSpeed = 1.0_fps;
 static constexpr units::radians_per_second_t kMaxAngularSpeed{2.5 * std::numbers::pi};  // 2 1/2 radians per second
 static constexpr units::radians_per_second_t kLowAngularSpeed{ std::numbers::pi/3.0};  // 1/2 radian per second
 static constexpr units::radians_per_second_t kRotationDriveMaxSpeed = 7.5_rad_per_s;
