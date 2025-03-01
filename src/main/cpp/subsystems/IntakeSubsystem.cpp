@@ -13,11 +13,8 @@ constexpr double c_defaultIntakeD = 0.0;
 constexpr ClosedLoopSlot c_intakeGeneralPIDSlot = ClosedLoopSlot::kSlot0;
 
 IntakeSubsystem::IntakeSubsystem() 
-    // : m_motor(kIntakeRollerCANID)
     : m_deployMotor(kIntakeChuteCANID, SparkLowLevel::MotorType::kBrushless)
 {
-    // m_motor.SetNeutralMode(NeutralMode::Coast);
-
     SparkBaseConfig config{};
     config
         .SetIdleMode(SparkBaseConfig::IdleMode::kBrake)
@@ -34,12 +31,14 @@ IntakeSubsystem::IntakeSubsystem()
     frc::Preferences::InitDouble("kIntakeDeployD", c_defaultIntakeD);
 
     frc::SmartDashboard::PutNumber("IntakeRel", 1.0);
+    SmartDashboard::PutNumber("ParkForClimb", c_ParkForClimbPosition);
 }
 
 void IntakeSubsystem::Periodic()
 {
     LoadDeployPid();
     frc::SmartDashboard::PutNumber("Deploy echo", m_deployRelativeEnc.GetPosition());
+    //m_dbvParkForClimb.Put(c_ParkForClimbPosition);
 }
 
 void IntakeSubsystem::LoadDeployPid()
@@ -97,7 +96,10 @@ void IntakeSubsystem::AlignIntake()
 
 void IntakeSubsystem::ParkIntakeForClimb()
 {
-    m_deployPIDController.SetReference(c_ParkForClimbPosition, SparkBase::ControlType::kPosition, c_intakeGeneralPIDSlot);
+    //auto pos = m_dbvParkForClimb.Get();
+    auto pos = SmartDashboard::GetNumber("ParkForClimb", c_ParkForClimbPosition);
+    m_deployPIDController.SetReference(pos, SparkBase::ControlType::kPosition, c_intakeGeneralPIDSlot);
+    //m_deployPIDController.SetReference(c_ParkForClimbPosition, SparkBase::ControlType::kPosition, c_intakeGeneralPIDSlot);
 }
 
 void IntakeSubsystem::GoToPosition(double turns)

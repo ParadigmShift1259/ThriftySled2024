@@ -206,11 +206,14 @@ void DriveSubsystem::Periodic()
   m_logRobotPoseX.Append(pose.X().to<double>());
   m_logRobotPoseY.Append(pose.Y().to<double>());
   m_logRobotPoseTheta.Append(pose.Rotation().Degrees().to<double>());
-  m_logGyroPitch.Append(m_gyro.GetPitch()); 
+  m_logGyroPitch.Append(m_gyro.GetPitch().value()); 
   frc::SmartDashboard::PutNumber("currPoseRadians", GetGyroAzimuth().value());
   frc::SmartDashboard::PutNumber("azimuthDeg", m_gyro.GetRotation2d().Degrees().value());
   frc::SmartDashboard::PutNumber("GyroYaw", m_gyro.GetYaw().value());
-  frc::SmartDashboard::PutBoolean("SlowSpeed", m_currentMaxSpeed == kLowSpeed);
+  frc::SmartDashboard::PutBoolean("SlowSpeed", m_currentMaxSpeed == kSlowSpeed);
+
+  m_dbvPitch.Put(m_gyro.GetPitch().value());
+  m_dbvRoll.Put(m_gyro.GetRoll().value());
 
 #ifndef SIMULATION
   //if (frc::RobotBase::IsReal())

@@ -1,3 +1,5 @@
+#pragma once
+
 #include <networktables/NetworkTable.h>
 #include <networktables/NetworkTableInstance.h>
 //#include <format>
@@ -38,10 +40,10 @@ class DashBoardValue
             {
                  return m_spNetTable->GetString(m_valueName, m_defaultValue);
             }
-
-            static T t;
-            return t;
         }
+
+        static T t;
+        return t;
     }
     
     void Put(const T& newValue)

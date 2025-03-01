@@ -2,6 +2,7 @@
 
 #include "Constants.h"
 #include "ConstantsCANIDs.h"
+#include "DashBoardValue.h"
 
 #include <frc/Timer.h>
 #include <frc2/command/SubsystemBase.h>
@@ -43,15 +44,11 @@ public:
 private:
     void LoadDeployPid();
 
-    /// 775 that runs intake
-    // TalonSRX m_motor;
     frc::Timer m_timer;
-    // frc::DigitalInput m_photoEye;
 
     SparkMax m_deployMotor;
     SparkRelativeEncoder m_deployRelativeEnc = m_deployMotor.GetEncoder();    
     SparkClosedLoopController m_deployPIDController = m_deployMotor.GetClosedLoopController();
 
-    // static constexpr bool kIntakeExtend = true;
-    // static constexpr bool kIntakeRetract = false;
+    //DashBoardValue<double> m_dbvParkForClimb{"Intake", "ParkForClimb", c_ParkForClimbPosition};
 };

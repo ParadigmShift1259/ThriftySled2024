@@ -13,6 +13,7 @@ ClimbDeployCommand::ClimbDeployCommand(ISubsystemAccess& subsystemAccess)
     });
 
 	  wpi::log::DataLog& log = subsystemAccess.GetLogger();
+    m_logStartCommand = wpi::log::BooleanLogEntry(log, "/ClimbDeployCommand/startCommand");
 }
 
 void ClimbDeployCommand::Initialize()

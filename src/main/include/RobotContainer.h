@@ -112,7 +112,7 @@ class RobotContainer : public ISubsystemAccess
   SlewRateLimiter<units::scalar> m_yspeedLimiter{3 / 1_s, -3 / 1_s};
   SlewRateLimiter<units::scalar> m_rotLimiter{3 / 1_s};
   // TODO Make sure field relative starts how the drive team wants
-  bool m_fieldRelative = true;
+  bool m_fieldRelative = false;//true;
   bool m_isAutoRunning = false;
   bool m_runIntakeStartup = true;
   DashBoardValue<bool> m_dbvFieldRelative{"Drive", "FieldRelative", m_fieldRelative};
@@ -122,7 +122,6 @@ class RobotContainer : public ISubsystemAccess
 
   frc2::InstantCommand m_toggleFieldRelative{[this] { 
     m_fieldRelative = !m_fieldRelative; 
-    frc::SmartDashboard::PutBoolean("FieldRelative", m_fieldRelative);
     }, {}};
   
   frc2::InstantCommand m_toggleSlowSpeed{[this] { 
@@ -161,7 +160,7 @@ class RobotContainer : public ISubsystemAccess
   frc2::InstantCommand m_elevRelPosDown{[this] { m_elevator.GotoPositionRel(-1.0); }, {&m_elevator} };
 
   frc2::InstantCommand m_intakeAlign{[this] { m_intake.AlignIntake(); }, {&m_intake} };
-  frc2::InstantCommand m_intakePark{[this] { m_intake.ParkIntakeForClimb(); }, {&m_intake} };
+  frc2::InstantCommand m_intakeParkForClimb{[this] { m_intake.ParkIntakeForClimb(); }, {&m_intake} };
   //frc2::InstantCommand m_intakeParkAtZero{[this] { m_intake.ParkIntakeAtZero(); }, {&m_intake} };
 
   frc2::InstantCommand m_coralStop{[this] { m_coral.Stop(); }, {&m_coral} };
@@ -190,13 +189,11 @@ class RobotContainer : public ISubsystemAccess
     m_led.SetCurrentAction(LEDSubsystem::kClimbFinish);
 #endif
   }, {&m_climber} };
-  frc2::InstantCommand m_ClimberDeployRel{[this] { m_climber.GoToPositionRel(c_defaultClimbDeployRelTurns);}, {&m_climber} };
+  frc2::InstantCommand m_ClimberDeployRelUp{[this] { m_climber.GoToPositionRel(c_defaultClimbDeployRelTurns);}, {&m_climber} };
+  frc2::InstantCommand m_ClimberDeployRelDown{[this] { m_climber.GoToPositionRel(-c_defaultClimbDeployRelTurns);}, {&m_climber} };
 
   PathConstraints m_pathConstraints { 1.0_mps, 1.0_mps_sq, 360_deg_per_s, 720_deg_per_s_sq };
   std::shared_ptr<PathPlannerPath> m_path;
-  double m_targetX;
-  double m_targetY;
-  double m_targetRot;
 
   frc::Timer m_timer;
 

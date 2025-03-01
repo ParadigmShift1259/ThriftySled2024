@@ -119,7 +119,7 @@ void GoToPositionCommand::Execute()
     auto y = m_driveSubsystem.GetY();
     auto rotation = m_driveSubsystem.GetGyroAzimuthDeg().value();
 
-#define USEPATHPLANNER 
+//#define USEPATHPLANNER 
 #ifndef USEPATHPLANNER
     //const double c_maxX = 3.0;
     //const double c_maxY = 3.0;
@@ -163,24 +163,24 @@ void GoToPositionCommand::Execute()
         else if (m_elmr == eJogLeft && !m_bJogging)
         {
             m_targetX = (units::length::meter_t{x} - c_jogLength).value();
-            m_targetY = y;
+            m_targetY = y.value();
             m_bJogging = true;
         }
         else if (m_elmr == eJogRight && !m_bJogging)
         {
             m_targetX = (units::length::meter_t{x} + c_jogLength).value();
-            m_targetY = y;
+            m_targetY = y.value();
             m_bJogging = true;
         }
         else if (m_elmr == eJogForward && !m_bJogging)
         {
-            m_targetX = x;
+            m_targetX = x.value();
             m_targetY = (units::length::meter_t{y} + c_jogLength).value();
             m_bJogging = true;
         }
         else if (m_elmr == eJogBackward && !m_bJogging)
         {
-            m_targetX = x;
+            m_targetX = x.value();
             m_targetY = (units::length::meter_t{y} - c_jogLength).value();
             m_bJogging = true;
         }
@@ -191,8 +191,8 @@ void GoToPositionCommand::Execute()
         }
   
 #ifndef USEPATHPLANNER
-        xDiff = fabs(m_targetX - x);
-        yDiff = fabs(m_targetY - y);
+        xDiff = fabs(m_targetX - x.value());
+        yDiff = fabs(m_targetY - y.value());
         rotDiff = fabs(m_targetRot - rotation);
 #endif
 
@@ -350,16 +350,16 @@ bool GoToPositionCommand::IsFinished()
     auto x = m_driveSubsystem.GetX();
     auto y = m_driveSubsystem.GetY();
 
-    bool finished = fabs(m_targetY - y) < c_tolerance && fabs(m_targetX - x) < c_tolerance;
+    bool finished = fabs(m_targetY - y.value()) < c_tolerance && fabs(m_targetX - x.value()) < c_tolerance;
 
     if (!finished) 
     {
-        auto xDiff = fabs(m_targetX - x);
-        auto yDiff = fabs(m_targetY - y);
+        auto xDiff = fabs(m_targetX - x.value());
+        auto yDiff = fabs(m_targetY - y.value());
         printf("tv %s x %.3f y %.3f xDiff %.3f yDiff %.3f \n"
         , m_visionSubsystem.IsValidReef() ? "true" : "false"
-        , x
-        , y
+        , x.value()
+        , y.value()
         , xDiff
         , yDiff
         );

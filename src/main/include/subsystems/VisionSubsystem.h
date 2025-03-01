@@ -80,7 +80,7 @@ class VisionSubsystem : public frc2::SubsystemBase
   double m_txLoad = 0.0;
   double m_tyReef = 0.0;
   double m_txReef = 0.0;
-  int m_tidReef = 0;
+  int m_tidReef = -1;
   double m_floorDistance = 0.0;
   double m_yawError = 0.0;
   double m_commandedAzimuth = 0.0;

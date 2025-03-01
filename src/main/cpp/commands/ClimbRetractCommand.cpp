@@ -13,6 +13,7 @@ ClimbRetractCommand::ClimbRetractCommand(ISubsystemAccess& subsystemAccess)
     });
 
 	  wpi::log::DataLog& log = subsystemAccess.GetLogger();
+    m_logStartCommand = wpi::log::BooleanLogEntry(log, "/ClimbRetractCommand/startCommand");
 }
 
 void ClimbRetractCommand::Initialize()

@@ -15,7 +15,7 @@ public:
     frc::Rotation2d GetRotation2d();
     units::degree_t GetYaw();
     units::degree_t GetRoll() { return m_gyro.GetRoll().GetValue(); }
-    double GetPitch() { return m_gyro.GetPitch().GetValueAsDouble(); }
+    units::degree_t GetPitch() { return m_gyro.GetPitch().GetValue(); }
     //void Reset();
     void Set(units::degree_t yaw);
     units::degrees_per_second_t GetTurnRate();

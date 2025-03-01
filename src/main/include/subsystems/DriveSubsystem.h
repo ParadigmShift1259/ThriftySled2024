@@ -28,6 +28,7 @@
 #include "ConstantsCANIDs.h"
 #include "subsystems/SwerveModule.h"
 #include "PigeonGyro.h"
+#include "DashBoardValue.h"
 
 //#define SIMULATION
 #ifndef SIMULATION
@@ -35,7 +36,7 @@
 #endif
 
 static constexpr units::meters_per_second_t kMaxSpeed = 16.8_fps;  // Thrifty 18P13 Gear Ratio Kraken Max Speed
-static constexpr units::meters_per_second_t kLowSpeed = 1.0_fps;
+static constexpr units::meters_per_second_t kSlowSpeed = 1.0_fps;
 static constexpr units::radians_per_second_t kMaxAngularSpeed{2.5 * std::numbers::pi};  // 2 1/2 radians per second
 static constexpr units::radians_per_second_t kLowAngularSpeed{ std::numbers::pi/3.0};  // 1/2 radian per second
 static constexpr units::radians_per_second_t kRotationDriveMaxSpeed = 7.5_rad_per_s;
@@ -75,13 +76,13 @@ public:
   void ResetOdometry(frc::Pose2d pose) override;
   //void SetHeading(units::degree_t heading) override;
   void Periodic() override;
-  double GetPitch() override { return m_gyro.GetPitch(); }
+  units::degree_t GetPitch() override { return m_gyro.GetPitch(); }
   frc::Pose2d GetPose() override;
   frc::ChassisSpeeds GetChassisSpeeds() override;
   void SetModuleStates(SwerveModuleStates desiredStates) override;
 
-  double GetX() override { return m_poseEstimator.GetEstimatedPosition().X().value(); }
-  double GetY() override { return m_poseEstimator.GetEstimatedPosition().Y().value(); }
+  units::length::meter_t GetX() override { return m_poseEstimator.GetEstimatedPosition().X(); }
+  units::length::meter_t GetY() override { return m_poseEstimator.GetEstimatedPosition().Y(); }
 
   void ResyncAbsRelEnc() override;
   void SetOverrideXboxInput(bool bOverride) override { m_bOverrideXboxInput = bOverride; }
@@ -101,7 +102,7 @@ public:
 
   void SetSlowSpeed(bool slow) 
   {
-    m_currentMaxSpeed = (slow ? kLowSpeed : kMaxSpeed);
+    m_currentMaxSpeed = (slow ? kSlowSpeed : kMaxSpeed);
     m_currentMaxAngularSpeed = (slow ? kLowAngularSpeed : kMaxAngularSpeed);
 
     m_frontLeft.SetMaxSpeed(m_currentMaxSpeed);
@@ -115,7 +116,7 @@ public:
     SetSlowSpeed(m_currentMaxSpeed == kMaxSpeed);
   }
 
-  units::meters_per_second_t m_currentMaxSpeed = kMaxSpeed;
+  units::meters_per_second_t m_currentMaxSpeed = kSlowSpeed;//kMaxSpeed;
   units::radians_per_second_t m_currentMaxAngularSpeed = kMaxAngularSpeed;
 
 // Safer sppeds for lab testing
@@ -168,6 +169,9 @@ private:
   frc::PIDController m_rotationPIDController{ 1.0, 0.0, 0.025 };
 
   bool m_bOverrideXboxInput = false;
+
+  DashBoardValue<double> m_dbvPitch{"Gyro", "Pitch", m_gyro.GetPitch().value()};
+  DashBoardValue<double> m_dbvRoll{"Gyro", "Roll", m_gyro.GetRoll().value()};
 
   // Logging Member Variables
   wpi::log::DoubleLogEntry m_logRobotPoseX;
