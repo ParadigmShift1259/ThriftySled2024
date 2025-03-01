@@ -278,7 +278,7 @@ void GoToPositionCommand::Execute()
 #else
         if (xDiff >= c_tolerance && xDiff < c_maxX)
         {
-            yInput = (m_targetX - x) / c_maxX;
+            yInput = (m_targetX - x.value()) / c_maxX;
 
             if (fabs(yInput) < c_minInput)
             {
@@ -295,7 +295,7 @@ void GoToPositionCommand::Execute()
 
         if (yDiff >= c_tolerance && yDiff < c_maxY)
         {
-            xInput = (y - m_targetY) / c_maxY;
+            xInput = (y.value() - m_targetY) / c_maxY;
             
             if (fabs(xInput) < c_minInput)
             {

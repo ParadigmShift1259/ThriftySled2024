@@ -136,7 +136,7 @@ class RobotContainer : public ISubsystemAccess
   // frc2::InstantCommand m_resetOdo{[this] {m_drive.ResetOdometry({11.56_m, 8.12_m, 90_deg});}, {&m_drive}};
   // frc2::InstantCommand m_resetOdo{[this] {m_drive.ResetOdometry({530.49_in + 8.75_in, 130.17_in - 15.16_in, 120_deg});}, {&m_drive}};
 //  frc2::InstantCommand m_resetOdo{[this] {m_drive.ResetOdometry({481.39_in - 17.5_in, 158.5_in, 0_deg});}, {&m_drive}};
-  frc2::InstantCommand m_resetOdo{[this] {m_drive.ResetOdometry({0.0_in, 0.0_in, 0_deg});}, {&m_drive}};
+  frc2::InstantCommand m_resetOdo{[this] {m_drive.ResetOdometry({0.0_in, 0.0_in, 120_deg});}, {&m_drive}};
 
   frc2::InstantCommand m_elevL4{[this] 
   { 

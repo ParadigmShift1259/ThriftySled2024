@@ -37,7 +37,7 @@ void StopAllCommand::Initialize()
   m_led.SetAnimation(m_led.GetDefaultColor(), LEDSubsystem::kSolid);
   m_led.SetCurrentAction(LEDSubsystem::ECurrentAction::kIdle);
 #endif
-  //m_vision.DisableShooterLEDs();
+  // TODO scheduler cancel???
 }
 
 void StopAllCommand::Execute()

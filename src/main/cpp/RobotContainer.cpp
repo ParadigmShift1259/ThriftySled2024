@@ -262,10 +262,11 @@ void RobotContainer::ConfigPrimaryButtonBindings()
   primary.Y().OnTrue(&m_coralStop);
   primary.LeftBumper().OnTrue(&m_toggleFieldRelative);
   primary.Start().OnTrue(&m_toggleSlowSpeed);
-//  primary.Back().OnTrue(&m_resetOdo);
 
   primary.POVUp().OnTrue(StopAllCommand(*this).ToPtr());
   primary.POVDown().OnTrue(InstantCommand([this]{GetOnTheFlyPath();},{&m_drive}).ToPtr());
+
+   primary.POVLeft().OnTrue(&m_resetOdo);
 
 //   primary.POVUp().OnTrue(GoToPositionCommand(*this, eJogForward, m_path).ToPtr());
 //   primary.POVDown().OnTrue(GoToPositionCommand(*this, eJogBackward, m_path).ToPtr());
@@ -363,13 +364,13 @@ void RobotContainer::ConfigButtonBoxBindings()
   buttonBox.LeftBumper().OnTrue(&m_setL1);
 #endif
 
-  // buttonBox.LeftTrigger().OnTrue(&m_setLeft);
-  // buttonBox.RightTrigger().OnTrue(&m_setRight);
-  buttonBox.LeftTrigger().OnTrue(frc2::SequentialCommandGroup{
-    InstantCommand{[this](){m_drive.WheelsForward();}, {&m_drive}}
-    , WaitCommand(0.125_s)
-    , InstantCommand{[this](){m_drive.Stop();}, {&m_drive}}
-  }.ToPtr());
+  buttonBox.LeftTrigger().OnTrue(&m_setLeft);
+  buttonBox.RightTrigger().OnTrue(&m_setRight);
+  // buttonBox.LeftTrigger().OnTrue(frc2::SequentialCommandGroup{
+  //   InstantCommand{[this](){m_drive.WheelsForward();}, {&m_drive}}
+  //   , WaitCommand(0.125_s)
+  //   , InstantCommand{[this](){m_drive.Stop();}, {&m_drive}}
+  // }.ToPtr());
 //  buttonBox.RightTrigger().OnTrue(CoralIntakeCommand(*this).ToPtr());
   
   buttonBox.Back().OnTrue(&m_elevRelPosUp);
@@ -436,7 +437,16 @@ Command* RobotContainer::GetAutonomousCommand()
 
 void RobotContainer::StopAll()
 {
+  m_intake.Stop();
+  m_coral.Stop();
   m_elevator.Stop();
+  //m_climb.Stop();
+  m_drive.Stop();
+#ifdef LED
+  m_led.SetAnimation(m_led.GetDefaultColor(), LEDSubsystem::kSolid);
+  m_led.SetCurrentAction(LEDSubsystem::ECurrentAction::kIdle);
+#endif
+  // TODO scheduler cancel???
 }
 
 void RobotContainer::SetSideSelected(ESideSelected sideSelected)
@@ -517,10 +527,27 @@ frc2::CommandPtr RobotContainer::GetFollowPathCommandImpl()
 // const double c_targetRightReefRedX = c_targetReefRedX + c_targetReefRedOffsetX;
 // const double c_targetRightReefRedY = c_targetReefRedY + c_targetReefRedOffsetX;
 
-const std::map<int, frc::Pose2d> c_mapTagPoses
+//constexpr units::length::meter_t c_coralDia = 4.5_in;
+constexpr units::length::meter_t c_reefPoleOffset = 6.5_in;
+//const units::length::meter_t c_halfRobotSize = 14.5_in + 3.0_in;  // Half robot width/length + bumper 29 / 2 = 14.5 + 3.0]
+const double c_cosine30 = sqrt(3) * 0.5;
+const double c_sine30 = 0.5;
+
+struct TagInfo
 {
-    {  6, frc::Pose2d { 530.49_in, 130.17_in, 120_deg } }
-  , { 10, frc::Pose2d { 481.39_in, 158.5_in,    0_deg } }
+  frc::Pose2d m_pose;
+  double m_targetXfactor;
+  double m_targetYfactor;
+  double m_sideXfactor;
+  double m_sideYfactor;
+};
+
+const std::map<int, TagInfo> c_mapTagPoses
+{
+  //   {  6, frc::Pose2d { 530.49_in, 130.17_in, 120_deg } }
+  // , { 10, frc::Pose2d { 481.39_in, 158.5_in,    0_deg } }
+    {  6, TagInfo { frc::Pose2d { 541.49_in, 111.17_in, 120_deg }, c_sine30, c_cosine30, c_cosine30, c_sine30 } }
+  , { 10, TagInfo { frc::Pose2d { 459.39_in, 158.5_in,    0_deg }, 0.0, 0.0, 0.0, 1.0 } }
 };
 
 std::shared_ptr<PathPlannerPath> RobotContainer::GetOnTheFlyPath()
@@ -535,16 +562,25 @@ std::shared_ptr<PathPlannerPath> RobotContainer::GetOnTheFlyPath()
   units::angle::degree_t targetRot;
 
   int tagId = m_vision.GetTagId();
-  // targetX = c_targetReefRedX - 0.125;  // Added for test
-  // targetY = c_targetReefRedY;            
   if (tagId != -1)
   {
     auto it = c_mapTagPoses.find(tagId);
     if (it != c_mapTagPoses.end())
     {
-      targetX = it->second.X() - 0.125;  // Added for test
-      targetY = it->second.Y();
-      targetRot = it->second.Rotation().Degrees();
+      targetX = it->second.m_pose.X();
+      targetY = it->second.m_pose.Y();
+
+      // targetX = units::length::meter_t(targetX.value() + c_halfRobotSize.value() * it->second.m_targetXfactor);
+      // targetY = units::length::meter_t(targetY.value() - c_halfRobotSize.value() * it->second.m_targetYfactor );
+
+      double reefPoleOffsetX = c_reefPoleOffset.value() * it->second.m_sideXfactor * ((m_sideSelected == LeftSide) ? -1.0 : 1.0);
+      double reefPoleOffsetY = c_reefPoleOffset.value() * it->second.m_sideYfactor * ((m_sideSelected == LeftSide) ? -1.0 : 1.0);
+      targetX = units::length::meter_t(it->second.m_pose.X().value() + reefPoleOffsetX);
+      targetY = units::length::meter_t(it->second.m_pose.Y().value() + reefPoleOffsetY);
+      // targetX = units::length::meter_t(targetX.value() + reefPoleOffsetX);
+      // targetY = units::length::meter_t(targetY.value() + reefPoleOffsetY);
+
+      targetRot = it->second.m_pose.Rotation().Degrees();
     }
   }
 
@@ -552,8 +588,8 @@ std::shared_ptr<PathPlannerPath> RobotContainer::GetOnTheFlyPath()
   frc::SmartDashboard::PutNumber("targetY", targetY.value());
   frc::SmartDashboard::PutNumber("targetRot", targetRot.value());
 
-  double xDelta = targetX.value() - currentX;
-  double yDelta = targetY.value() - currentY;
+  double xDelta = targetX.value() - currentX.value();
+  double yDelta = targetY.value() - currentY.value();
   double tanAngle = atan(yDelta / xDelta) * 180.0 / std::numbers::pi;
   printf("tanAngle %.3f\n", tanAngle);
   std::vector<frc::Pose2d> poses {  frc::Pose2d { currentX, currentY, units::angle::degree_t{tanAngle} }
@@ -605,7 +641,8 @@ std::shared_ptr<PathPlannerPath> RobotContainer::GetOnTheFlyPath()
       printf("%.3f    %.3f    %.3f\n", pt.position.X().value(), pt.position.Y().value(), pt.position.Angle().Degrees().value());
   }
 
-  // Do not need to reset odemettry for one the fly path
+  // Do not need to reset odemettry for one the fly path?
+  // for testing only m_drive.ResetOdometry(Pose2d{currentX, currentY, targetRot});
 
   return path;
 }
