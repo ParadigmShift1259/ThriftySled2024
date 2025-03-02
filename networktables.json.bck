@@ -2,7 +2,7 @@
   {
     "name": "/Preferences/BuildDate",
     "type": "string",
-    "value": "Feb 26 2025",
+    "value": "Feb 23 2025",
     "properties": {
       "persistent": true
     }
@@ -10,7 +10,7 @@
   {
     "name": "/Preferences/BuildTime",
     "type": "string",
-    "value": "23:42:49",
+    "value": "21:01:18",
     "properties": {
       "persistent": true
     }
@@ -168,41 +168,17 @@
     }
   },
   {
-    "name": "/Preferences/kClimbPosDownP",
+    "name": "/Preferences/IntakePosTurns",
     "type": "double",
-    "value": 0.006,
+    "value": 10.0,
     "properties": {
       "persistent": true
     }
   },
   {
-    "name": "/Preferences/kClimbPosUpP",
+    "name": "/Preferences/IntakeParkTurns",
     "type": "double",
-    "value": 0.1,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Preferences/kClimbPosI",
-    "type": "double",
-    "value": 0.0,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Preferences/kClimbPosD",
-    "type": "double",
-    "value": 0.0,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Preferences/kClimbPosFF",
-    "type": "double",
-    "value": 0.0,
+    "value": 25.0,
     "properties": {
       "persistent": true
     }

@@ -28,11 +28,11 @@ using namespace frc;
 using namespace frc2;
 
 enum ESideSelected 
-  {
+{
     Unselected,
     LeftSide,
     RightSide
-  };
+};
 
 class RobotContainer : public ISubsystemAccess
 {
@@ -71,7 +71,6 @@ class RobotContainer : public ISubsystemAccess
   void StopAll();
 
   std::shared_ptr<PathPlannerPath> GetOnTheFlyPath();
-  std::shared_ptr<PathPlannerPath> GetOnTheFlyPathWithPrint();
 
  private:
   void SetDefaultCommands();
@@ -85,13 +84,13 @@ class RobotContainer : public ISubsystemAccess
 
   void SetSideSelected(ESideSelected sideSelected);
 
-  // Used for OnTheFlyPaths
+  // Used for OnTheFlyPaths, the FollowPathCommand wants a free function to build the path
+  // This trick converts a static member fucntion into a call to an instance function
   static frc2::CommandPtr GetFollowPathCommand() { return m_pThis->GetFollowPathCommandImpl();};
   frc2::CommandPtr GetFollowPathCommandImpl();
   static RobotContainer* m_pThis; 
 
   // The robot's subsystems and commands are defined here...
-  
   DriveSubsystem m_drive;
   VisionSubsystem m_vision;
   ElevatorSubsystem m_elevator;
@@ -120,17 +119,9 @@ class RobotContainer : public ISubsystemAccess
 
   ESideSelected m_sideSelected = Unselected;
 
-  frc2::InstantCommand m_toggleFieldRelative{[this] { 
-    m_fieldRelative = !m_fieldRelative; 
-    }, {}};
-  
-  frc2::InstantCommand m_toggleSlowSpeed{[this] { 
-    m_drive.ToggleSlowSpeed();
-    }, {}};
-
-  frc2::InstantCommand m_setHighSpeedCmd{[this] {
-    m_drive.SetSlowSpeed(false);
-  }, {&m_drive}};
+  frc2::InstantCommand m_toggleFieldRelative{[this] { m_fieldRelative = !m_fieldRelative; }, {}};
+  frc2::InstantCommand m_toggleSlowSpeed{[this] { m_drive.ToggleSlowSpeed(); }, {}};
+  frc2::InstantCommand m_setHighSpeedCmd{[this] { m_drive.SetSlowSpeed(false); }, {&m_drive}};
 
   // Tag 3 coordinates
   // frc2::InstantCommand m_resetOdo{[this] {m_drive.ResetOdometry({11.56_m, 8.12_m, 90_deg});}, {&m_drive}};
@@ -138,15 +129,13 @@ class RobotContainer : public ISubsystemAccess
 //  frc2::InstantCommand m_resetOdo{[this] {m_drive.ResetOdometry({481.39_in - 17.5_in, 158.5_in, 0_deg});}, {&m_drive}};
   frc2::InstantCommand m_resetOdo{[this] {m_drive.ResetOdometry({0.0_in, 0.0_in, 120_deg});}, {&m_drive}};
 
-  frc2::InstantCommand m_elevL4{[this] 
-  { 
-    m_drive.SetSlowSpeed(true);
-    m_elevator.GoToPosition(L4); }, {&m_elevator} 
-  };
+  frc2::InstantCommand m_elevL4{[this] { m_drive.SetSlowSpeed(true); m_elevator.GoToPosition(L4); }, {&m_elevator} };
   frc2::InstantCommand m_elevL3{[this] { m_drive.SetSlowSpeed(true); m_elevator.GoToPosition(L3); }, {&m_elevator} };
   frc2::InstantCommand m_elevL2{[this] { m_drive.SetSlowSpeed(true); m_elevator.GoToPosition(L2); }, {&m_elevator} };
+
   frc2::InstantCommand m_elevL2_3{[this] { m_drive.SetSlowSpeed(true); m_elevator.GoToPosition(algaeRemovalL2_3); }, {&m_elevator} };
   frc2::InstantCommand m_elevL3_4{[this] { m_drive.SetSlowSpeed(true); m_elevator.GoToPosition(algaeRemovalL3_4); }, {&m_elevator} };
+
   frc2::InstantCommand m_setL1{[this] { m_elevator.SetPresetLevel(L1); }, {&m_elevator} };
   frc2::InstantCommand m_setL2{[this] { m_elevator.SetPresetLevel(L2); }, {&m_elevator} };
   frc2::InstantCommand m_setL3{[this] { m_elevator.SetPresetLevel(L3); }, {&m_elevator} };
@@ -192,10 +181,11 @@ class RobotContainer : public ISubsystemAccess
   frc2::InstantCommand m_ClimberDeployRelUp{[this] { m_climber.GoToPositionRel(c_defaultClimbDeployRelTurns);}, {&m_climber} };
   frc2::InstantCommand m_ClimberDeployRelDown{[this] { m_climber.GoToPositionRel(-c_defaultClimbDeployRelTurns);}, {&m_climber} };
 
-  PathConstraints m_pathConstraints { 1.0_mps, 1.0_mps_sq, 360_deg_per_s, 720_deg_per_s_sq };
+  // For on the fly paths
+  PathConstraints m_pathConstraints { m_drive.m_currentMaxSpeed / 2.0, 4.0_mps_sq, 180_deg_per_s, 360_deg_per_s_sq };
   std::shared_ptr<PathPlannerPath> m_path;
 
-  frc::Timer m_timer;
+  frc::Timer m_timer; // For bringing the intake down after popping the pin
 
 	wpi::log::DoubleLogEntry m_logRobotPoseX;
 	wpi::log::DoubleLogEntry m_logRobotPoseY;

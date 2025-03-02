@@ -35,12 +35,16 @@
 #include "LimelightHelpers.h"
 #endif
 
+// TODO These speeds should be divided by the drive gear ratio 
 static constexpr units::meters_per_second_t kMaxSpeed = 16.8_fps;  // Thrifty 18P13 Gear Ratio Kraken Max Speed
 static constexpr units::meters_per_second_t kSlowSpeed = 1.0_fps;
+
 static constexpr units::radians_per_second_t kMaxAngularSpeed{2.5 * std::numbers::pi};  // 2 1/2 radians per second
 static constexpr units::radians_per_second_t kLowAngularSpeed{ std::numbers::pi/3.0};  // 1/2 radian per second
+
 static constexpr units::radians_per_second_t kRotationDriveMaxSpeed = 7.5_rad_per_s;
 static constexpr units::radians_per_second_t kRotationDriveDirectionLimit = 7.0_rad_per_s;
+
 static constexpr units::radians_per_second_t kAimingRotationDriveMaxSpeed = 7.5_rad_per_s;
 static constexpr units::radians_per_second_t kAimingRotationDriveDirectionLimit = 7.0_rad_per_s;
 
@@ -74,7 +78,6 @@ public:
 
   void UpdateOdometry() override;
   void ResetOdometry(frc::Pose2d pose) override;
-  //void SetHeading(units::degree_t heading) override;
   void Periodic() override;
   units::degree_t GetPitch() override { return m_gyro.GetPitch(); }
   frc::Pose2d GetPose() override;
@@ -95,7 +98,6 @@ public:
 
   TalonFX& GetTalon(int module);
 
-  units::angle::radian_t GetGyroAzimuth() { return m_gyro.GetRotation2d().Radians(); }
   units::angle::degree_t GetGyroAzimuthDeg() { return m_gyro.GetRotation2d().Degrees(); }
 
   RobotConfig GetRobotCfg() { return m_robotConfig; }
@@ -118,10 +120,6 @@ public:
 
   units::meters_per_second_t m_currentMaxSpeed = kSlowSpeed;//kMaxSpeed;
   units::radians_per_second_t m_currentMaxAngularSpeed = kMaxAngularSpeed;
-
-// Safer sppeds for lab testing
-  // static constexpr units::meters_per_second_t kMaxSpeed = 1.0_mps;
-  // static constexpr units::radians_per_second_t kMaxAngularSpeed{0.25 * std::numbers::pi};
 
 private:
   void SetAllDesiredState(frc::SwerveModuleState& sms);
@@ -184,8 +182,6 @@ private:
   wpi::log::DoubleLogEntry m_logDriveInputX;
   wpi::log::DoubleLogEntry m_logDriveInputY;
   wpi::log::DoubleLogEntry m_logDriveInputRot;
-
-  nt::StructPublisher<frc::Pose2d> m_publisher = nt::NetworkTableInstance::GetDefault().GetStructTopic<frc::Pose2d>("OdoPose").Publish();
 };
 
 #endif  //ndef __DRIVESUBSYSTEM_H__

@@ -27,13 +27,12 @@ DriveSubsystem::DriveSubsystem()
   , m_robotConfig 
     {
         c_RobotMass
-      , c_MOI //(60_kg * (0.7903212_sq_m + 0.7903212_sq_m)) / 12.0  // Moment of inertia
+      , c_MOI                         // Moment of inertia
       , m_moduleCfg
-      // does order matter here?, { m_frontLeftLocation , m_frontRightLocation, m_rearRightLocation, m_rearLeftLocation }
       , { m_frontLeftLocation , m_frontRightLocation, m_rearLeftLocation, m_rearRightLocation }
   }
 {
-  // do not reset the gyro, the pose estimator will take care of the offset m_gyro.Reset();
+  // do not reset the gyro, the pose estimator will take care of the offset
 
   wpi::log::DataLog& log = frc::DataLogManager::GetLog();
   m_logRobotPoseX = wpi::log::DoubleLogEntry(log, "/odometry/robotPoseX");
@@ -57,6 +56,7 @@ DriveSubsystem::DriveSubsystem()
     }
   }
 #endif  // REMOVE_OLD_PREFERENCES
+
   frc::Preferences::SetString("BuildDate", __DATE__);
   frc::Preferences::SetString("BuildTime", __TIME__);
 
@@ -65,8 +65,6 @@ DriveSubsystem::DriveSubsystem()
   frc::Preferences::InitDouble("Offset2", 0.0);
   frc::Preferences::InitDouble("Offset3", 0.0);
   frc::Preferences::InitDouble("Offset4", 0.0);
-  
-  frc::SmartDashboard::PutNumber("yawsign", 1.0);
 }
 
 void DriveSubsystem::Drive(const frc::ChassisSpeeds& speeds, const DriveFeedforwards& dffs)
@@ -75,22 +73,23 @@ void DriveSubsystem::Drive(const frc::ChassisSpeeds& speeds, const DriveFeedforw
 }
 
 void DriveSubsystem::Drive(units::meters_per_second_t xSpeed,
-                       units::meters_per_second_t ySpeed,
-                       units::radians_per_second_t rot, bool fieldRelative)
+                           units::meters_per_second_t ySpeed,
+                           units::radians_per_second_t rot,
+                           bool fieldRelative)
 {
   //printf("DriveSubsystem::Drive xspd %.3f yspd %.3f rot %.3f fldrel %d\n", xSpeed.value(), ySpeed.value(), rot.value(), fieldRelative);
-  m_logDriveInputX.Append(xSpeed.to<double>());
-  m_logDriveInputY.Append(ySpeed.to<double>());
-  m_logDriveInputRot.Append(rot.to<double>());
+  m_logDriveInputX.Append(xSpeed.value());
+  m_logDriveInputY.Append(ySpeed.value());
+  m_logDriveInputRot.Append(rot.value());
 
   m_frontLeft.SetMaxSpeed(m_currentMaxSpeed);
   m_frontRight.SetMaxSpeed(m_currentMaxSpeed);
   m_rearLeft.SetMaxSpeed(m_currentMaxSpeed);
   m_rearRight.SetMaxSpeed(m_currentMaxSpeed);
 
-  // frc::SmartDashboard::PutNumber("Input x speed", xSpeed.to<double>());
-  // frc::SmartDashboard::PutNumber("Input y speed", ySpeed.to<double>());
-  // frc::SmartDashboard::PutNumber("Input rot", rot.to<double>());
+  // frc::SmartDashboard::PutNumber("Input x speed", xSpeed.value());
+  // frc::SmartDashboard::PutNumber("Input y speed", ySpeed.value());
+  // frc::SmartDashboard::PutNumber("Input rot", rot.value());
 
   if (m_bOverrideXboxInput == false)
   {
@@ -122,15 +121,14 @@ void DriveSubsystem::RotationDrive(units::meters_per_second_t xSpeed
                                  , units::meters_per_second_t ySpeed
                                  , units::radian_t rot
                                  , bool fieldRelative) 
-{  
-  //auto error = rot - m_gyro.GetRotation2d().Radians();
+{
   auto error = rot - m_poseEstimator.GetEstimatedPosition().Rotation().Radians();
   frc::SmartDashboard::PutNumber("turnError", error.value());
-  if (error.to<double>() > std::numbers::pi)
+  if (error.value() > std::numbers::pi)
   {
     error -= units::radian_t(2 * std::numbers::pi);
   }
-  else if (error.to<double>() < -1 * std::numbers::pi)
+  else if (error.value() < -1 * std::numbers::pi)
   {
     error += units::radian_t(2 * std::numbers::pi);
   }
@@ -160,17 +158,17 @@ void DriveSubsystem::RotationDrive(units::meters_per_second_t xSpeed
   maxTurn = mTurn;
   #endif
 
-  units::radians_per_second_t desiredTurnRate(m_rotationPIDController.Calculate(0, error.to<double>()));
+  units::radians_per_second_t desiredTurnRate(m_rotationPIDController.Calculate(0, error.value()));
 
   units::radians_per_second_t currentTurnRate = m_gyro.GetTurnRate();
 
   // Prevent sharp turning if already fast going in the opposite direction
-  if ((units::math::abs(currentTurnRate) >= maxTurn) && (std::signbit(desiredTurnRate.to<double>()) != std::signbit(currentTurnRate.to<double>())))
+  if ((units::math::abs(currentTurnRate) >= maxTurn) && (std::signbit(desiredTurnRate.value()) != std::signbit(currentTurnRate.value())))
       desiredTurnRate *= -1.0;
 
   // Power limiting
   if (units::math::abs(desiredTurnRate) > max)
-      desiredTurnRate = std::signbit(desiredTurnRate.to<double>()) ? max * -1.0 : max;
+      desiredTurnRate = std::signbit(desiredTurnRate.value()) ? max * -1.0 : max;
 
   Drive(xSpeed, ySpeed, desiredTurnRate, fieldRelative);
 }
@@ -203,11 +201,10 @@ void DriveSubsystem::Periodic()
   // Log Odometry Values
   frc::Pose2d pose = m_poseEstimator.GetEstimatedPosition();
 
-  m_logRobotPoseX.Append(pose.X().to<double>());
-  m_logRobotPoseY.Append(pose.Y().to<double>());
-  m_logRobotPoseTheta.Append(pose.Rotation().Degrees().to<double>());
+  m_logRobotPoseX.Append(pose.X().value());
+  m_logRobotPoseY.Append(pose.Y().value());
+  m_logRobotPoseTheta.Append(pose.Rotation().Degrees().value());
   m_logGyroPitch.Append(m_gyro.GetPitch().value()); 
-  frc::SmartDashboard::PutNumber("currPoseRadians", GetGyroAzimuth().value());
   frc::SmartDashboard::PutNumber("azimuthDeg", m_gyro.GetRotation2d().Degrees().value());
   frc::SmartDashboard::PutNumber("GyroYaw", m_gyro.GetYaw().value());
   frc::SmartDashboard::PutBoolean("SlowSpeed", m_currentMaxSpeed == kSlowSpeed);
@@ -239,18 +236,11 @@ void DriveSubsystem::Periodic()
 
 frc::Pose2d DriveSubsystem::GetPose()
 {
-  //auto pose = frc::Pose2d { m_poseEstimator.GetEstimatedPosition().X(), m_poseEstimator.GetEstimatedPosition().Y(), frc::Rotation2d { m_gyro.GetYaw()} };
-  //return pose;
   return m_poseEstimator.GetEstimatedPosition();
 }
 
 frc::ChassisSpeeds DriveSubsystem::GetChassisSpeeds()
 {
-  //printf("DriveSubsystem::GetChassisSpeeds fl %.3f fr %.3f rl %.3f rr %.3f\n"
-  // , m_frontLeft.GetState().speed.value()
-  // , m_frontRight.GetState().speed.value()
-  // , m_rearLeft.GetState().speed.value()
-  // , m_rearRight.GetState().speed.value());
   return m_kinematics.ToChassisSpeeds({m_frontLeft.GetState(), m_frontRight.GetState(), m_rearLeft.GetState(), m_rearRight.GetState()});
 }
 
@@ -265,38 +255,21 @@ void DriveSubsystem::ResyncAbsRelEnc()
 void DriveSubsystem::UpdateOdometry()
 {
    auto pose = m_poseEstimator.Update(m_gyro.GetRotation2d(),
-                                      {m_frontLeft.GetPosition(), m_frontRight.GetPosition(),
-                                      m_rearLeft.GetPosition(),  m_rearRight.GetPosition()});
+                                      { m_frontLeft.GetPosition(), m_frontRight.GetPosition(),
+                                        m_rearLeft.GetPosition(),  m_rearRight.GetPosition()  });
 
-  auto flpos = m_frontLeft.GetPosition();
-  frc::SmartDashboard::PutNumber("FLPos", flpos.distance.value());
-
-  frc::SmartDashboard::PutNumber("PoseX", pose.X().to<double>());
-  frc::SmartDashboard::PutNumber("Posey", pose.Y().to<double>());
-  frc::SmartDashboard::PutNumber("PoseRot", pose.Rotation().Degrees().to<double>());
-
-  m_publisher.Set(pose);
+  frc::SmartDashboard::PutNumber("PoseX", pose.X().value());
+  frc::SmartDashboard::PutNumber("PoseY", pose.Y().value());
+  frc::SmartDashboard::PutNumber("PoseRot", pose.Rotation().Degrees().value());
 }
 
 void DriveSubsystem::ResetOdometry(frc::Pose2d pose)
 {
-  // frc::SmartDashboard::PutNumber("ResetX", pose.X().to<double>());
-  // frc::SmartDashboard::PutNumber("Resety", pose.Y().to<double>());
-  // frc::SmartDashboard::PutNumber("ResetRot", pose.Rotation().Degrees().to<double>());
-  printf ("resetx %.3f resety %.3f resetrot %.3f\n", pose.X().value(), pose.Y().value(), pose.Rotation().Degrees().value());
 
-  // SwerveModulePositions modulePositions = {m_frontLeft.GetPosition(), m_frontRight.GetPosition(),
-  //                                          m_rearLeft.GetPosition(), m_rearRight.GetPosition()};
-  printf("m_gyro.GetRotation2d().Degrees %.3f pose.Rotation().Degrees %.3f\n", m_gyro.GetRotation2d().Degrees().value(), pose.Rotation().Degrees().value());
-  // do not set the gyro, the pose estimator keeps track of the offset 
-  //m_gyro.Set(pose.Rotation().Degrees());
+  printf ("resetx %.3f resety %.3f resetrot %.3f\n", pose.X().value(), pose.Y().value(), pose.Rotation().Degrees().value());
+  // Do not set the gyro, the pose estimator keeps track of the offset 
   m_poseEstimator.ResetPose(pose);
 }
-
-// void DriveSubsystem::SetHeading(units::degree_t heading)
-// {
-//   m_gyro.Set(heading);
-// }
 
 void DriveSubsystem::WheelsForward()
 {
