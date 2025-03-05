@@ -16,6 +16,7 @@
 #include <frc/AnalogInput.h>
 #include <frc/Timer.h>
 #include <frc/DataLogManager.h>
+#include "DashBoardValue.h"
 
 #include <networktables/NetworkTableEntry.h>
 
@@ -105,6 +106,17 @@ private:
 
     /// Timer used to sync absolute and relative encoders on robot turn on
     frc::Timer m_timer;
+
+    DashBoardValue<bool> m_dbvOther;
+    DashBoardValue<bool> m_dbvMotorType;
+    DashBoardValue<bool> m_dbvSensor;
+    DashBoardValue<bool> m_dbvCan;
+    DashBoardValue<bool> m_dbvTemperature;
+    DashBoardValue<bool> m_dbvGateDriver;
+    DashBoardValue<bool> m_dbvEscEeprom;
+    DashBoardValue<bool> m_dbvFirmware;
+
+    // DashBoardValue<bool> m_dbvFieldRelative{"Drive", "other", other};
 
     // Logging Member Variables
     wpi::log::DoubleLogEntry m_logTurningEncoderPosition;

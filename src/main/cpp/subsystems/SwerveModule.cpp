@@ -21,6 +21,14 @@ SwerveModule::SwerveModule(const int driveMotorCanId, const int turningMotorCanI
   , m_driveMotorReversed(driveMotorReversed)
   , m_absEnc((turningMotorCanId / 2) - 1)
   , m_offset(offset)
+  , m_dbvOther{"Drive", "stkOther" + m_id, false}
+  , m_dbvMotorType{"Drive", "stkMotorType" + m_id, false}
+  , m_dbvSensor{"Drive", "stkSensor" + m_id, false}
+  , m_dbvCan{"Drive", "stkCan" + m_id, false}
+  , m_dbvTemperature{"Drive", "stkTemperature" + m_id, false}
+  , m_dbvGateDriver{"Drive", "stkGateDriver" + m_id, false}
+  , m_dbvEscEeprom{"Drive", "stkEscEeprom" + m_id, false}
+  , m_dbvFirmware{"Drive", "stkFirmware" + m_id, false}
 {
   wpi::log::DataLog& log = frc::DataLogManager::GetLog();
 
@@ -173,6 +181,16 @@ void SwerveModule::Periodic()
   frc::SmartDashboard::PutNumber("DrvTurns" + m_id, pos);
   frc::SmartDashboard::PutNumber("DrvMtrs" + m_id, kWheelCircumfMeters.value() * pos);
   frc::SmartDashboard::PutNumber("DrvGrRt" + m_id, kWheelCircumfMeters.value() * pos / units::angle::turn_t(kDriveGearRatio).value());
+
+  auto faults = m_turningMotor.GetStickyFaults();
+  m_dbvOther.Put(faults.other);
+  m_dbvMotorType.Put(faults.motorType);
+  m_dbvSensor.Put(faults.sensor);
+  m_dbvCan.Put(faults.can);
+  m_dbvTemperature.Put(faults.temperature);
+  m_dbvGateDriver.Put(faults.gateDriver);
+  m_dbvEscEeprom.Put(faults.escEeprom);
+  m_dbvFirmware.Put(faults.firmware);
 
   m_logTurningEncoderPosition.Append(GetTurnPosition().to<double>());
   m_logAbsoluteEncoderPosition.Append(absPos);

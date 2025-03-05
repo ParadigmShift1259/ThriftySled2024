@@ -127,7 +127,8 @@ class RobotContainer : public ISubsystemAccess
   // frc2::InstantCommand m_resetOdo{[this] {m_drive.ResetOdometry({11.56_m, 8.12_m, 90_deg});}, {&m_drive}};
   // frc2::InstantCommand m_resetOdo{[this] {m_drive.ResetOdometry({530.49_in + 8.75_in, 130.17_in - 15.16_in, 120_deg});}, {&m_drive}};
 //  frc2::InstantCommand m_resetOdo{[this] {m_drive.ResetOdometry({481.39_in - 17.5_in, 158.5_in, 0_deg});}, {&m_drive}};
-  frc2::InstantCommand m_resetOdo{[this] {m_drive.ResetOdometry({0.0_in, 0.0_in, 120_deg});}, {&m_drive}};
+  frc2::InstantCommand m_resetOdo{[this] {m_drive.ResetOdometry({0.0_in, 0.0_in, 300_deg});}, {&m_drive}};
+//  frc2::InstantCommand m_resetOdo{[this] {m_drive.ResetOdometry({0.0_in, 0.0_in, 120_deg});}, {&m_drive}};
 
   frc2::InstantCommand m_elevL4{[this] { m_drive.SetSlowSpeed(true); m_elevator.GoToPosition(L4); }, {&m_elevator} };
   frc2::InstantCommand m_elevL3{[this] { m_drive.SetSlowSpeed(true); m_elevator.GoToPosition(L3); }, {&m_elevator} };
@@ -182,7 +183,8 @@ class RobotContainer : public ISubsystemAccess
   frc2::InstantCommand m_ClimberDeployRelDown{[this] { m_climber.GoToPositionRel(-c_defaultClimbDeployRelTurns);}, {&m_climber} };
 
   // For on the fly paths
-  PathConstraints m_pathConstraints { m_drive.m_currentMaxSpeed / 2.0, 4.0_mps_sq, 180_deg_per_s, 360_deg_per_s_sq };
+//  PathConstraints m_pathConstraints { m_drive.m_currentMaxSpeed / 2.0, 4.0_mps_sq, 180_deg_per_s, 360_deg_per_s_sq };
+  PathConstraints m_pathConstraints { 2.0_mps, 5.0_mps_sq, 180_deg_per_s, 360_deg_per_s_sq };
   std::shared_ptr<PathPlannerPath> m_path;
 
   frc::Timer m_timer; // For bringing the intake down after popping the pin

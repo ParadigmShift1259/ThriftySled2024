@@ -169,7 +169,7 @@ void RobotContainer::Periodic()
   {
     ConfigureRobotLEDs();
   }
-  
+
   m_dbvFieldRelative.Put(m_fieldRelative);
   m_dbvRunIntakeStartup.Put(m_runIntakeStartup);
 
@@ -262,7 +262,7 @@ void RobotContainer::ConfigPrimaryButtonBindings()
   primary.POVUp().OnTrue(StopAllCommand(*this).ToPtr());
   primary.POVDown().OnTrue(InstantCommand([this]{GetOnTheFlyPath();},{&m_drive}).ToPtr());
 
-   primary.POVLeft().OnTrue(&m_resetOdo);
+  primary.POVLeft().OnTrue(&m_resetOdo);
 
 //   primary.POVUp().OnTrue(GoToPositionCommand(*this, eJogForward, m_path).ToPtr());
 //   primary.POVDown().OnTrue(GoToPositionCommand(*this, eJogBackward, m_path).ToPtr());
@@ -328,19 +328,19 @@ void RobotContainer::ConfigButtonBoxBindings()
   auto& buttonBox = m_buttonController;
 
   // Physical layout and XBox assignment
-  // ┌───────┐       ┌───────┬───────┐
-  // │Green1 │       │White2 │ Blue2 │
-  // │  X    │       │  Back │ Start │
-  // ├───────┤       ├───────┼───────┤
-  // │Yellow1│       │Green2 │ Red2  │
-  // │  Y    │       │  LS   │  RS   │
-  // ├───────┤       ├───────┼───────┤
-  // │Blue1  │       │Black2 │Yellow2│
-  // │  RB   │       │  B    │  A    │
-  // ├───────┼───────┼───────┤───────┘
-  // │Black1 │White1 │ Red1  │        
-  // │  LB   │   LT  │  RT   │        
-  // └───────┴───────┴───────┘  
+  // ┌───────┌───────┬───────┐───────┐
+  // │Green1 │White2 │ Blue2 │Green1 │
+  // │  X    │  Back │ Start │  DU   │
+  // ├───────├───────┼───────┤───────┤
+  // │Yellow1│Green2 │ Red2  │ Blue3 │
+  // │  Y    │  LS   │  RS   │  DD   │
+  // ├───────├───────┼───────┤───────┤
+  // │ Blue1 │Black2 │Yellow2│ Red3  │
+  // │  RB   │  B    │  A    │  DR   │
+  // ├───────┼───────┼───────┤───────┤
+  // │Black1 │White1 │ Red1  │Yellow3│        
+  // │  LB   │   LT  │  RT   │  DL   │        
+  // └───────┴───────┴───────┘───────┘  
 #ifdef PRACTICE_BINDINGS           
   buttonBox.X().OnTrue(&m_elevL4);
   buttonBox.Y().OnTrue(&m_elevL3);
@@ -358,21 +358,26 @@ void RobotContainer::ConfigButtonBoxBindings()
   buttonBox.LeftBumper().OnTrue(&m_setL1);
 #endif
 
-  // buttonBox.LeftTrigger().OnTrue(&m_setLeft);
-  // buttonBox.RightTrigger().OnTrue(&m_setRight);
+//#define USE_SELECT_LEFT_RIGHT
+#ifdef USE_SELECT_LEFT_RIGHT
+  buttonBox.LeftTrigger().OnTrue(&m_setLeft);
+  buttonBox.RightTrigger().OnTrue(&m_setRight);
+#else
   buttonBox.LeftTrigger().OnTrue(frc2::SequentialCommandGroup{        // Drive back
       InstantCommand{[this](){m_drive.WheelsForward();}, {&m_drive}}
     , WaitCommand(0.125_s)
     , InstantCommand{[this](){m_drive.Stop();}, {&m_drive}}
   }.ToPtr());
- buttonBox.RightTrigger().OnTrue(CoralIntakeCommand(*this).ToPtr());
-  
+  buttonBox.RightTrigger().OnTrue(CoralIntakeCommand(*this).ToPtr());
+#endif
+
   buttonBox.Back().OnTrue(&m_elevRelPosUp);
   
   buttonBox.LeftStick().OnTrue(&m_elevRelPosDown);
 
   //buttonBox.B().OnTrue(&m_intakeParkAtZero);
   //buttonBox.B().OnTrue(&m_intakeAlign);
+  //buttonBox.B().OnTrue(CoralIntakeCommand(*this).ToPtr());
   buttonBox.B().OnTrue(frc2::SequentialCommandGroup{
       CoralIntakeCommand(*this)
     , m_setL3
@@ -384,8 +389,8 @@ void RobotContainer::ConfigButtonBoxBindings()
   buttonBox.A().OnTrue(frc2::SequentialCommandGroup{
       CoralPrepCommand(*this, L4)
     , ConditionalCommand (InstantCommand{[this] {m_coral.DeployManipulator(); }, {&m_coral} }, 
-                          InstantCommand{[
-                            this] {m_coral.RetractManipulator(); }, {&m_coral} }, [this](){return m_elevator.GetPresetLevel() == L4;})
+                          InstantCommand{[this] {m_coral.RetractManipulator(); }, {&m_coral} }, 
+                                         [this](){return m_elevator.GetPresetLevel() == L4;})
     , WaitCommand(0.75_s)
     , CoralEjectCommand(*this)
     , WaitCommand(0.25_s)
@@ -555,9 +560,14 @@ std::shared_ptr<PathPlannerPath> RobotContainer::GetOnTheFlyPath()
                                   , frc::Pose2d { targetX, targetY, targetRot }
   };
 
+  double pathLen = sqrt(xDelta * xDelta + yDelta * yDelta);
+  // shorter path len needs higher acceleration
+  auto accel = units::acceleration::meters_per_second_squared_t{10.0 / pathLen};
+  PathConstraints pathConstraints { 2.0_mps, accel, 180_deg_per_s, 360_deg_per_s_sq };
+
   path = std::make_shared<PathPlannerPath>(
       PathPlannerPath::waypointsFromPoses(poses),
-      m_pathConstraints,
+      pathConstraints,
       std::nullopt, // The ideal starting state, this is only relevant for pre-planned paths, so can be nullopt for on-the-fly paths.
       GoalEndState(0.0_mps, frc::Rotation2d{ targetRot } )
   );
