@@ -82,6 +82,7 @@ class RobotContainer : public ISubsystemAccess
   void ConfigButtonBoxBindings();
 #endif
 
+  bool GetTagPose(Pose2d& tagPose);
   void SetSideSelected(ESideSelected sideSelected);
 
   // Used for OnTheFlyPaths, the FollowPathCommand wants a free function to build the path
@@ -116,6 +117,8 @@ class RobotContainer : public ISubsystemAccess
   bool m_runIntakeStartup = true;
   DashBoardValue<bool> m_dbvFieldRelative{"Drive", "FieldRelative", m_fieldRelative};
   DashBoardValue<bool> m_dbvRunIntakeStartup{"Intake", "RunStartup", m_runIntakeStartup};
+  DashBoardValue<double> m_dbvOnTheFlyPathAccel{"Drive", "OTFPaccel", 3.0};
+  DashBoardValue<double> m_dbvDistToTag{"Vision", "Dist2tag", -1.0};
 
   ESideSelected m_sideSelected = Unselected;
 
@@ -123,13 +126,16 @@ class RobotContainer : public ISubsystemAccess
   frc2::InstantCommand m_toggleSlowSpeed{[this] { m_drive.ToggleSlowSpeed(); }, {}};
   frc2::InstantCommand m_setHighSpeedCmd{[this] { m_drive.SetSlowSpeed(false); }, {&m_drive}};
 
-  // Tag 3 coordinates
-  // frc2::InstantCommand m_resetOdo{[this] {m_drive.ResetOdometry({11.56_m, 8.12_m, 90_deg});}, {&m_drive}};
-  // frc2::InstantCommand m_resetOdo{[this] {m_drive.ResetOdometry({530.49_in + 8.75_in, 130.17_in - 15.16_in, 120_deg});}, {&m_drive}};
-//  frc2::InstantCommand m_resetOdo{[this] {m_drive.ResetOdometry({481.39_in - 17.5_in, 158.5_in, 0_deg});}, {&m_drive}};
-  frc2::InstantCommand m_resetOdo{[this] {m_drive.ResetOdometry({0.0_in, 0.0_in, 300_deg});}, {&m_drive}};
-//  frc2::InstantCommand m_resetOdo{[this] {m_drive.ResetOdometry({0.0_in, 0.0_in, 120_deg});}, {&m_drive}};
-
+  frc2::InstantCommand m_resetOdo{[this] 
+  {
+    Pose2d tagPose;
+    if (GetTagPose(tagPose))
+    {
+      Pose2d resetPose{m_drive.GetX(), m_drive.GetY(), tagPose.Rotation()};
+      m_drive.ResetOdometry(resetPose);
+    }
+  }, {&m_drive}};
+  
   frc2::InstantCommand m_elevL4{[this] { m_drive.SetSlowSpeed(true); m_elevator.GoToPosition(L4); }, {&m_elevator} };
   frc2::InstantCommand m_elevL3{[this] { m_drive.SetSlowSpeed(true); m_elevator.GoToPosition(L3); }, {&m_elevator} };
   frc2::InstantCommand m_elevL2{[this] { m_drive.SetSlowSpeed(true); m_elevator.GoToPosition(L2); }, {&m_elevator} };
@@ -184,7 +190,7 @@ class RobotContainer : public ISubsystemAccess
 
   // For on the fly paths
 //  PathConstraints m_pathConstraints { m_drive.m_currentMaxSpeed / 2.0, 4.0_mps_sq, 180_deg_per_s, 360_deg_per_s_sq };
-  PathConstraints m_pathConstraints { 2.0_mps, 5.0_mps_sq, 180_deg_per_s, 360_deg_per_s_sq };
+  PathConstraints m_pathConstraints { 1.5_mps, 3.0_mps_sq, 180_deg_per_s, 360_deg_per_s_sq };
   std::shared_ptr<PathPlannerPath> m_path;
 
   frc::Timer m_timer; // For bringing the intake down after popping the pin

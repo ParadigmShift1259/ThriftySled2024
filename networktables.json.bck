@@ -1,1 +1,210 @@
-[]
+[
+  {
+    "name": "/Preferences/BuildDate",
+    "type": "string",
+    "value": "Mar  4 2025",
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/BuildTime",
+    "type": "string",
+    "value": "22:01:22",
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Name",
+    "type": "string",
+    "value": "ThingX",
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Offset1",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Offset2",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Offset3",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Offset4",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/ElevatorPosDownP",
+    "type": "double",
+    "value": 0.01,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/ElevatorPosUpP",
+    "type": "double",
+    "value": 0.1,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/ElevatorPosI",
+    "type": "double",
+    "value": 3e-05,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/ElevatorPosD",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/ElevatorPosFF",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/ElevatorL4",
+    "type": "double",
+    "value": 40.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/kCoralManipP",
+    "type": "double",
+    "value": 0.1,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/kCoralManipI",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/kCoralManipD",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/ServoDeploy",
+    "type": "double",
+    "value": 0.8,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/ServoRetract",
+    "type": "double",
+    "value": 0.3,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/kIntakeDeployP",
+    "type": "double",
+    "value": 0.03,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/kIntakeDeployI",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/kIntakeDeployD",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/kClimbPosDownP",
+    "type": "double",
+    "value": 0.006,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/kClimbPosUpP",
+    "type": "double",
+    "value": 0.1,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/kClimbPosI",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/kClimbPosD",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/kClimbPosFF",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  }
+]

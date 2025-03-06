@@ -45,6 +45,55 @@ RobotContainer* RobotContainer::m_pThis = nullptr;
 constexpr double c_HolomonicTranslateP = 3.5;
 constexpr double c_HolomonicRotateP = 1.5;
 
+// Data for each tag position
+struct TagInfo
+{
+  Pose2d m_poseLeft;
+  Pose2d m_poseMid;
+  Pose2d m_poseRight;
+
+  Pose2d& GetPose(ESideSelected side)
+  {
+    if (side == LeftSide)
+    {
+      return m_poseLeft;
+    }
+    else if (side == RightSide)
+    {
+      return m_poseRight;
+    }
+    
+    return m_poseMid;
+  }
+};
+
+// Calculated target poses in spreadsheet given the April tag locations in sheet 4 of https://firstfrc.blob.core.windows.net/frc2025/FieldAssets/2025FieldDrawings-FieldLayoutAndMarking.pdf
+// ID	      X	   Y    Z-Rot  AdjAng      Sin         Cos         DeltaX        DeltaY        MidX MidY ReefOffsetX    ReefOffsetY    LeftX    LeftY    RightX   RightY
+//  6 to 11	TagX TagY TagRot TagRot + 90 sin(AdjAng) cos(AdjAng) 22sin(AdjAng) 22cos(AdjAng) X+dX Y+dy 6.5cos(AdjAng) 6.5sin(AdjAng) MidX-ROX MidY+ROY MidX+ROX MidY-ROY
+//    or
+// 17 to 22
+
+std::map<int, TagInfo> c_mapTagPoses
+{
+  // Tag ID   Left Pose                          Middle Pose                        Right Pose
+//    {  6, { { 541.49_in, 111.17_in, 120_deg }, { 541.49_in, 111.17_in, 120_deg }, { 541.49_in, 111.17_in, 120_deg } } }
+//  , { 10, { { 459.39_in, 158.5_in,    0_deg }, { 541.49_in, 111.17_in, 120_deg }, { 541.49_in, 111.17_in, 120_deg } } }
+    {  6, { { 535.86_in, 107.87_in, 120_deg }, { 541.49_in, 111.12_in, 120_deg }, { 547.12_in, 114.37_in, 120_deg } } }
+  , {  7, { { 568.87_in, 152.00_in, 180_deg }, { 568.87_in, 158.50_in, 180_deg }, { 568.87_in, 165.00_in, 180_deg } } }
+  , {  8, { { 547.12_in, 202.63_in, 240_deg }, { 541.49_in, 205.88_in, 240_deg }, { 535.86_in, 209.13_in, 240_deg } } }
+  , {  9, { { 492.40_in, 209.13_in, 300_deg }, { 486.77_in, 205.88_in, 300_deg }, { 481.14_in, 202.63_in, 300_deg } } }
+//  , { 10, { { 459.39_in, 165.00_in,   0_deg }, { 454.00_in, 158.50_in,   0_deg }, { 459.39_in, 152.00_in,   0_deg } } }
+  , { 10, { { 459.39_in, 165.00_in,   0_deg }, { 459.39_in, 158.50_in,   0_deg }, { 459.39_in, 152.00_in,   0_deg } } }
+  , { 11, { { 481.14_in, 114.37_in,  60_deg }, { 484.27_in, 106.79_in,  60_deg }, { 492.40_in, 107.87_in,  60_deg } } }
+//  , { 11, { { 481.14_in, 114.37_in,  60_deg }, { 486.77_in, 111.12_in,  60_deg }, { 492.40_in, 107.87_in,  60_deg } } }
+  , { 17, { { 143.76_in, 114.37_in,  60_deg }, { 149.39_in, 111.12_in,  60_deg }, { 155.02_in, 107.87_in,  60_deg } } }
+  , { 18, { { 122.00_in, 165.00_in,   0_deg }, { 122.00_in, 158.50_in,   0_deg }, { 122.00_in, 152.00_in,   0_deg } } }
+  , { 19, { { 155.02_in, 209.13_in, 300_deg }, { 149.39_in, 205.88_in, 300_deg }, { 143.76_in, 202.63_in, 300_deg } } }
+  , { 20, { { 209.73_in, 202.63_in, 240_deg }, { 204.10_in, 205.88_in, 240_deg }, { 198.47_in, 209.13_in, 240_deg } } }
+  , { 21, { { 231.49_in, 152.00_in, 180_deg }, { 231.49_in, 158.50_in, 180_deg }, { 231.49_in, 165.00_in, 180_deg } } }
+  , { 22, { { 198.47_in, 107.87_in, 120_deg }, { 204.10_in, 111.12_in, 120_deg }, { 209.73_in, 114.37_in, 120_deg } } }
+};
+
 // Configure the button bindings
 RobotContainer::RobotContainer() 
   : m_drive()
@@ -176,6 +225,45 @@ void RobotContainer::Periodic()
   frc::SmartDashboard::PutNumber("MatchTime", frc::DriverStation::GetMatchTime().value());
   m_field.SetRobotPose(m_drive.GetPose());
   frc::SmartDashboard::PutData("Field", &m_field);
+
+  Pose2d targetPose;
+  if (GetTagPose(targetPose))
+  {
+    auto currentX = m_drive.GetX();
+    auto currentY = m_drive.GetY();
+
+    units::length::meter_t targetX;
+    units::length::meter_t targetY;
+    units::angle::degree_t targetRot;
+
+    targetX = targetPose.X();
+    targetY = targetPose.Y();
+    targetRot = targetPose.Rotation().Degrees();
+
+    frc::SmartDashboard::PutNumber("targetX", targetX.value());
+    frc::SmartDashboard::PutNumber("targetY", targetY.value());
+    frc::SmartDashboard::PutNumber("targetRot", targetRot.value());
+
+    // Calculate the path length based on where we are and where we want to go
+    double xDelta = targetX.value() - currentX.value();
+    double yDelta = targetY.value() - currentY.value();
+    double pathLen = sqrt(xDelta * xDelta + yDelta * yDelta);
+    m_dbvDistToTag.Put(pathLen);
+  }
+}
+
+bool RobotContainer::GetTagPose(Pose2d& tagPose)
+{
+  int tagId = m_vision.GetTagId(); // Returns -1 if no tag being imaged
+  auto it = c_mapTagPoses.find(tagId);
+  if (it != c_mapTagPoses.end())
+  {
+    tagPose = it->second.GetPose(m_sideSelected);
+
+    return true;
+  }
+
+  return false;
 }
 
 void RobotContainer::SetDefaultCommands()
@@ -262,6 +350,7 @@ void RobotContainer::ConfigPrimaryButtonBindings()
   primary.POVUp().OnTrue(StopAllCommand(*this).ToPtr());
   primary.POVDown().OnTrue(InstantCommand([this]{GetOnTheFlyPath();},{&m_drive}).ToPtr());
 
+  // Only needed for testing on the fly paths, aligns the gyro with the tag currently being imaged
   primary.POVLeft().OnTrue(&m_resetOdo);
 
 //   primary.POVUp().OnTrue(GoToPositionCommand(*this, eJogForward, m_path).ToPtr());
@@ -476,53 +565,6 @@ frc2::CommandPtr RobotContainer::GetFollowPathCommandImpl()
       ).ToPtr();
 }
 
-// Data for each tag position
-struct TagInfo
-{
-  Pose2d m_poseLeft;
-  Pose2d m_poseMid;
-  Pose2d m_poseRight;
-
-  Pose2d& GetPose(ESideSelected side)
-  {
-    if (side == LeftSide)
-    {
-      return m_poseLeft;
-    }
-    else if (side == RightSide)
-    {
-      return m_poseRight;
-    }
-    
-    return m_poseMid;
-  }
-};
-
-// Calculated target poses in spreadsheet given the April tag locations in sheet 4 of https://firstfrc.blob.core.windows.net/frc2025/FieldAssets/2025FieldDrawings-FieldLayoutAndMarking.pdf
-// ID	      X	   Y    Z-Rot  AdjAng      Sin         Cos         DeltaX        DeltaY        MidX MidY ReefOffsetX    ReefOffsetY    LeftX    LeftY    RightX   RightY
-//  6 to 11	TagX TagY TagRot TagRot + 90 sin(AdjAng) cos(AdjAng) 22sin(AdjAng) 22cos(AdjAng) X+dX Y+dy 6.5cos(AdjAng) 6.5sin(AdjAng) MidX-ROX MidY+ROY MidX+ROX MidY-ROY
-//    or
-// 17 to 22
-
-std::map<int, TagInfo> c_mapTagPoses
-{
-  // Tag ID   Left Pose                          Middle Pose                        Right Pose
-//    {  6, { { 541.49_in, 111.17_in, 120_deg }, { 541.49_in, 111.17_in, 120_deg }, { 541.49_in, 111.17_in, 120_deg } } }
-//  , { 10, { { 459.39_in, 158.5_in,    0_deg }, { 541.49_in, 111.17_in, 120_deg }, { 541.49_in, 111.17_in, 120_deg } } }
-    {  6, { { 535.86_in, 107.87_in, 120_deg }, { 541.49_in, 111.12_in, 120_deg }, { 547.12_in, 114.37_in, 120_deg } } }
-  , {  7, { { 568.87_in, 152.00_in, 180_deg }, { 568.87_in, 158.50_in, 180_deg }, { 568.87_in, 165.00_in, 180_deg } } }
-  , {  8, { { 547.12_in, 202.63_in, 240_deg }, { 541.49_in, 205.88_in, 240_deg }, { 535.86_in, 209.13_in, 240_deg } } }
-  , {  9, { { 492.40_in, 209.13_in, 300_deg }, { 486.77_in, 205.88_in, 300_deg }, { 481.14_in, 202.63_in, 300_deg } } }
-  , { 10, { { 459.39_in, 165.00_in,   0_deg }, { 459.39_in, 158.50_in,   0_deg }, { 459.39_in, 152.00_in,   0_deg } } }
-  , { 11, { { 481.14_in, 114.37_in,  60_deg }, { 486.77_in, 111.12_in,  60_deg }, { 492.40_in, 107.87_in,  60_deg } } }
-  , { 17, { { 143.76_in, 114.37_in,  60_deg }, { 149.39_in, 111.12_in,  60_deg }, { 155.02_in, 107.87_in,  60_deg } } }
-  , { 18, { { 122.00_in, 165.00_in,   0_deg }, { 122.00_in, 158.50_in,   0_deg }, { 122.00_in, 152.00_in,   0_deg } } }
-  , { 19, { { 155.02_in, 209.13_in, 300_deg }, { 149.39_in, 205.88_in, 300_deg }, { 143.76_in, 202.63_in, 300_deg } } }
-  , { 20, { { 209.73_in, 202.63_in, 240_deg }, { 204.10_in, 205.88_in, 240_deg }, { 198.47_in, 209.13_in, 240_deg } } }
-  , { 21, { { 231.49_in, 152.00_in, 180_deg }, { 231.49_in, 158.50_in, 180_deg }, { 231.49_in, 165.00_in, 180_deg } } }
-  , { 22, { { 198.47_in, 107.87_in, 120_deg }, { 204.10_in, 111.12_in, 120_deg }, { 209.73_in, 114.37_in, 120_deg } } }
-};
-
 std::shared_ptr<PathPlannerPath> RobotContainer::GetOnTheFlyPath()
 {
   std::shared_ptr<PathPlannerPath> path;
@@ -560,17 +602,60 @@ std::shared_ptr<PathPlannerPath> RobotContainer::GetOnTheFlyPath()
                                   , frc::Pose2d { targetX, targetY, targetRot }
   };
 
+//#define USE_PATHLEN
+#ifdef USE_PATHLEN
   double pathLen = sqrt(xDelta * xDelta + yDelta * yDelta);
   // shorter path len needs higher acceleration
-  auto accel = units::acceleration::meters_per_second_squared_t{10.0 / pathLen};
-  PathConstraints pathConstraints { 2.0_mps, accel, 180_deg_per_s, 360_deg_per_s_sq };
-
-  path = std::make_shared<PathPlannerPath>(
-      PathPlannerPath::waypointsFromPoses(poses),
-      pathConstraints,
-      std::nullopt, // The ideal starting state, this is only relevant for pre-planned paths, so can be nullopt for on-the-fly paths.
-      GoalEndState(0.0_mps, frc::Rotation2d{ targetRot } )
-  );
+  //auto accel = m_dbvOnTheFlyPathAccel.Get();
+  PathConstraints pathConstraints1(2.0_mps, 5.0_mps_sq, 180_deg_per_s, 360_deg_per_s_sq);
+  PathConstraints pathConstraints2(2.0_mps, 4.0_mps_sq, 180_deg_per_s, 360_deg_per_s_sq);
+  PathConstraints pathConstraints3(2.0_mps, 3.0_mps_sq, 180_deg_per_s, 360_deg_per_s_sq);
+  PathConstraints pathConstraints4(2.0_mps, 2.0_mps_sq, 180_deg_per_s, 360_deg_per_s_sq);
+printf("pathLen %.3f\n", pathLen);
+  if (pathLen < 1.0)
+  {
+    path = std::make_shared<PathPlannerPath>(
+        PathPlannerPath::waypointsFromPoses(poses),
+        pathConstraints1,
+        std::nullopt, // The ideal starting state, this is only relevant for pre-planned paths, so can be nullopt for on-the-fly paths.
+        GoalEndState(0.0_mps, frc::Rotation2d{ targetRot } )
+    );
+  }
+  else if (pathLen < 2.0)
+  {
+    path = std::make_shared<PathPlannerPath>(
+        PathPlannerPath::waypointsFromPoses(poses),
+        pathConstraints2,
+        std::nullopt, // The ideal starting state, this is only relevant for pre-planned paths, so can be nullopt for on-the-fly paths.
+        GoalEndState(0.0_mps, frc::Rotation2d{ targetRot } )
+    );
+  }
+  else if (pathLen < 3.0)
+  {
+    path = std::make_shared<PathPlannerPath>(
+        PathPlannerPath::waypointsFromPoses(poses),
+        pathConstraints3,
+        std::nullopt, // The ideal starting state, this is only relevant for pre-planned paths, so can be nullopt for on-the-fly paths.
+        GoalEndState(0.0_mps, frc::Rotation2d{ targetRot } )
+    );
+  }
+  else if (pathLen < 4.0)
+  {
+    path = std::make_shared<PathPlannerPath>(
+        PathPlannerPath::waypointsFromPoses(poses),
+        pathConstraints4,
+        std::nullopt, // The ideal starting state, this is only relevant for pre-planned paths, so can be nullopt for on-the-fly paths.
+        GoalEndState(0.0_mps, frc::Rotation2d{ targetRot } )
+    );
+  }
+#else
+    path = std::make_shared<PathPlannerPath>(
+        PathPlannerPath::waypointsFromPoses(poses),
+        m_pathConstraints,
+        std::nullopt, // The ideal starting state, this is only relevant for pre-planned paths, so can be nullopt for on-the-fly paths.
+        GoalEndState(0.0_mps, frc::Rotation2d{ targetRot } )
+    );
+#endif
 
   // Prevent the path from being flipped if the coordinates are already correct
   path->preventFlipping = true;

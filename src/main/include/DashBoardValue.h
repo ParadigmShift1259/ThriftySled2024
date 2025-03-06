@@ -15,6 +15,7 @@ class DashBoardValue
     DashBoardValue(std::string_view tableName, std::string_view valueName, const T& defaultVal)
         : m_valueName(valueName)
         , m_defaultValue(defaultVal)
+        , m_value(defaultVal)
     {
         if (!m_spNetTable)
         {
@@ -30,24 +31,24 @@ class DashBoardValue
         {
             if constexpr (std::is_integral_v<T>)
             {
-                 return m_spNetTable->GetBoolean(m_valueName, m_defaultValue);
+                 m_value = m_spNetTable->GetBoolean(m_valueName, m_defaultValue);
             }
             else if constexpr (std::is_floating_point_v<T>)
             {
-                 return m_spNetTable->GetNumber(m_valueName, m_defaultValue);
+                 m_value = m_spNetTable->GetNumber(m_valueName, m_defaultValue);
             }
             else if constexpr (std::is_same_v<T, std::string>)
             {
-                 return m_spNetTable->GetString(m_valueName, m_defaultValue);
+                 m_value = m_spNetTable->GetString(m_valueName, m_defaultValue);
             }
         }
 
-        static T t;
-        return t;
+        return m_value;
     }
     
     void Put(const T& newValue)
     {
+        m_value = newValue;
         if (m_spNetTable)
         {
             if constexpr (std::is_integral_v<T>)
@@ -76,5 +77,6 @@ class DashBoardValue
  private:
     std::string  m_valueName;
     T            m_defaultValue;
+    T            m_value;
     NetTableSPtr m_spNetTable;
 };
