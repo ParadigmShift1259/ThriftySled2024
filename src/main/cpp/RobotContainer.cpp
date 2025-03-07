@@ -75,15 +75,29 @@ struct TagInfo
 
 std::map<int, TagInfo> c_mapTagPoses
 {
+  // Offset from tag position 27.5 inches 
   // Tag ID   Left Pose                          Middle Pose                        Right Pose
+    {  6, { { 538.61_in, 103.10_in, 120_deg }, { 544.24_in, 106.35_in, 120_deg }, { 549.87_in, 109.60_in, 120_deg } } }
+  , {  7, { { 574.37_in, 152.00_in, 180_deg }, { 574.37_in, 158.50_in, 180_deg }, { 574.37_in, 165.00_in, 180_deg } } }
+  , {  8, { { 549.87_in, 207.40_in, 240_deg }, { 544.24_in, 210.65_in, 240_deg }, { 538.61_in, 213.90_in, 240_deg } } }
+  , {  9, { { 489.65_in, 213.90_in, 300_deg }, { 484.02_in, 210.65_in, 300_deg }, { 478.39_in, 207.40_in, 300_deg } } }
+  , { 10, { { 453.89_in, 165.00_in,   0_deg }, { 453.89_in, 158.50_in,   0_deg }, { 453.89_in, 152.00_in,   0_deg } } }
+  , { 11, { { 478.39_in, 109.60_in,  60_deg }, { 484.02_in, 106.35_in,  60_deg }, { 489.65_in, 103.10_in,  60_deg } } }
+  , { 17, { { 141.01_in, 109.60_in,  60_deg }, { 146.64_in, 106.35_in,  60_deg }, { 152.27_in, 514.12_in,  60_deg } } }
+  , { 18, { { 116.50_in, 165.00_in,   0_deg }, { 116.50_in, 158.50_in,   0_deg }, { 116.50_in, 152.00_in,   0_deg } } }
+  , { 19, { { 152.27_in, 213.90_in, 300_deg }, { 146.64_in, 210.65_in, 300_deg }, { 141.01_in, 207.40_in, 300_deg } } }
+  , { 20, { { 212.48_in, 207.40_in, 240_deg }, { 206.85_in, 210.65_in, 240_deg }, { 201.22_in, 213.90_in, 240_deg } } }
+  , { 21, { { 236.99_in, 152.00_in, 180_deg }, { 236.99_in, 158.50_in, 180_deg }, { 236.99_in, 165.00_in, 180_deg } } }
+  , { 22, { { 201.22_in, 103.10_in, 120_deg }, { 206.85_in, 106.35_in, 120_deg }, { 212.48_in, 109.60_in, 120_deg } } }
+#if 0
 //    {  6, { { 541.49_in, 111.17_in, 120_deg }, { 541.49_in, 111.17_in, 120_deg }, { 541.49_in, 111.17_in, 120_deg } } }
 //  , { 10, { { 459.39_in, 158.5_in,    0_deg }, { 541.49_in, 111.17_in, 120_deg }, { 541.49_in, 111.17_in, 120_deg } } }
     {  6, { { 535.86_in, 107.87_in, 120_deg }, { 541.49_in, 111.12_in, 120_deg }, { 547.12_in, 114.37_in, 120_deg } } }
   , {  7, { { 568.87_in, 152.00_in, 180_deg }, { 568.87_in, 158.50_in, 180_deg }, { 568.87_in, 165.00_in, 180_deg } } }
   , {  8, { { 547.12_in, 202.63_in, 240_deg }, { 541.49_in, 205.88_in, 240_deg }, { 535.86_in, 209.13_in, 240_deg } } }
   , {  9, { { 492.40_in, 209.13_in, 300_deg }, { 486.77_in, 205.88_in, 300_deg }, { 481.14_in, 202.63_in, 300_deg } } }
-//  , { 10, { { 459.39_in, 165.00_in,   0_deg }, { 454.00_in, 158.50_in,   0_deg }, { 459.39_in, 152.00_in,   0_deg } } }
-  , { 10, { { 459.39_in, 165.00_in,   0_deg }, { 459.39_in, 158.50_in,   0_deg }, { 459.39_in, 152.00_in,   0_deg } } }
+  , { 10, { { 453.89_in, 165.00_in,   0_deg }, { 453.80_in, 158.50_in,   0_deg }, { 453.89_in, 152.00_in,   0_deg } } }
+//  , { 10, { { 459.39_in, 165.00_in,   0_deg }, { 459.39_in, 158.50_in,   0_deg }, { 459.39_in, 152.00_in,   0_deg } } }
   , { 11, { { 481.14_in, 114.37_in,  60_deg }, { 484.27_in, 106.79_in,  60_deg }, { 492.40_in, 107.87_in,  60_deg } } }
 //  , { 11, { { 481.14_in, 114.37_in,  60_deg }, { 486.77_in, 111.12_in,  60_deg }, { 492.40_in, 107.87_in,  60_deg } } }
   , { 17, { { 143.76_in, 114.37_in,  60_deg }, { 149.39_in, 111.12_in,  60_deg }, { 155.02_in, 107.87_in,  60_deg } } }
@@ -92,6 +106,7 @@ std::map<int, TagInfo> c_mapTagPoses
   , { 20, { { 209.73_in, 202.63_in, 240_deg }, { 204.10_in, 205.88_in, 240_deg }, { 198.47_in, 209.13_in, 240_deg } } }
   , { 21, { { 231.49_in, 152.00_in, 180_deg }, { 231.49_in, 158.50_in, 180_deg }, { 231.49_in, 165.00_in, 180_deg } } }
   , { 22, { { 198.47_in, 107.87_in, 120_deg }, { 204.10_in, 111.12_in, 120_deg }, { 209.73_in, 114.37_in, 120_deg } } }
+#endif
 };
 
 // Configure the button bindings
@@ -447,7 +462,7 @@ void RobotContainer::ConfigButtonBoxBindings()
   buttonBox.LeftBumper().OnTrue(&m_setL1);
 #endif
 
-//#define USE_SELECT_LEFT_RIGHT
+#define USE_SELECT_LEFT_RIGHT
 #ifdef USE_SELECT_LEFT_RIGHT
   buttonBox.LeftTrigger().OnTrue(&m_setLeft);
   buttonBox.RightTrigger().OnTrue(&m_setRight);
@@ -475,8 +490,10 @@ void RobotContainer::ConfigButtonBoxBindings()
   buttonBox.Start().OnTrue(&m_elevL3_4);
   buttonBox.RightStick().OnTrue(&m_elevL2_3);
 
+  // Score
   buttonBox.A().OnTrue(frc2::SequentialCommandGroup{
       CoralPrepCommand(*this, L4)
+    , DeferredCommand(GetFollowPathCommand, {&m_drive} )
     , ConditionalCommand (InstantCommand{[this] {m_coral.DeployManipulator(); }, {&m_coral} }, 
                           InstantCommand{[this] {m_coral.RetractManipulator(); }, {&m_coral} }, 
                                          [this](){return m_elevator.GetPresetLevel() == L4;})
@@ -602,60 +619,12 @@ std::shared_ptr<PathPlannerPath> RobotContainer::GetOnTheFlyPath()
                                   , frc::Pose2d { targetX, targetY, targetRot }
   };
 
-//#define USE_PATHLEN
-#ifdef USE_PATHLEN
-  double pathLen = sqrt(xDelta * xDelta + yDelta * yDelta);
-  // shorter path len needs higher acceleration
-  //auto accel = m_dbvOnTheFlyPathAccel.Get();
-  PathConstraints pathConstraints1(2.0_mps, 5.0_mps_sq, 180_deg_per_s, 360_deg_per_s_sq);
-  PathConstraints pathConstraints2(2.0_mps, 4.0_mps_sq, 180_deg_per_s, 360_deg_per_s_sq);
-  PathConstraints pathConstraints3(2.0_mps, 3.0_mps_sq, 180_deg_per_s, 360_deg_per_s_sq);
-  PathConstraints pathConstraints4(2.0_mps, 2.0_mps_sq, 180_deg_per_s, 360_deg_per_s_sq);
-printf("pathLen %.3f\n", pathLen);
-  if (pathLen < 1.0)
-  {
-    path = std::make_shared<PathPlannerPath>(
-        PathPlannerPath::waypointsFromPoses(poses),
-        pathConstraints1,
-        std::nullopt, // The ideal starting state, this is only relevant for pre-planned paths, so can be nullopt for on-the-fly paths.
-        GoalEndState(0.0_mps, frc::Rotation2d{ targetRot } )
-    );
-  }
-  else if (pathLen < 2.0)
-  {
-    path = std::make_shared<PathPlannerPath>(
-        PathPlannerPath::waypointsFromPoses(poses),
-        pathConstraints2,
-        std::nullopt, // The ideal starting state, this is only relevant for pre-planned paths, so can be nullopt for on-the-fly paths.
-        GoalEndState(0.0_mps, frc::Rotation2d{ targetRot } )
-    );
-  }
-  else if (pathLen < 3.0)
-  {
-    path = std::make_shared<PathPlannerPath>(
-        PathPlannerPath::waypointsFromPoses(poses),
-        pathConstraints3,
-        std::nullopt, // The ideal starting state, this is only relevant for pre-planned paths, so can be nullopt for on-the-fly paths.
-        GoalEndState(0.0_mps, frc::Rotation2d{ targetRot } )
-    );
-  }
-  else if (pathLen < 4.0)
-  {
-    path = std::make_shared<PathPlannerPath>(
-        PathPlannerPath::waypointsFromPoses(poses),
-        pathConstraints4,
-        std::nullopt, // The ideal starting state, this is only relevant for pre-planned paths, so can be nullopt for on-the-fly paths.
-        GoalEndState(0.0_mps, frc::Rotation2d{ targetRot } )
-    );
-  }
-#else
-    path = std::make_shared<PathPlannerPath>(
-        PathPlannerPath::waypointsFromPoses(poses),
-        m_pathConstraints,
-        std::nullopt, // The ideal starting state, this is only relevant for pre-planned paths, so can be nullopt for on-the-fly paths.
-        GoalEndState(0.0_mps, frc::Rotation2d{ targetRot } )
-    );
-#endif
+  path = std::make_shared<PathPlannerPath>(
+      PathPlannerPath::waypointsFromPoses(poses),
+      m_pathConstraints,
+      std::nullopt, // The ideal starting state, this is only relevant for pre-planned paths, so can be nullopt for on-the-fly paths.
+      GoalEndState(0.0_mps, frc::Rotation2d{ targetRot } )
+  );
 
   // Prevent the path from being flipped if the coordinates are already correct
   path->preventFlipping = true;

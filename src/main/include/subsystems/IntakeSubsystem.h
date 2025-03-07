@@ -15,7 +15,7 @@ using namespace frc;
 constexpr double kIngestSpeed = 1.0;
 constexpr double kReleaseSpeed = -1.0;
 
-constexpr double c_InitalDeployPosition = 12.0;
+constexpr double c_InitalDeployPosition = 15.0;
 constexpr double c_LoadCoralPosition = 9.238;
 constexpr double c_ParkForClimbPosition = 25.0;
 
