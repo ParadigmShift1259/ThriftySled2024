@@ -1,0 +1,66 @@
+primary.A			Shoot & Elev down
+primary.B			Elev to preset level and coral retract CoralPrepCommand 
+primary.X			ClimberDeploy
+primary.Y			Open***************************
+
+primary.Back		ClimbRetract
+primary.Start		Toggle Slow Speed
+primary.LeftBumper	Toggle Field Relative
+primary.RightBumper	Follow OTFP
+
+primary.POVUp		Stop All
+primary.POVDown		Open
+primary.POVLeft		Reset Gyro at coral load
+primary.POVRight	Open
+
+// ┌───────┌───────┬───────┐───────┐
+// │Green1 │White2 │ Blue2 │Green1 │
+// │  X    │  Back │ Start │  DU   │
+// ├───────├───────┼───────┤───────┤
+// │Yellow1│Green2 │ Red2  │ Blue3 │
+// │  Y    │  LS   │  RS   │  DD   │
+// ├───────├───────┼───────┤───────┤
+// │ Blue1 │Black2 │Yellow2│ Red3  │
+// │  RB   │  B    │  A    │  DR   │
+// ├───────┼───────┼───────┤───────┤
+// │Black1 │White1 │ Red1  │Yellow3│        
+// │  LB   │   LT  │  RT   │  DL   │     
+buttonBox.X				Pre-select L4 
+buttonBox.Y				Pre-select L3
+buttonBox.RightBumper	Pre-select L2
+buttonBox.LeftBumper	Pre-select L1 & Elev down
+
+buttonBox.Back			Elev jog up
+buttonBox.LeftStick		Elev jog down
+buttonBox.B				Run intake & go to L3
+buttonBox.LeftTrigger	Pre-select Left
+
+buttonBox.Start			Elev algae L3_4
+buttonBox.RightStick	Elev algae L2_3
+buttonBox.A				Score Seq with OTFP
+buttonBox.RightTrigger	Pre-select Right
+
+buttonBox.POVUp			Climb jog out***************************reverse up/down
+buttonBox.POVDown		Climb jog in***************************reverse up/down
+buttonBox.POVRight		Score Seq without path***************************************
+buttonBox.POVLeft		Open
+
+Adds
+Run score without OTFP	sec B?
+Drive back
+Coral load gyro reset
+OTFP abort primary Y?
+
+Pit Test Network button
+  //buttonBox.A().OnTrue(&m_coralRetract);
+  secondary.A().OnTrue(&m_elevL2);
+  secondary.B().OnTrue(&m_elevL3);
+  secondary.X().OnTrue(Elev down
+  secondary.Y().OnTrue(&m_elevL4);
+  secondary.POVRight().OnTrue(&m_coralDeployManip);
+  secondary.POVLeft().OnTrue(&m_coralRetractManip);
+
+
+add tag id in robot container & Clear tag after score
+adjust climb deploy enc count to 35 degrees 370
+
