@@ -264,6 +264,40 @@ void RobotContainer::Periodic()
     double yDelta = targetY.value() - currentY.value();
     double pathLen = sqrt(xDelta * xDelta + yDelta * yDelta);
     m_dbvDistToTag.Put(pathLen);
+
+    m_dbv1Meter.Put(false);  
+    m_dbv2Meter.Put(false);  
+    m_dbv3Meter.Put(false);  
+    m_dbv4Meter.Put(false);  
+
+    if (pathLen >= 4.0)
+    {
+      m_dbv4Meter.Put(true);
+    }
+    else if (pathLen >= 3.0)
+    {
+      m_dbv3Meter.Put(true);
+    }
+    else if (pathLen >= 2.0)
+    {
+      m_dbv2Meter.Put(true);
+    }
+    else if (pathLen >= 1.0)
+    {
+      m_dbv1Meter.Put(true);
+    }
+
+#ifdef LED
+    if (pathLen > 1.0 && pathLen < 2.0)
+    {
+      m_led.SetCurrentAction(LEDSubsystem::kTagVisible);
+      m_led.SetAnimation(c_colorWhite, LEDSubsystem::kStrobe);
+    }
+    else 
+    {
+      m_led.SetCurrentAction(LEDSubsystem::kIdle);
+    }
+#endif
   }
 }
 
@@ -291,7 +325,7 @@ void RobotContainer::SetDefaultCommands()
       if (m_isAutoRunning == false)
       {
         // const double kDeadband = 0.02;
-        constexpr double kDeadband = 0.1;
+        constexpr double kDeadband = 0.02;
 		    constexpr double direction = 1.0;
 
         const auto xInput = direction* ApplyDeadband(m_primaryController.GetLeftY(), kDeadband);

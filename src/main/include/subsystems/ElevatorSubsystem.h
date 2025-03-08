@@ -5,6 +5,7 @@
 #include "Constants.h"
 #include "ConstantsDigitalInputs.h"
 #include "ConstantsCANIDs.h"
+#include "DashBoardValue.h"
 
 #include <frc/DigitalInput.h>
 
@@ -30,6 +31,7 @@ constexpr double c_defaultParkTurns = 0.0;
 constexpr double c_defaultL1Turns = 0.0;
 constexpr double c_defaultL2Turns =  3.0; // originally 2.0
 constexpr double c_defaultL3Turns = 15.5; 
+
 constexpr double c_defaultL4Turns = 40.0;
 constexpr double c_defaultLoadTurns = 10.0;
 constexpr double c_algaeRemovalL3_4 = 33.0;
@@ -83,11 +85,12 @@ private:
     SparkClosedLoopController m_followPIDController = m_followMotor.GetClosedLoopController();
     SparkLimitSwitch m_lowerLimit = m_leadMotor.GetReverseLimitSwitch();
     SparkLimitSwitch m_upperLimit = m_leadMotor.GetForwardLimitSwitch();
-
     wpi::log::DoubleLogEntry m_log;
 
     double m_leadDirection = 1.0;
     double m_followDirection = 1.0;
+
+    //DashBoardValue<double> m_dbvVelocity{"Elevator", "Velocity", 0.0};
 
     double m_position = 0.0;
     ClosedLoopSlot m_slot = ClosedLoopSlot::kSlot0;

@@ -120,6 +120,11 @@ class RobotContainer : public ISubsystemAccess
   DashBoardValue<double> m_dbvOnTheFlyPathAccel{"Drive", "OTFPaccel", 3.0};
   DashBoardValue<double> m_dbvDistToTag{"Vision", "Dist2tag", -1.0};
 
+  DashBoardValue<bool> m_dbv1Meter{"Vision", "1Meter", false};  
+  DashBoardValue<bool> m_dbv2Meter{"Vision", "2Meter", false};  
+  DashBoardValue<bool> m_dbv3Meter{"Vision", "3Meter", false};  
+  DashBoardValue<bool> m_dbv4Meter{"Vision", "4Meter", false};  
+
   ESideSelected m_sideSelected = Unselected;
 
   frc2::InstantCommand m_toggleFieldRelative{[this] { m_fieldRelative = !m_fieldRelative; }, {}};
