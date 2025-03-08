@@ -110,15 +110,15 @@ void ElevatorSubsystem::Periodic()
     auto d = frc::Preferences::GetDouble("ElevatorPosD", c_defaultElevatorD);
     auto ff = frc::Preferences::GetDouble("ElevatorPosFF", c_defaultElevatorFF);
 
-    auto rampRate = frc::Preferences::GetDouble("ElevatorPosRR", 0.0);
+    //auto rampRate = frc::Preferences::GetDouble("ElevatorPosRR", 0.0);
 
-    if (rampRate != lastRampRate)
-    {
-        m_leadConfig.ClosedLoopRampRate(rampRate);
-        m_followConfig.ClosedLoopRampRate(rampRate);;
-        m_leadMotor.Configure(m_leadConfig, SparkBase::ResetMode::kNoResetSafeParameters, SparkBase::PersistMode::kPersistParameters);
-        m_followMotor.Configure(m_followConfig, SparkBase::ResetMode::kNoResetSafeParameters, SparkBase::PersistMode::kPersistParameters);
-    }
+    // if (rampRate != lastRampRate)
+    // {
+    //     m_leadConfig.ClosedLoopRampRate(rampRate);
+    //     m_followConfig.ClosedLoopRampRate(rampRate);;
+    //     m_leadMotor.Configure(m_leadConfig, SparkBase::ResetMode::kNoResetSafeParameters, SparkBase::PersistMode::kPersistParameters);
+    //     m_followMotor.Configure(m_followConfig, SparkBase::ResetMode::kNoResetSafeParameters, SparkBase::PersistMode::kPersistParameters);
+    // }
 
     if (pDown != lastDownP)
     {
@@ -160,7 +160,7 @@ void ElevatorSubsystem::Periodic()
     lastI = i;
     lastD = d;
     lastFF = ff;
-    lastRampRate = rampRate;
+    //lastRampRate = rampRate;
 
     //m_dbvVelocity.Put(m_leadRelativeEnc.GetVelocity());
 
@@ -241,7 +241,8 @@ bool ElevatorSubsystem::IsAtPosition(ELevels level)
 {
     double levelPos = GetPositionForLevel(level);
     double difference = fabs(m_leadRelativeEnc.GetPosition() - levelPos);
-    return difference > -0.53 && difference < 0.5;
+    // return difference > -0.53 && difference < 0.5;
+    return difference > -2.0 && difference < 2.0;
 }
 
 void ElevatorSubsystem::SetPresetLevel(ELevels level)
