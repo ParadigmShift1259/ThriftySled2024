@@ -1,5 +1,5 @@
 {
- "name":"ChoreoInterop",
+ "name":"NEWNEWChoreoTest",
  "version":1,
  "type":"Swerve",
  "variables":{
@@ -9,39 +9,39 @@
  "config":{
   "frontLeft":{
    "x":{
-    "exp":"11 in",
-    "val":0.2794
+    "exp":"10 in",
+    "val":0.254
    },
    "y":{
-    "exp":"11 in",
-    "val":0.2794
+    "exp":"10 in",
+    "val":0.254
    }
   },
   "backLeft":{
    "x":{
-    "exp":"-11 in",
-    "val":-0.2794
+    "exp":"-10 in",
+    "val":-0.254
    },
    "y":{
-    "exp":"11 in",
-    "val":0.2794
+    "exp":"10 in",
+    "val":0.254
    }
   },
   "mass":{
-   "exp":"135 lbs",
-   "val":61.23496995
+   "exp":"140 lbs",
+   "val":63.502931800000006
   },
   "inertia":{
-   "exp":"6 kg m ^ 2",
-   "val":6.0
+   "exp":"8 kg m ^ 2",
+   "val":8.0
   },
   "gearing":{
-   "exp":"6",
-   "val":6.0
+   "exp":"6.23",
+   "val":6.23
   },
   "radius":{
-   "exp":"2.25 in",
-   "val":0.05715
+   "exp":"2 in",
+   "val":0.0508
   },
   "vmax":{
    "exp":"6000 RPM",
@@ -52,21 +52,21 @@
    "val":1.2
   },
   "cof":{
-   "exp":"1",
-   "val":1.0
+   "exp":"1.542",
+   "val":1.542
   },
   "bumper":{
    "front":{
-    "exp":"16 in",
-    "val":0.4064
+    "exp":"17.25 in",
+    "val":0.43815
    },
    "side":{
-    "exp":"16 in",
-    "val":0.4064
+    "exp":"17.25 in",
+    "val":0.43815
    },
    "back":{
-    "exp":"16 in",
-    "val":0.4064
+    "exp":"17.25 in",
+    "val":0.43815
    }
   },
   "differentialTrackWidth":{

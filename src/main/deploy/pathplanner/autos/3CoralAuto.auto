@@ -7,25 +7,55 @@
         {
           "type": "path",
           "data": {
-            "pathName": "FirstCoral"
+            "pathName": "FirstPlace.0"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.25
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "FirstIntakeBottom"
+            "pathName": "FirstIntake.0"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.25
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "6Left"
+            "pathName": "SecondPlace.0"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.25
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "6Right"
+            "pathName": "SecondIntake.0"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.25
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "ThirdPlace.0"
           }
         }
       ]

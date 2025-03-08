@@ -25,7 +25,7 @@ using namespace ctre::phoenix::motorcontrol;
 using namespace rev::spark;
 
 constexpr double c_defaultClimbResetTurns = 0.0;
-constexpr double c_defaultClimbDeployTurns = 500.0;
+constexpr double c_defaultClimbDeployTurns = 370.0; // 370 ~35 degrees 500.0; ~ 90 degrees (parallel with floor)
 constexpr double c_defaultClimbDeployRelTurns = 10.0;
 
 class ClimberSubsystem : public frc2::SubsystemBase
@@ -33,29 +33,15 @@ class ClimberSubsystem : public frc2::SubsystemBase
 public:
 
     ClimberSubsystem();
-
     /// Will be called periodically whenever the CommandScheduler runs.
     void Periodic() override;
-
     /// Drives the climber at a given speed
     /// \param speed         Desired motor speed to run, ranging from [-1, 1]
     void Set(double speed);
-
     void Stop() { m_motor.StopMotor(); }
-
     void GoToPosition(double position);
-
     void GoToPositionRel(double position);
-
     double GetPosition();
-
-
-    // enum Position {
-    //     kDefaultPosition,
-    //     kResetPosition = kDefaultPosition,
-    //     kHighPosition,
-    //     kParkPosition
-    // };
 
 private:
     SparkMax m_motor;

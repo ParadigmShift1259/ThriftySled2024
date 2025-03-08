@@ -241,6 +241,11 @@ void RobotContainer::Periodic()
   m_field.SetRobotPose(m_drive.GetPose());
   frc::SmartDashboard::PutData("Field", &m_field);
 
+  AreWeInTheSweetSpot();
+}
+
+void RobotContainer::AreWeInTheSweetSpot()
+{
   Pose2d targetPose;
   if (GetTagPose(targetPose))
   {
@@ -288,7 +293,7 @@ void RobotContainer::Periodic()
     }
 
 #ifdef LED
-    if (pathLen > 1.0 && pathLen < 2.0)
+    if (pathLen > 0.6 && pathLen < 1.00) // This defines the sweet spot for scoring with the on the fly path
     {
       m_led.SetCurrentAction(LEDSubsystem::kTagVisible);
       m_led.SetAnimation(c_colorWhite, LEDSubsystem::kStrobe);
@@ -365,7 +370,8 @@ void RobotContainer::ConfigureBindings()
 #endif
 }
 
-void RobotContainer::ConfigPrimaryButtonBindings()
+void RobotContainer::
+ConfigPrimaryButtonBindings()
 {
   auto& primary = m_primaryController;
  
@@ -619,7 +625,7 @@ frc2::CommandPtr RobotContainer::GetFollowPathCommandImpl()
 std::shared_ptr<PathPlannerPath> RobotContainer::GetOnTheFlyPath()
 {
   std::shared_ptr<PathPlannerPath> path;
-
+  m_drive.SetSlowSpeed(true);
   auto currentX = m_drive.GetX();
   auto currentY = m_drive.GetY();
 

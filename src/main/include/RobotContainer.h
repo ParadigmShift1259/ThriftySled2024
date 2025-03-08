@@ -69,6 +69,7 @@ class RobotContainer : public ISubsystemAccess
 
   // Stop all motors (currently elevator only)
   void StopAll();
+  void SetHighSpeed(){m_drive.SetSlowSpeed(false);}
 
   std::shared_ptr<PathPlannerPath> GetOnTheFlyPath();
 
@@ -83,6 +84,7 @@ class RobotContainer : public ISubsystemAccess
 #endif
 
   bool GetTagPose(Pose2d& tagPose);
+  void AreWeInTheSweetSpot();
   void SetSideSelected(ESideSelected sideSelected);
 
   // Used for OnTheFlyPaths, the FollowPathCommand wants a free function to build the path
