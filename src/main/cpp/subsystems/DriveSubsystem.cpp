@@ -9,7 +9,7 @@
 
 #include <units/math.h>
 
-constexpr units::kilogram_t c_RobotMass = 125_lb;
+constexpr units::kilogram_t c_RobotMass = 140_lb;
 constexpr units::kilogram_square_meter_t c_MOI = (c_RobotMass * (0.7903212_sq_m + 0.7903212_sq_m)) / 12.0;
 
 DriveSubsystem::DriveSubsystem()
@@ -21,7 +21,7 @@ DriveSubsystem::DriveSubsystem()
       , 1.0                           // wheelCOF coefficient of friction, unknown, docs suggest 1.0
       , frc::DCMotor::KrakenX60(1)    // Num motors (per swerve module)
       , SwerveModule::kDriveGearRatio
-      , 100.0_A                       // driveCurrentLimit
+      , 95.0_A                       // driveCurrentLimit
       , 1                             // numMotors
     }
   , m_robotConfig 

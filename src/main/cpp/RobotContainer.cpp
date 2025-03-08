@@ -370,7 +370,8 @@ void RobotContainer::ConfigureBindings()
 #endif
 }
 
-void RobotContainer::ConfigPrimaryButtonBindings()
+void RobotContainer::
+ConfigPrimaryButtonBindings()
 {
   auto& primary = m_primaryController;
  
@@ -624,7 +625,7 @@ frc2::CommandPtr RobotContainer::GetFollowPathCommandImpl()
 std::shared_ptr<PathPlannerPath> RobotContainer::GetOnTheFlyPath()
 {
   std::shared_ptr<PathPlannerPath> path;
-
+  m_drive.SetSlowSpeed(true);
   auto currentX = m_drive.GetX();
   auto currentY = m_drive.GetY();
 

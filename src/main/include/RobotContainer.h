@@ -69,6 +69,7 @@ class RobotContainer : public ISubsystemAccess
 
   // Stop all motors (currently elevator only)
   void StopAll();
+  void SetHighSpeed(){m_drive.SetSlowSpeed(false);}
 
   std::shared_ptr<PathPlannerPath> GetOnTheFlyPath();
 
