@@ -5,15 +5,21 @@
     "data": {
       "commands": [
         {
+          "type": "named",
+          "data": {
+            "name": "RaiseL3"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "FirstPlace.0"
           }
         },
         {
-          "type": "wait",
+          "type": "named",
           "data": {
-            "waitTime": 0.25
+            "name": "PlaceL4L_OTFP"
           }
         },
         {
@@ -23,9 +29,9 @@
           }
         },
         {
-          "type": "wait",
+          "type": "named",
           "data": {
-            "waitTime": 0.25
+            "name": "Intake"
           }
         },
         {
@@ -35,9 +41,9 @@
           }
         },
         {
-          "type": "wait",
+          "type": "named",
           "data": {
-            "waitTime": 0.25
+            "name": "PlaceL4L_OTFP"
           }
         },
         {
@@ -47,15 +53,21 @@
           }
         },
         {
-          "type": "wait",
+          "type": "named",
           "data": {
-            "waitTime": 0.25
+            "name": "Intake"
           }
         },
         {
           "type": "path",
           "data": {
             "pathName": "ThirdPlace.0"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "PlaceL4R_OTFP"
           }
         }
       ]

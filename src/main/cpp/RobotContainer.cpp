@@ -116,6 +116,56 @@ RobotContainer::RobotContainer()
   , m_orchestra("output.chrp")
 #endif
 {
+
+  NamedCommands::registerCommand("RaiseL3", std::move(frc2::SequentialCommandGroup{m_setL3, m_elevL3}.ToPtr()));
+  
+  NamedCommands::registerCommand("PlaceL4", std::move(
+    frc2::SequentialCommandGroup{
+      m_setL4
+    , CoralPrepCommand(*this, L4)
+    , ConditionalCommand (InstantCommand{[this] {m_coral.DeployManipulator(); }, {&m_coral} }, 
+                          InstantCommand{[this] {m_coral.RetractManipulator(); }, {&m_coral} }, [](){return true;})
+    , WaitCommand(0.75_s)
+    , CoralEjectCommand(*this)
+    , WaitCommand(0.25_s)
+    , CoralEjectPostCommand(*this)
+    }.ToPtr()));
+
+  NamedCommands::registerCommand("PlaceL4L_OTFP", std::move(
+    frc2::SequentialCommandGroup{
+      m_setL4
+    , m_setLeft
+    , DeferredCommand(GetFollowPathCommand, {&m_drive} )
+    , m_setHighSpeedCmd
+    , CoralPrepCommand(*this, L4)
+    , ConditionalCommand (InstantCommand{[this] {m_coral.DeployManipulator(); }, {&m_coral} }, 
+                          InstantCommand{[this] {m_coral.RetractManipulator(); }, {&m_coral} }, [](){return true;})
+    , WaitCommand(0.75_s)
+    , CoralEjectCommand(*this)
+    , WaitCommand(0.25_s)
+    , CoralEjectPostCommand(*this)
+    }.ToPtr()));
+
+  NamedCommands::registerCommand("PlaceL4R_OTFP", std::move(
+    frc2::SequentialCommandGroup{
+      m_setL4
+    , m_setRight
+    , DeferredCommand(GetFollowPathCommand, {&m_drive} )
+    , m_setHighSpeedCmd
+    , CoralPrepCommand(*this, L4)
+    , ConditionalCommand (InstantCommand{[this] {m_coral.DeployManipulator(); }, {&m_coral} }, 
+                          InstantCommand{[this] {m_coral.RetractManipulator(); }, {&m_coral} }, [](){return true;})
+    , WaitCommand(0.75_s)
+    , CoralEjectCommand(*this)
+    , WaitCommand(0.25_s)
+    , CoralEjectPostCommand(*this)
+    }.ToPtr()));
+
+  NamedCommands::registerCommand("Intake", std::move(
+    frc2::SequentialCommandGroup{
+       CoralIntakeCommand(*this)
+      , m_elevL3
+    }.ToPtr()));
     m_pThis = this;
     //---------------------------------------------------------
     //printf("************************Calling SilenceJoystickConnectionWarning - Wisco2024 Day 1 only REMOVE!!!!!\n");
