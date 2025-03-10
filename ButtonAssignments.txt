@@ -46,10 +46,10 @@ buttonBox.POVRight		Score Seq without path**************************************
 buttonBox.POVLeft		Open
 
 Adds
-Run score without OTFP	sec B?
-Drive back
-Coral load gyro reset
-OTFP abort primary Y?
+#17 Run score without OTFP	sec B?
+#18 Drive back
+#16 
+#5 OTFP abort primary Y?
 
 Pit Test Network button
   //buttonBox.A().OnTrue(&m_coralRetract);
@@ -62,5 +62,8 @@ Pit Test Network button
 
 
 add tag id in robot container & Clear tag after score
-adjust climb deploy enc count to 35 degrees 370
+DONE adjust climb deploy enc count to 35 degrees 370
+DONE Drop into slow speed when engaging OTFP
+DONE Set high speed in auto
+
 
