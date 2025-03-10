@@ -16,14 +16,12 @@ CoralEjectPostCommand::CoralEjectPostCommand(ISubsystemAccess& subsystemAccess)
     AddRequirements(frc2::Requirements{&subsystemAccess.GetElevator(), &subsystemAccess.GetDrive()});
 #endif
     wpi::log::DataLog& log = subsystemAccess.GetLogger();
-    m_logStartCoralEjectPostCommand = wpi::log::BooleanLogEntry(log, "/CoralEjectPostCommand/startCommand");
-    m_logCoralEjectPostCommandFlipped = wpi::log::BooleanLogEntry(log, "/CoralEjectPostCommand/startCommand");
-
+    m_logStartCommand = wpi::log::BooleanLogEntry(log, "/CoralEjectPostCommand/startCommand");
 }
 
 void CoralEjectPostCommand::Initialize()
 {
-    printf("Coral Post Initialized \n");
+    m_logStartCommand.Append(true);
     m_timer.Reset();
     m_timer.Start();
     m_driveSubsystem.WheelsForward();
@@ -31,7 +29,7 @@ void CoralEjectPostCommand::Initialize()
 
 void CoralEjectPostCommand::Execute()
 {
-    if(m_timer.HasElapsed(0.25_s)) //Waiting to get robot clear of reef
+    if(m_timer.HasElapsed(0.25_s)) // Waiting to get robot clear of reef
     {
         m_elevatorSubsystem.GoToPosition(L1);
     }
@@ -46,4 +44,5 @@ void CoralEjectPostCommand::End(bool interrupted)
 {
     m_elevatorSubsystem.Stop();
     m_driveSubsystem.Stop();
+    m_logStartCommand.Append(false);
 }
