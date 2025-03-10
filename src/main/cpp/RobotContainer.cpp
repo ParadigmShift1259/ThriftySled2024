@@ -144,6 +144,7 @@ RobotContainer::RobotContainer()
     , CoralEjectCommand(*this)
     , WaitCommand(0.25_s)
     , CoralEjectPostCommand(*this)
+    , m_elevL1
     }.ToPtr()));
 
   NamedCommands::registerCommand("PlaceL4R_OTFP", std::move(
@@ -159,6 +160,7 @@ RobotContainer::RobotContainer()
     , CoralEjectCommand(*this)
     , WaitCommand(0.25_s)
     , CoralEjectPostCommand(*this)
+    , m_elevL1
     }.ToPtr()));
 
   NamedCommands::registerCommand("Intake", std::move(
@@ -310,8 +312,10 @@ void RobotContainer::AreWeInTheSweetSpot()
     targetY = targetPose.Y();
     targetRot = targetPose.Rotation().Degrees();
 
-    frc::SmartDashboard::PutNumber("targetX", targetX.value());
-    frc::SmartDashboard::PutNumber("targetY", targetY.value());
+    units::length::inch_t targetXin = targetX;
+    units::length::inch_t targetYin = targetY;
+    frc::SmartDashboard::PutNumber("targetX", targetXin.value());
+    frc::SmartDashboard::PutNumber("targetY", targetYin.value());
     frc::SmartDashboard::PutNumber("targetRot", targetRot.value());
 
     // Calculate the path length based on where we are and where we want to go
@@ -363,7 +367,6 @@ bool RobotContainer::GetTagPose(Pose2d& tagPose)
   if (it != c_mapTagPoses.end())
   {
     tagPose = it->second.GetPose(m_sideSelected);
-
     return true;
   }
 
@@ -573,7 +576,8 @@ void RobotContainer::ConfigButtonBoxBindings()
   //buttonBox.B().OnTrue(&m_intakeAlign);
   //buttonBox.B().OnTrue(CoralIntakeCommand(*this).ToPtr());
   buttonBox.B().OnTrue(frc2::SequentialCommandGroup{
-      CoralIntakeCommand(*this)
+      m_elevL1
+    , CoralIntakeCommand(*this)
     , m_setL3
     , m_elevL3
   }.ToPtr());
@@ -582,8 +586,8 @@ void RobotContainer::ConfigButtonBoxBindings()
 
   // Score
   buttonBox.A().OnTrue(frc2::SequentialCommandGroup{
-      CoralPrepCommand(*this, L4)
-    , DeferredCommand(GetFollowPathCommand, {&m_drive} )
+      DeferredCommand(GetFollowPathCommand, {&m_drive} )
+    , CoralPrepCommand(*this, L4)
     , ConditionalCommand (InstantCommand{[this] {m_coral.DeployManipulator(); }, {&m_coral} }, 
                           InstantCommand{[this] {m_coral.RetractManipulator(); }, {&m_coral} }, 
                                          [this](){return m_elevator.GetPresetLevel() == L4;})
@@ -591,6 +595,7 @@ void RobotContainer::ConfigButtonBoxBindings()
     , CoralEjectCommand(*this)
     , WaitCommand(0.25_s)
     , CoralEjectPostCommand(*this)
+    , m_elevL1
   }.ToPtr());
 
   //buttonBox.A().OnTrue(&m_coralRetract);
@@ -703,9 +708,14 @@ std::shared_ptr<PathPlannerPath> RobotContainer::GetOnTheFlyPath()
   // Calculate the heading (tanAngle) based on where we are and where we want to go
   double xDelta = targetX.value() - currentX.value();
   double yDelta = targetY.value() - currentY.value();
+  units::velocity::meters_per_second_t xSpeed = m_drive.GetChassisSpeeds().vx;
+  units::velocity::meters_per_second_t ySpeed = m_drive.GetChassisSpeeds().vy;
+  double xSpeed2 = static_cast<double>(xSpeed);
+  double ySpeed2 = static_cast<double>(ySpeed);
+  frc::Rotation2d(xSpeed2, ySpeed2);
   auto tanAngle = units::angle::degree_t{atan(yDelta / xDelta) * 180.0 / std::numbers::pi};
   //printf("tanAngle %.3f\n", tanAngle);
-  std::vector<frc::Pose2d> poses {  frc::Pose2d { currentX, currentY, tanAngle }
+  std::vector<frc::Pose2d> poses {  frc::Pose2d { currentX, currentY, frc::Rotation2d(xSpeed2, ySpeed2) } // USED TO BE tanAngle
                                   , frc::Pose2d { targetX, targetY, targetRot }
   };
 

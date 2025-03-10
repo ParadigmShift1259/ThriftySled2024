@@ -242,7 +242,7 @@ bool ElevatorSubsystem::IsAtPosition(ELevels level)
     double levelPos = GetPositionForLevel(level);
     double difference = fabs(m_leadRelativeEnc.GetPosition() - levelPos);
     // return difference > -0.53 && difference < 0.5;
-    return difference > -2.0 && difference < 2.0;
+    return difference > -6.0 && difference < 6.0;
 }
 
 void ElevatorSubsystem::SetPresetLevel(ELevels level)

@@ -48,7 +48,7 @@ void CoralPrepCommand::Initialize()
 
 void CoralPrepCommand::Execute()
 {
-    if (m_elevatorSubsystem.IsAtPosition(m_coralLevel) && m_retract)
+    if (m_retract)
     {
         m_coralSubsystem.RetractCoral(m_coralLevel);
         m_retract = false;

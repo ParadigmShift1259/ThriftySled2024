@@ -146,6 +146,7 @@ class RobotContainer : public ISubsystemAccess
   frc2::InstantCommand m_elevL4{[this] { m_elevator.GoToPosition(L4); }, {&m_elevator} };
   frc2::InstantCommand m_elevL3{[this] { m_elevator.GoToPosition(L3); }, {&m_elevator} };
   frc2::InstantCommand m_elevL2{[this] { m_elevator.GoToPosition(L2); }, {&m_elevator} };
+  frc2::InstantCommand m_elevL1{[this] { m_elevator.GoToPosition(L1); }, {&m_elevator} };  
 
   frc2::InstantCommand m_elevL2_3{[this] { m_elevator.GoToPosition(algaeRemovalL2_3); }, {&m_elevator} };
   frc2::InstantCommand m_elevL3_4{[this] { m_elevator.GoToPosition(algaeRemovalL3_4); }, {&m_elevator} };
