@@ -2,8 +2,10 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
+#include "Constants.h"
 #include "RobotContainer.h"
-#include "commands/GoToPositionCommand.h"
+
+// #include "commands/GoToPositionCommand.h"
 #include "commands/ElevatorGoToCommand.h"
 #include "commands/CoralIntakeCommand.h"
 #include "commands/CoralPrepCommand.h"
@@ -12,17 +14,18 @@
 #include "commands/StopAllCommand.h"
 #include "commands/ClimbRetractCommand.h"
 #include "commands/ClimbDeployCommand.h"
+#include "commands/PositionPIDCommand.h"
 
-#include <frc/MathUtil.h>
+//#include <frc/MathUtil.h>
 #include <frc/smartdashboard/SmartDashboard.h>
-#include <frc/trajectory/TrajectoryGenerator.h>
+// #include <frc/trajectory/TrajectoryGenerator.h>
 #include <frc/DriverStation.h>
-
-#include <cmath>
+#include <frc/smartdashboard/Field2d.h>
 
 #include <frc2/command/Commands.h>
 #include <frc2/command/ParallelDeadlineGroup.h>
 #include <frc2/command/ParallelCommandGroup.h>
+#include <frc2/command/PrintCommand.h>
 #include <frc2/command/WaitCommand.h>
 #include <frc2/command/WaitUntilCommand.h>
 #include <frc2/command/button/JoystickButton.h>
@@ -34,16 +37,13 @@
 #include <pathplanner/lib/auto/AutoBuilder.h>
 #include <pathplanner/lib/path/PathPoint.h>
 #include <pathplanner/lib/auto/NamedCommands.h>
-
-#include <frc/smartdashboard/Field2d.h>
 #include <pathplanner/lib/util/PathPlannerLogging.h>
+
+#include <cmath>
 
 frc::Field2d m_field;
 
 RobotContainer* RobotContainer::m_pThis = nullptr;
-
-constexpr double c_HolomonicTranslateP = 3.5;
-constexpr double c_HolomonicRotateP = 1.5;
 
 // Data for each tag position
 struct TagInfo
@@ -89,6 +89,7 @@ std::map<int, TagInfo> c_mapTagPoses
   , { 20, { { 212.48_in, 207.40_in, 240_deg }, { 206.85_in, 210.65_in, 240_deg }, { 201.22_in, 213.90_in, 240_deg } } }
   , { 21, { { 236.99_in, 152.00_in, 180_deg }, { 236.99_in, 158.50_in, 180_deg }, { 236.99_in, 165.00_in, 180_deg } } }
   , { 22, { { 201.22_in, 103.10_in, 120_deg }, { 206.85_in, 106.35_in, 120_deg }, { 212.48_in, 109.60_in, 120_deg } } }
+
 #if 0
 //    {  6, { { 541.49_in, 111.17_in, 120_deg }, { 541.49_in, 111.17_in, 120_deg }, { 541.49_in, 111.17_in, 120_deg } } }
 //  , { 10, { { 459.39_in, 158.5_in,    0_deg }, { 541.49_in, 111.17_in, 120_deg }, { 541.49_in, 111.17_in, 120_deg } } }
@@ -227,7 +228,8 @@ RobotContainer::RobotContainer()
           [this](auto initPose) { m_drive.ResetOdometry(initPose); }, // Function used to reset odometry at the beginning of auto
           [this]() { return m_drive.GetChassisSpeeds(); },
           [this](frc::ChassisSpeeds speeds) { m_drive.Drive(-speeds.vx, -speeds.vy, -speeds.omega, false); }, // Output function that accepts field relative ChassisSpeeds
-          std::make_shared<PPHolonomicDriveController>(PIDConstants(c_HolomonicTranslateP, 0.0, 0.0), PIDConstants(c_HolomonicRotateP, 0.0, 0.0)),
+          std::make_shared<PPHolonomicDriveController>(PIDConstants(DriveConstants::c_HolomonicTranslateP, 0.0, 0.0), 
+                                                       PIDConstants(DriveConstants::c_HolomonicRotateP, 0.0, 0.0)),
           m_drive.GetRobotCfg(),
           [this]() 
           {
@@ -253,7 +255,7 @@ RobotContainer::RobotContainer()
   frc::SmartDashboard::PutBoolean("RightSelected", false);
   frc::SmartDashboard::PutBoolean("LeftSelected", false);
   frc::SmartDashboard::PutNumber("MatchTime", frc::DriverStation::GetMatchTime().value());
-  SmartDashboard::PutNumber("PathTransP", c_HolomonicTranslateP);
+  SmartDashboard::PutNumber("PathTransP", DriveConstants::c_HolomonicTranslateP);
 
   // frc2::NetworkButton
   // (
@@ -301,33 +303,32 @@ void RobotContainer::AreWeInTheSweetSpot()
   Pose2d targetPose;
   if (GetTagPose(targetPose))
   {
-    auto currentX = m_drive.GetX();
-    auto currentY = m_drive.GetY();
+    //auto currentX = m_drive.GetX();
+    //auto currentY = m_drive.GetY();
 
-    units::length::meter_t targetX;
-    units::length::meter_t targetY;
-    units::angle::degree_t targetRot;
+    //units::length::meter_t targetX;
+    //units::length::meter_t targetY;
+    //units::angle::degree_t targetRot;
 
-    targetX = targetPose.X();
-    targetY = targetPose.Y();
-    targetRot = targetPose.Rotation().Degrees();
+    auto targetX = targetPose.X();
+    auto targetY = targetPose.Y();
+    auto targetRot = targetPose.Rotation().Degrees();
 
-    units::length::inch_t targetXin = targetX;
-    units::length::inch_t targetYin = targetY;
-    frc::SmartDashboard::PutNumber("targetX", targetXin.value());
-    frc::SmartDashboard::PutNumber("targetY", targetYin.value());
+    frc::SmartDashboard::PutNumber("targetX", targetX.value());
+    frc::SmartDashboard::PutNumber("targetY", targetY.value());
     frc::SmartDashboard::PutNumber("targetRot", targetRot.value());
 
     // Calculate the path length based on where we are and where we want to go
-    double xDelta = targetX.value() - currentX.value();
-    double yDelta = targetY.value() - currentY.value();
-    double pathLen = sqrt(xDelta * xDelta + yDelta * yDelta);
+    //double xDelta = targetX.value() - currentX.value();
+    //double yDelta = targetY.value() - currentY.value();
+//    double pathLen = sqrt(xDelta * xDelta + yDelta * yDelta);
+    double pathLen = m_drive.GetCurrentPose().Translation().Distance(targetPose.Translation()).value();
     m_dbvDistToTag.Put(pathLen);
 
-    m_dbv1Meter.Put(false);  
-    m_dbv2Meter.Put(false);  
-    m_dbv3Meter.Put(false);  
-    m_dbv4Meter.Put(false);  
+    m_dbv1Meter.Put(false);
+    m_dbv2Meter.Put(false);
+    m_dbv3Meter.Put(false);
+    m_dbv4Meter.Put(false);
 
     if (pathLen >= 4.0)
     {
@@ -367,6 +368,7 @@ bool RobotContainer::GetTagPose(Pose2d& tagPose)
   if (it != c_mapTagPoses.end())
   {
     tagPose = it->second.GetPose(m_sideSelected);
+
     return true;
   }
 
@@ -538,22 +540,10 @@ void RobotContainer::ConfigButtonBoxBindings()
   // │Black1 │White1 │ Red1  │Yellow3│        
   // │  LB   │   LT  │  RT   │  DL   │        
   // └───────┴───────┴───────┘───────┘  
-#ifdef PRACTICE_BINDINGS           
-  buttonBox.X().OnTrue(&m_elevL4);
-  buttonBox.Y().OnTrue(&m_elevL3);
-  buttonBox.RightBumper().OnTrue(&m_elevL2);
-  buttonBox.LeftBumper().OnTrue(frc2::SequentialCommandGroup{
-    m_setHighSpeedCmd
-    , ElevatorGoToCommand(*this, L2)
-    , WaitCommand(0.4_s)
-    , ElevatorGoToCommand(*this, L1)
-  }.ToPtr());
-#else
   buttonBox.X().OnTrue(&m_setL4);
   buttonBox.Y().OnTrue(&m_setL3);
   buttonBox.RightBumper().OnTrue(&m_setL2);
   buttonBox.LeftBumper().OnTrue(&m_setL1);
-#endif
 
 #define USE_SELECT_LEFT_RIGHT
 #ifdef USE_SELECT_LEFT_RIGHT
@@ -628,7 +618,7 @@ void RobotContainer::ConfigButtonBoxBindings()
 
 Command* RobotContainer::GetAutonomousCommand()
 {
-  printf("auto chosen %s\n", m_chooser.GetSelected()->GetName().c_str());
+  //printf("auto chosen %s\n", m_chooser.GetSelected()->GetName().c_str());
   return m_chooser.GetSelected();
 }
 
@@ -655,13 +645,30 @@ void RobotContainer::SetSideSelected(ESideSelected sideSelected)
 
 frc2::CommandPtr RobotContainer::GetFollowPathCommandImpl()
 {
-  auto p = SmartDashboard::GetNumber("PathTransP", c_HolomonicTranslateP);
+  Pose2d targetPose;
+  if (!GetTagPose(targetPose))
+  {
+    // TODO LEDs and alert message?
+    return frc2::PrintCommand("No tag being imaged right now").ToPtr();
+  }
+
+#ifdef USE_POSITION_PID
+  double pathLen = m_drive.GetCurrentPose().Translation().Distance(targetPose.Translation()).value();
+  if (pathLen < 0.01)   // 10cm ~ 4in
+  {
+      printf("pathLen %.3f running PositionPIDCommand\n", pathLen);
+      return PositionPIDCommand(*this, targetPose).ToPtr();
+  }
+#endif
+
+  auto p = SmartDashboard::GetNumber("PathTransP", DriveConstants::c_HolomonicTranslateP);
   return FollowPathCommand(
         GetOnTheFlyPath()
       , [this]() { return m_drive.GetPose(); } // Function to supply current robot pose
       , [this]() { return m_drive.GetChassisSpeeds(); }
       , [this](const frc::ChassisSpeeds& speeds, const DriveFeedforwards &dffs) { m_drive.Drive(speeds, dffs); } // Output function that accepts field relative ChassisSpeeds
-      , std::dynamic_pointer_cast<PathFollowingController>(std::make_shared<PPHolonomicDriveController>(PIDConstants(p, 0.0, 0.0), PIDConstants(c_HolomonicRotateP, 0.0, 0.0)))
+      , std::dynamic_pointer_cast<PathFollowingController>(std::make_shared<PPHolonomicDriveController>(PIDConstants(p, 0.0, 0.0), 
+                                                                                                        PIDConstants(DriveConstants::c_HolomonicRotateP, 0.0, 0.0)))
       , m_drive.GetRobotCfg()
       , [this]() {
             // Boolean supplier that controls when the path will be mirrored for the red alliance
@@ -674,29 +681,32 @@ frc2::CommandPtr RobotContainer::GetFollowPathCommandImpl()
             return false;
         },
         {&m_drive} // Drive requirements, usually just a single drive subsystem
-      ).ToPtr();
+      )
+#ifdef USE_POSITION_PID
+      .AndThen(
+        PositionPIDCommand(*this, targetPose).ToPtr()
+      );
+#else
+      .ToPtr();
+#endif
 }
 
 std::shared_ptr<PathPlannerPath> RobotContainer::GetOnTheFlyPath()
 {
   std::shared_ptr<PathPlannerPath> path;
+
   m_drive.SetSlowSpeed(true);
-  //auto currentX = m_drive.GetX();
-  //auto currentY = m_drive.GetY();
 
   units::length::meter_t targetX;
   units::length::meter_t targetY;
   units::angle::degree_t targetRot;
 
-  int tagId = m_vision.GetTagId(); // Returns -1 if no tag being imaged
-  auto it = c_mapTagPoses.find(tagId);
-  if (it == c_mapTagPoses.end())
+  Pose2d targetPose;
+  if (!GetTagPose(targetPose)) // GetTagPose returns false if no tag being imaged
   {
-    // TODO post a warning, log, etc.
-    return path;
+      return path;
   }
 
-  auto targetPose = it->second.GetPose(m_sideSelected);
   targetX = targetPose.X();
   targetY = targetPose.Y();
   targetRot = targetPose.Rotation().Degrees();
@@ -712,8 +722,6 @@ std::shared_ptr<PathPlannerPath> RobotContainer::GetOnTheFlyPath()
   double xDelta = targetX.value() - currentX.value();
   double yDelta = targetY.value() - currentY.value();
   
-  // double xDelta = targetX.value() - currentX.value();
-  // double yDelta = targetY.value() - currentY.value();
   units::velocity::meters_per_second_t xSpeed = m_drive.GetChassisSpeeds().vx;
   units::velocity::meters_per_second_t ySpeed = m_drive.GetChassisSpeeds().vy;
   double xSpeed2 = static_cast<double>(xSpeed);
@@ -729,9 +737,9 @@ std::shared_ptr<PathPlannerPath> RobotContainer::GetOnTheFlyPath()
   path = std::make_shared<PathPlannerPath>(
       PathPlannerPath::waypointsFromPoses(poses),
       m_pathConstraints,
-//      std::nullopt, // The ideal starting state, this is only relevant for pre-planned paths, so can be nullopt for on-the-fly paths.
+      // If the robot is already in motion this should prevent jerky behavior (see Spartronics 4915 https://docs.google.com/document/d/10if4xjAaETTceUVn7l4J-jOCOnm5CJUDS5RAVNIJMQM/edit)
       IdealStartingState(m_drive.GetSpeed(), currentPose.Rotation()),
-      GoalEndState(0.0_mps, frc::Rotation2d{ targetRot } )
+      GoalEndState(0.0_mps, targetPose.Rotation())
   );
 
   // Prevent the path from being flipped if the coordinates are already correct

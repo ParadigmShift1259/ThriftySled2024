@@ -18,12 +18,12 @@ CoralPrepCommand::CoralPrepCommand(ISubsystemAccess& subsystemAccess, ELevels co
 #endif
 
     wpi::log::DataLog& log = subsystemAccess.GetLogger();
-    m_logStartCoralPrepCommand = wpi::log::BooleanLogEntry(log, "/CoralPrepCommand/startCommand");
-    m_logCoralPrepCommandFlipped = wpi::log::BooleanLogEntry(log, "/CoralPrepCommand/startCommand");
+    m_logStartCommand = wpi::log::BooleanLogEntry(log, "/CoralPrepCommand/startCommand");
 }
 
 void CoralPrepCommand::Initialize()
 {
+    m_logStartCommand.Append(true);
     auto turns = frc::SmartDashboard::GetNumber("CoralRetractTurns", 3.25);
     m_timer.Reset();
     m_timer.Start();
@@ -36,12 +36,9 @@ void CoralPrepCommand::Initialize()
     m_ledSubsystem.SetCurrentAction(LEDSubsystem::kPreCoral);
     m_ledSubsystem.SetAnimation(c_colorPink, LEDSubsystem::kStrobe);  //TODO Replace constant color with var based on left/right & Set height based on level
 #endif
-#ifdef PRACTICE_BINDINGS
-    m_elevatorSubsystem.GoToPosition(m_coralLevel);
-#else
+
     m_elevatorSubsystem.GoToPresetLevel();
     m_coralLevel = m_elevatorSubsystem.GetPresetLevel();
-#endif
     m_coralEncPos = m_coralSubsystem.GetPosition() + turns;
     m_retract = true;
 }
@@ -53,7 +50,6 @@ void CoralPrepCommand::Execute()
         m_coralSubsystem.RetractCoral(m_coralLevel);
         m_retract = false;
     }
-
 }
 
 bool CoralPrepCommand::IsFinished()
@@ -67,4 +63,5 @@ void CoralPrepCommand::End(bool interrupted)
 #ifdef LED
     m_ledSubsystem.SetCurrentAction(LEDSubsystem::kIdle);
 #endif
+    m_logStartCommand.Append(false);
 }

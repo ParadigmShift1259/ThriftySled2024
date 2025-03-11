@@ -8,22 +8,21 @@
 
 class CoralEjectPostCommand: public frc2::CommandHelper<frc2::Command, CoralEjectPostCommand>
 {
-    public:
-        explicit CoralEjectPostCommand(ISubsystemAccess& subsystemAccess);
-        void Initialize() override;
-        void Execute() override;
-        bool IsFinished() override;
-        void End(bool interrupted) override;
+  public:
+    explicit CoralEjectPostCommand(ISubsystemAccess& subsystemAccess);
+    void Initialize() override;
+    void Execute() override;
+    bool IsFinished() override;
+    void End(bool interrupted) override;
 
-    private:
-        ElevatorSubsystem&                m_elevatorSubsystem;
-        DriveSubsystem&                   m_driveSubsystem;
+  private:
+    ElevatorSubsystem&         m_elevatorSubsystem;
+    DriveSubsystem&            m_driveSubsystem;
 #ifdef LED
-        LEDSubsystem&                     m_ledSubsystem;
+    LEDSubsystem&              m_ledSubsystem;
 #endif
 
-        frc::Timer m_timer;
+    frc::Timer m_timer;
 
-		wpi::log::BooleanLogEntry m_logStartCoralEjectPostCommand;
-		wpi::log::BooleanLogEntry m_logCoralEjectPostCommandFlipped;
+    wpi::log::BooleanLogEntry m_logStartCommand;
 };

@@ -102,7 +102,7 @@ void ElevatorSubsystem::Periodic()
     static double lastI = 0.0;
     static double lastD = 0.0;
     static double lastFF = 0.0;
-    static double lastRampRate = 0.0;
+    //static double lastRampRate = 0.0;
 
     auto pDown = frc::Preferences::GetDouble("ElevatorPosDownP", c_defaultElevatorDownP);
     auto pUp = frc::Preferences::GetDouble("ElevatorPosUpP", c_defaultElevatorUpP);

@@ -7,7 +7,6 @@
 #include <numbers>
 
 #define LED
-//#define PRACTICE_BINDINGS
 
 constexpr double c_turnGearRatio = 25.0;
 
@@ -20,6 +19,9 @@ namespace DriveConstants
 {
     inline constexpr double kTurnVoltageToRadians = 2.0 * std::numbers::pi / 4.78;    // Absolute encoder runs 0 to 4.78V
     inline constexpr double KTurnVoltageToDegrees = 360 / 4.78;
+
+    inline constexpr double c_HolomonicTranslateP = 3.5;
+    inline constexpr double c_HolomonicRotateP = 1.5;
 }
 
 namespace OperatorConstants

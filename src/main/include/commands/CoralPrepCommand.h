@@ -6,7 +6,7 @@
 #include "ISubsystemAccess.h"
 
 
-class CoralPrepCommand: public frc2::CommandHelper<frc2::Command, CoralPrepCommand>
+class CoralPrepCommand : public frc2::CommandHelper<frc2::Command, CoralPrepCommand>
 {
     public:
         explicit CoralPrepCommand(ISubsystemAccess& subsystemAccess, ELevels coralLevel);
@@ -29,6 +29,5 @@ class CoralPrepCommand: public frc2::CommandHelper<frc2::Command, CoralPrepComma
         bool m_retract = true;
         bool m_blocked = false;
 
-		wpi::log::BooleanLogEntry m_logStartCoralPrepCommand;
-		wpi::log::BooleanLogEntry m_logCoralPrepCommandFlipped;
+		wpi::log::BooleanLogEntry m_logStartCommand;
 };
