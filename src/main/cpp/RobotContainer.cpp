@@ -681,8 +681,8 @@ std::shared_ptr<PathPlannerPath> RobotContainer::GetOnTheFlyPath()
 {
   std::shared_ptr<PathPlannerPath> path;
   m_drive.SetSlowSpeed(true);
-  auto currentX = m_drive.GetX();
-  auto currentY = m_drive.GetY();
+  //auto currentX = m_drive.GetX();
+  //auto currentY = m_drive.GetY();
 
   units::length::meter_t targetX;
   units::length::meter_t targetY;
@@ -706,23 +706,31 @@ std::shared_ptr<PathPlannerPath> RobotContainer::GetOnTheFlyPath()
   frc::SmartDashboard::PutNumber("targetRot", targetRot.value());
 
   // Calculate the heading (tanAngle) based on where we are and where we want to go
+  auto currentPose = m_drive.GetCurrentPose();
+  auto currentX = currentPose.X();
+  auto currentY = currentPose.Y();
   double xDelta = targetX.value() - currentX.value();
   double yDelta = targetY.value() - currentY.value();
+  
+  // double xDelta = targetX.value() - currentX.value();
+  // double yDelta = targetY.value() - currentY.value();
   units::velocity::meters_per_second_t xSpeed = m_drive.GetChassisSpeeds().vx;
   units::velocity::meters_per_second_t ySpeed = m_drive.GetChassisSpeeds().vy;
   double xSpeed2 = static_cast<double>(xSpeed);
   double ySpeed2 = static_cast<double>(ySpeed);
-  frc::Rotation2d(xSpeed2, ySpeed2);
+  auto startRot = frc::Rotation2d(xSpeed2, ySpeed2);
   auto tanAngle = units::angle::degree_t{atan(yDelta / xDelta) * 180.0 / std::numbers::pi};
   //printf("tanAngle %.3f\n", tanAngle);
-  std::vector<frc::Pose2d> poses {  frc::Pose2d { currentX, currentY, frc::Rotation2d(xSpeed2, ySpeed2) } // USED TO BE tanAngle
+//  std::vector<frc::Pose2d> poses {  frc::Pose2d { currentX, currentY, frc::Rotation2d(xSpeed2, ySpeed2) } // USED TO BE tanAngle
+  std::vector<frc::Pose2d> poses {  frc::Pose2d { currentX, currentY, startRot } // USED TO BE tanAngle
                                   , frc::Pose2d { targetX, targetY, targetRot }
   };
 
   path = std::make_shared<PathPlannerPath>(
       PathPlannerPath::waypointsFromPoses(poses),
       m_pathConstraints,
-      std::nullopt, // The ideal starting state, this is only relevant for pre-planned paths, so can be nullopt for on-the-fly paths.
+//      std::nullopt, // The ideal starting state, this is only relevant for pre-planned paths, so can be nullopt for on-the-fly paths.
+      IdealStartingState(m_drive.GetSpeed(), currentPose.Rotation()),
       GoalEndState(0.0_mps, frc::Rotation2d{ targetRot } )
   );
 

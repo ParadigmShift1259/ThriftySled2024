@@ -244,6 +244,15 @@ frc::ChassisSpeeds DriveSubsystem::GetChassisSpeeds()
   return m_kinematics.ToChassisSpeeds({m_frontLeft.GetState(), m_frontRight.GetState(), m_rearLeft.GetState(), m_rearRight.GetState()});
 }
 
+units::velocity::meters_per_second_t DriveSubsystem::GetSpeed()
+{
+    frc::ChassisSpeeds robotRelativeSpeeds = m_kinematics.ToChassisSpeeds(GetModuleStates());
+    frc::ChassisSpeeds fieldVelocity = frc::ChassisSpeeds::FromRobotRelativeSpeeds(robotRelativeSpeeds, m_poseEstimator.GetEstimatedPosition().Rotation());
+    auto vx = fieldVelocity.vx.value();
+    auto vy = fieldVelocity.vy.value();
+    return units::velocity::meters_per_second_t {sqrt(vx * vx + vy * vy)};
+}
+
 void DriveSubsystem::ResyncAbsRelEnc()
 {
   m_frontLeft.ResyncAbsRelEnc();
