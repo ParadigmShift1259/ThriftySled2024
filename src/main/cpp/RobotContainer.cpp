@@ -48,6 +48,19 @@ constexpr double c_HolomonicRotateP = 1.5;
 // Data for each tag position
 struct TagInfo
 {
+  TagInfo(double targetRot
+        , double leftX
+        , double leftY
+        , double midX
+        , double midY
+        , double rightX
+        , double rightY)
+    : m_poseLeft(units::length::meter_t{leftX}, units::length::meter_t{leftY}, units::angle::degree_t{targetRot})
+    , m_poseMid(units::length::meter_t{midX}, units::length::meter_t{midY}, units::angle::degree_t{targetRot})
+    , m_poseRight(units::length::meter_t{rightX}, units::length::meter_t{rightY}, units::angle::degree_t{targetRot})
+  {
+  }
+
   Pose2d m_poseLeft;
   Pose2d m_poseMid;
   Pose2d m_poseRight;
@@ -67,13 +80,41 @@ struct TagInfo
   }
 };
 
+ //ID X Y Z Z-Rotation Y-Rotation
+//  1 657.37 25.80 58.50 126 0
+//  2 657.37 291.20 58.50 234 0
+//  3 455.15 317.15 51.25 270 0
+//  4 365.20 241.64 73.54 0 30
+//  5 365.20 75.39 73.54 0 30
+//  12 33.51 25.80 58.50 54 0
+//  13 33.51 291.20 58.50 306 0
+//  14 325.68 241.64 73.54 180 30
+//  15 325.68 75.39 73.54 180 30
+//  16 235.73-0.15 51.25 90 0
+std::map<int, Pose2d> c_mapTagLocations
+{
+    {  6, { 530.49_in, 130.17_in, 300_deg } }
+  , {  7, { 546.87_in, 158.50_in,   0_deg } }
+  , {  8, { 530.49_in, 186.83_in,  60_deg } }
+  , {  9, { 497.77_in, 186.83_in, 120_deg } }
+  , { 10, { 481.39_in, 158.50_in, 180_deg } }
+  , { 11, { 497.77_in, 130.17_in, 240_deg } }
+  , { 17, { 160.39_in, 130.17_in, 240_deg } }
+  , { 18, { 144.00_in, 158.50_in, 180_deg } }
+  , { 19, { 160.39_in, 186.83_in, 120_deg } }
+  , { 20, { 193.10_in, 186.83_in,  60_deg } }
+  , { 21, { 209.49_in, 158.50_in,   0_deg } }
+  , { 22, { 193.10_in, 130.17_in, 300_deg } } 
+};
+
 // Calculated target poses in spreadsheet given the April tag locations in sheet 4 of https://firstfrc.blob.core.windows.net/frc2025/FieldAssets/2025FieldDrawings-FieldLayoutAndMarking.pdf
 // ID	      X	   Y    Z-Rot  AdjAng      Sin         Cos         DeltaX        DeltaY        MidX MidY ReefOffsetX    ReefOffsetY    LeftX    LeftY    RightX   RightY
 //  6 to 11	TagX TagY TagRot TagRot + 90 sin(AdjAng) cos(AdjAng) 22sin(AdjAng) 22cos(AdjAng) X+dX Y+dy 6.5cos(AdjAng) 6.5sin(AdjAng) MidX-ROX MidY+ROY MidX+ROX MidY-ROY
 //    or
 // 17 to 22
 
-std::map<int, TagInfo> c_mapTagPoses
+std::map<int, TagInfo> c_mapTagPoses;
+#if 0
 {
   // Offset from tag position 27.5 inches 
   // Tag ID   Left Pose                          Middle Pose                        Right Pose
@@ -89,7 +130,7 @@ std::map<int, TagInfo> c_mapTagPoses
   , { 20, { { 212.48_in, 207.40_in, 240_deg }, { 206.85_in, 210.65_in, 240_deg }, { 201.22_in, 213.90_in, 240_deg } } }
   , { 21, { { 236.99_in, 152.00_in, 180_deg }, { 236.99_in, 158.50_in, 180_deg }, { 236.99_in, 165.00_in, 180_deg } } }
   , { 22, { { 201.22_in, 103.10_in, 120_deg }, { 206.85_in, 106.35_in, 120_deg }, { 212.48_in, 109.60_in, 120_deg } } }
-#if 0
+
 //    {  6, { { 541.49_in, 111.17_in, 120_deg }, { 541.49_in, 111.17_in, 120_deg }, { 541.49_in, 111.17_in, 120_deg } } }
 //  , { 10, { { 459.39_in, 158.5_in,    0_deg }, { 541.49_in, 111.17_in, 120_deg }, { 541.49_in, 111.17_in, 120_deg } } }
     {  6, { { 535.86_in, 107.87_in, 120_deg }, { 541.49_in, 111.12_in, 120_deg }, { 547.12_in, 114.37_in, 120_deg } } }
@@ -106,8 +147,8 @@ std::map<int, TagInfo> c_mapTagPoses
   , { 20, { { 209.73_in, 202.63_in, 240_deg }, { 204.10_in, 205.88_in, 240_deg }, { 198.47_in, 209.13_in, 240_deg } } }
   , { 21, { { 231.49_in, 152.00_in, 180_deg }, { 231.49_in, 158.50_in, 180_deg }, { 231.49_in, 165.00_in, 180_deg } } }
   , { 22, { { 198.47_in, 107.87_in, 120_deg }, { 204.10_in, 111.12_in, 120_deg }, { 209.73_in, 114.37_in, 120_deg } } }
-#endif
 };
+#endif
 
 // Configure the button bindings
 RobotContainer::RobotContainer() 
@@ -268,6 +309,74 @@ RobotContainer::RobotContainer()
       frc2::cmd::RunOnce([this] { if (m_runIntakeStartup) StartUp(); m_runIntakeStartup = false; }, {}
     )
   );
+
+  CalcTargetPoses();
+  PrintTargetPoses();
+}
+
+void RobotContainer::CalcTargetPoses()
+{
+  constexpr units::length::meter_t c_reefOffset = 25.0_in;
+  constexpr units::length::meter_t c_leftRightOffset = 6.5_in;
+
+  for (auto tagLoc : c_mapTagLocations)
+  {
+    int tagId = tagLoc.first;
+    auto& tagPose = tagLoc.second;
+
+    auto thetaDeg = fmod((tagPose.Rotation().Degrees().value() + 90.0), 360.0);
+    double thetaRads = thetaDeg * std::numbers::pi / 180.0;
+ 
+    double midX = tagPose.X().value() + c_reefOffset.value() * sin(thetaRads);
+    double midY = tagPose.Y().value() - c_reefOffset.value() * cos(thetaRads);
+    double targetRot = fmod((tagPose.Rotation().Degrees().value() + 180.0), 360.0);
+    
+    // Note order of x/y and sin/cos reversed from previous calculation
+    double leftRightOffsetX = c_leftRightOffset.value() * cos(thetaRads);
+    double leftRightOffsetY = c_leftRightOffset.value() * sin(thetaRads);
+    
+    double leftX = midX + leftRightOffsetX;
+    double leftY = midY + leftRightOffsetY;
+    
+    double rightX = midX - leftRightOffsetX;
+    double rightY = midY - leftRightOffsetY;
+
+    TagInfo ti(targetRot, leftX, leftY, midX, midY, rightX, rightY);
+    c_mapTagPoses.emplace(std::make_pair(tagId, ti));
+  }
+}
+
+void RobotContainer::PrintTargetPoses()
+{
+  constexpr double c_reefOffset = 22.0;
+
+  for (auto pair : c_mapTagPoses)
+  {
+    int tagId = pair.first;
+    auto& ti = pair.second;
+
+    printf(" left %.2f, %.2f, %.2f ", ti.m_poseLeft.X().value(), ti.m_poseLeft.Y().value(), ti.m_poseLeft.Rotation().Degrees().value());
+    printf("  mid %.2f, %.2f, %.2f ", ti.m_poseMid.X().value(), ti.m_poseMid.Y().value(), ti.m_poseMid.Rotation().Degrees().value());
+    printf("right %.2f, %.2f, %.2f\n", ti.m_poseRight.X().value(), ti.m_poseRight.Y().value(), ti.m_poseRight.Rotation().Degrees().value());
+  }
+
+
+  printf("\n");
+  for (auto pair : c_mapTagPoses)
+  {
+    int tagId = pair.first;
+    auto& ti = pair.second;
+
+    units::length::inch_t lx = ti.m_poseLeft.X();
+    units::length::inch_t ly = ti.m_poseLeft.Y();
+    printf(" left %.2f, %.2f, %.2f ", lx.value(), ly.value(), ti.m_poseLeft.Rotation().Degrees().value());
+    units::length::inch_t mx = ti.m_poseMid.X();
+    units::length::inch_t my = ti.m_poseMid.Y();
+    printf("  mid %.2f, %.2f, %.2f ", mx.value(), my.value(), ti.m_poseMid.Rotation().Degrees().value());
+    units::length::inch_t rx = ti.m_poseRight.X();
+    units::length::inch_t ry = ti.m_poseRight.Y();
+    printf("right %.2f, %.2f, %.2f\n", rx.value(), ry.value(), ti.m_poseRight.Rotation().Degrees().value());
+  }
 }
 
 void RobotContainer::Periodic()

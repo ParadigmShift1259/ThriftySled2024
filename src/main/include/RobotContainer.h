@@ -86,6 +86,8 @@ class RobotContainer : public ISubsystemAccess
   bool GetTagPose(Pose2d& tagPose);
   void AreWeInTheSweetSpot();
   void SetSideSelected(ESideSelected sideSelected);
+  void CalcTargetPoses();
+  void PrintTargetPoses();
 
   // Used for OnTheFlyPaths, the FollowPathCommand wants a free function to build the path
   // This trick converts a static member fucntion into a call to an instance function
