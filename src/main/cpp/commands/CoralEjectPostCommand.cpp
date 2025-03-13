@@ -21,6 +21,8 @@ CoralEjectPostCommand::CoralEjectPostCommand(ISubsystemAccess& subsystemAccess)
 
 void CoralEjectPostCommand::Initialize()
 {
+    printf("CoralEjectPostCommand::Initialize\n");
+
     m_logStartCommand.Append(true);
     m_timer.Reset();
     m_timer.Start();
@@ -42,7 +44,8 @@ bool CoralEjectPostCommand::IsFinished()
 
 void CoralEjectPostCommand::End(bool interrupted)
 {
-    m_elevatorSubsystem.Stop();
+   printf("CoralEjectPostCommand::End\n");
+   m_elevatorSubsystem.Stop();
     m_driveSubsystem.Stop();
     m_logStartCommand.Append(false);
 }

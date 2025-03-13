@@ -79,6 +79,7 @@ class RobotContainer : public ISubsystemAccess
   void ConfigPrimaryButtonBindings();
   void ConfigSecondaryButtonBindings();
 #define USE_BUTTON_BOX
+// #define USE_POSITION_PID
 #ifdef USE_BUTTON_BOX
   void ConfigButtonBoxBindings();
 #endif
@@ -204,6 +205,7 @@ class RobotContainer : public ISubsystemAccess
   std::shared_ptr<PathPlannerPath> m_path;
 
   frc::Timer m_timer; // For bringing the intake down after popping the pin
+  Pose2d m_targetPose;
 
 	wpi::log::DoubleLogEntry m_logRobotPoseX;
 	wpi::log::DoubleLogEntry m_logRobotPoseY;

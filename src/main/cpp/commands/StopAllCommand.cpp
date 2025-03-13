@@ -34,8 +34,8 @@ void StopAllCommand::Initialize()
   //m_climbSubsystem(subsystemAccess.GetClimber())
   m_drive.Stop();
 #ifdef LED
-  m_led.SetAnimation(m_led.GetDefaultColor(), LEDSubsystem::kSolid);
-  m_led.SetCurrentAction(LEDSubsystem::ECurrentAction::kIdle);
+  // m_led.SetAnimation(m_led.GetDefaultColor(), LEDSubsystem::kSolid);
+  // m_led.SetCurrentAction(LEDSubsystem::ECurrentAction::kIdle);
 #endif
   // TODO scheduler cancel???
 }

@@ -203,6 +203,7 @@ double ElevatorSubsystem::GetPositionForLevel(ELevels eLevel)
 
 void ElevatorSubsystem::GoToPosition(ELevels eLevel)
 {
+    SetPresetLevel(eLevel);
     GoToPosition(GetPositionForLevel(eLevel));  
 }
 

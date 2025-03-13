@@ -22,9 +22,6 @@ class PositionPIDCommand : public frc2::CommandHelper<frc2::Command, PositionPID
 
   private:
     DriveSubsystem&             m_driveSubsystem;
-#ifdef LED
-    LEDSubsystem&               m_ledSubsystem;
-#endif
     PathPlannerTrajectoryState  m_goalState;
     PPHolonomicDriveController  m_driveController{ PIDConstants(DriveConstants::c_HolomonicTranslateP, 0.0, 0.0), 
                                                    PIDConstants(DriveConstants::c_HolomonicRotateP, 0.0, 0.0) };

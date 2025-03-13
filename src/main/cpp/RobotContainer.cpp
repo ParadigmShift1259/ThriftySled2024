@@ -131,7 +131,6 @@ std::map<int, TagInfo> c_mapTagPoses;
   , { 21, { { 236.99_in, 152.00_in, 180_deg }, { 236.99_in, 158.50_in, 180_deg }, { 236.99_in, 165.00_in, 180_deg } } }
   , { 22, { { 201.22_in, 103.10_in, 120_deg }, { 206.85_in, 106.35_in, 120_deg }, { 212.48_in, 109.60_in, 120_deg } } }
 
-#if 0
 //    {  6, { { 541.49_in, 111.17_in, 120_deg }, { 541.49_in, 111.17_in, 120_deg }, { 541.49_in, 111.17_in, 120_deg } } }
 //  , { 10, { { 459.39_in, 158.5_in,    0_deg }, { 541.49_in, 111.17_in, 120_deg }, { 541.49_in, 111.17_in, 120_deg } } }
     {  6, { { 535.86_in, 107.87_in, 120_deg }, { 541.49_in, 111.12_in, 120_deg }, { 547.12_in, 114.37_in, 120_deg } } }
@@ -160,6 +159,16 @@ RobotContainer::RobotContainer()
 {
 
   NamedCommands::registerCommand("RaiseL3", std::move(frc2::SequentialCommandGroup{m_setL3, m_elevL3}.ToPtr()));
+
+    NamedCommands::registerCommand("PlaceL2", std::move(
+    frc2::SequentialCommandGroup{
+      m_setL2
+    , CoralPrepCommand(*this, L4)
+    , WaitCommand(0.75_s)
+    , CoralEjectCommand(*this)
+    , WaitCommand(0.25_s)
+    , CoralEjectPostCommand(*this)
+    }.ToPtr()));
   
   NamedCommands::registerCommand("PlaceL4", std::move(
     frc2::SequentialCommandGroup{
@@ -320,7 +329,7 @@ RobotContainer::RobotContainer()
 
 void RobotContainer::CalcTargetPoses()
 {
-  constexpr units::length::meter_t c_reefOffset = 25.0_in;
+  constexpr units::length::meter_t c_reefOffset = 24.0_in;
   constexpr units::length::meter_t c_leftRightOffset = 6.5_in;
 
   for (auto tagLoc : c_mapTagLocations)
@@ -337,12 +346,12 @@ void RobotContainer::CalcTargetPoses()
     
     // Note order of x/y and sin/cos reversed from previous calculation
     double leftRightOffsetX = c_leftRightOffset.value() * cos(thetaRads);
-    double leftRightOffsetY = c_leftRightOffset.value() * sin(thetaRads);
+    double leftRightOffsetY = -c_leftRightOffset.value() * sin(thetaRads);
     
-    double leftX = midX + leftRightOffsetX;
+    double leftX = midX - leftRightOffsetX;
     double leftY = midY + leftRightOffsetY;
     
-    double rightX = midX - leftRightOffsetX;
+    double rightX = midX + leftRightOffsetX;
     double rightY = midY - leftRightOffsetY;
 
     TagInfo ti(targetRot, leftX, leftY, midX, midY, rightX, rightY);
@@ -352,13 +361,14 @@ void RobotContainer::CalcTargetPoses()
 
 void RobotContainer::PrintTargetPoses()
 {
-  constexpr double c_reefOffset = 22.0;
+  // constexpr double c_reefOffset = 22.0;
 
   for (auto pair : c_mapTagPoses)
   {
     int tagId = pair.first;
     auto& ti = pair.second;
 
+    printf("In meters Tag %d ", tagId);
     printf(" left %.2f, %.2f, %.2f ", ti.m_poseLeft.X().value(), ti.m_poseLeft.Y().value(), ti.m_poseLeft.Rotation().Degrees().value());
     printf("  mid %.2f, %.2f, %.2f ", ti.m_poseMid.X().value(), ti.m_poseMid.Y().value(), ti.m_poseMid.Rotation().Degrees().value());
     printf("right %.2f, %.2f, %.2f\n", ti.m_poseRight.X().value(), ti.m_poseRight.Y().value(), ti.m_poseRight.Rotation().Degrees().value());
@@ -371,6 +381,7 @@ void RobotContainer::PrintTargetPoses()
     int tagId = pair.first;
     auto& ti = pair.second;
 
+    printf("In inches Tag %d ", tagId);
     units::length::inch_t lx = ti.m_poseLeft.X();
     units::length::inch_t ly = ti.m_poseLeft.Y();
     printf(" left %.2f, %.2f, %.2f ", lx.value(), ly.value(), ti.m_poseLeft.Rotation().Degrees().value());
@@ -677,7 +688,6 @@ void RobotContainer::ConfigButtonBoxBindings()
   buttonBox.B().OnTrue(frc2::SequentialCommandGroup{
       m_elevL1
     , CoralIntakeCommand(*this)
-    , m_setL3
     , m_elevL3
   }.ToPtr());
   buttonBox.Start().OnTrue(&m_elevL3_4);
@@ -701,6 +711,24 @@ void RobotContainer::ConfigButtonBoxBindings()
 
   buttonBox.POVUp().OnTrue(&m_ClimberDeployRelUp);
   buttonBox.POVDown().OnTrue(&m_ClimberDeployRelDown);
+  buttonBox.POVRight().OnTrue(frc2::SequentialCommandGroup{
+      m_setHighSpeedCmd
+    , CoralPrepCommand(*this, L4)
+    , ConditionalCommand (InstantCommand{[this] {m_coral.DeployManipulator(); }, {&m_coral} }, 
+                          InstantCommand{[this] {m_coral.RetractManipulator(); }, {&m_coral} }, 
+                                         [this](){return m_elevator.GetPresetLevel() == L4;})
+    , WaitCommand(0.75_s)
+    , CoralEjectCommand(*this)
+    , WaitCommand(0.25_s)
+    , CoralEjectPostCommand(*this)
+    , m_elevL1
+  }.ToPtr());
+
+  buttonBox.POVLeft().OnTrue(frc2::SequentialCommandGroup{
+        m_setHighSpeedCmd
+      , DeferredCommand(GetFollowPathCommand, {&m_drive} )
+      , PositionPIDCommand(*this, m_targetPose)  
+  }.ToPtr());
 
   // Wiring
   // See Game Pad 2040 project https://gp2040-ce.info/introduction
@@ -754,13 +782,14 @@ void RobotContainer::SetSideSelected(ESideSelected sideSelected)
 
 frc2::CommandPtr RobotContainer::GetFollowPathCommandImpl()
 {
-  Pose2d targetPose;
+  Pose2d& targetPose = m_targetPose;
   if (!GetTagPose(targetPose))
   {
     // TODO LEDs and alert message?
     return frc2::PrintCommand("No tag being imaged right now").ToPtr();
   }
 
+#define USE_POSITION_PID
 #ifdef USE_POSITION_PID
   double pathLen = m_drive.GetCurrentPose().Translation().Distance(targetPose.Translation()).value();
   if (pathLen < 0.01)   // 10cm ~ 4in
@@ -771,7 +800,9 @@ frc2::CommandPtr RobotContainer::GetFollowPathCommandImpl()
 #endif
 
   auto p = SmartDashboard::GetNumber("PathTransP", DriveConstants::c_HolomonicTranslateP);
-  return FollowPathCommand(
+#ifdef USE_POSITION_PID_IN_SEQ
+  return frc2::SequentialCommandGroup(
+    FollowPathCommand(
         GetOnTheFlyPath()
       , [this]() { return m_drive.GetPose(); } // Function to supply current robot pose
       , [this]() { return m_drive.GetChassisSpeeds(); }
@@ -791,12 +822,29 @@ frc2::CommandPtr RobotContainer::GetFollowPathCommandImpl()
         },
         {&m_drive} // Drive requirements, usually just a single drive subsystem
       )
-#ifdef USE_POSITION_PID
-      .AndThen(
-        PositionPIDCommand(*this, targetPose).ToPtr()
-      );
+    , PositionPIDCommand(*this, targetPose)
+  ).ToPtr();
 #else
-      .ToPtr();
+  return FollowPathCommand(
+        GetOnTheFlyPath()
+      , [this]() { return m_drive.GetPose(); } // Function to supply current robot pose
+      , [this]() { return m_drive.GetChassisSpeeds(); }
+      , [this](const frc::ChassisSpeeds& speeds, const DriveFeedforwards &dffs) { m_drive.Drive(speeds, dffs); } // Output function that accepts field relative ChassisSpeeds
+      , std::dynamic_pointer_cast<PathFollowingController>(std::make_shared<PPHolonomicDriveController>(PIDConstants(p, 0.0, 0.0), 
+                                                                                                        PIDConstants(DriveConstants::c_HolomonicRotateP, 0.0, 0.0)))
+      , m_drive.GetRobotCfg()
+      , [this]() {
+            // Boolean supplier that controls when the path will be mirrored for the red alliance
+            // This will flip the path being followed to the red side of the field.
+            // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+            auto alliance = DriverStation::GetAlliance();
+            if (alliance) {
+                return alliance.value() == DriverStation::Alliance::kRed;
+            }
+            return false;
+        },
+        {&m_drive} // Drive requirements, usually just a single drive subsystem
+      ).ToPtr();
 #endif
 }
 
@@ -828,15 +876,15 @@ std::shared_ptr<PathPlannerPath> RobotContainer::GetOnTheFlyPath()
   auto currentPose = m_drive.GetCurrentPose();
   auto currentX = currentPose.X();
   auto currentY = currentPose.Y();
-  double xDelta = targetX.value() - currentX.value();
-  double yDelta = targetY.value() - currentY.value();
+  //double xDelta = targetX.value() - currentX.value();
+  //double yDelta = targetY.value() - currentY.value();
   
   units::velocity::meters_per_second_t xSpeed = m_drive.GetChassisSpeeds().vx;
   units::velocity::meters_per_second_t ySpeed = m_drive.GetChassisSpeeds().vy;
   double xSpeed2 = static_cast<double>(xSpeed);
   double ySpeed2 = static_cast<double>(ySpeed);
   auto startRot = frc::Rotation2d(xSpeed2, ySpeed2);
-  auto tanAngle = units::angle::degree_t{atan(yDelta / xDelta) * 180.0 / std::numbers::pi};
+  //auto tanAngle = units::angle::degree_t{atan(yDelta / xDelta) * 180.0 / std::numbers::pi};
   //printf("tanAngle %.3f\n", tanAngle);
 //  std::vector<frc::Pose2d> poses {  frc::Pose2d { currentX, currentY, frc::Rotation2d(xSpeed2, ySpeed2) } // USED TO BE tanAngle
   std::vector<frc::Pose2d> poses {  frc::Pose2d { currentX, currentY, startRot } // USED TO BE tanAngle

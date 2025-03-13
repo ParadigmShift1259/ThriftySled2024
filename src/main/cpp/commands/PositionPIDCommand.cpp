@@ -8,23 +8,18 @@ constexpr units::velocity::meters_per_second_t c_SpeedTolerance{ 0.021_fps };   
 
 PositionPIDCommand::PositionPIDCommand(ISubsystemAccess& subsystemAccess, Pose2d goalPose)
     : m_driveSubsystem(subsystemAccess.GetDrive())
-#ifdef LED
-    , m_ledSubsystem(subsystemAccess.GetLED())
-#endif
 {
     m_goalState.pose = goalPose;
 
-#ifdef LED
-    AddRequirements(frc2::Requirements{&subsystemAccess.GetDrive(), &subsystemAccess.GetLED()});
-#else
     AddRequirements(frc2::Requirements{&subsystemAccess.GetDrive()});
-#endif
+
     wpi::log::DataLog& log = subsystemAccess.GetLogger();
     m_logStartCommand = wpi::log::BooleanLogEntry(log, "/PositionPIDCommand/startCommand");
 }
 
 void PositionPIDCommand::Initialize()
 {
+    printf("PositionPIDCommand::Initialize\n");
     m_logStartCommand.Append(true);
     m_timer.Reset();
     m_timer.Start();
@@ -61,13 +56,14 @@ bool PositionPIDCommand::IsFinished()
 //#define BOOL_STR(b) b ? "true" : "false"
  //   printf("PositionPIDCommand end conditions Rot: %s Pos: %s Spd: %s\n", BOOL_STR(rotationOk), BOOL_STR(positionOk), BOOL_STR(speedOk));
     
-    return (rotationOk && positionOk && speedOk) || m_timer.HasElapsed(0.150_s);    // 0.075 sec => 3 or 4 20ms periodic cycles
-//    return (rotationOk && positionOk && speedOk) || m_timer.HasElapsed(0.075_s);    // 0.075 sec => 3 or 4 20ms periodic cycles
+//    return (rotationOk && positionOk && speedOk) || m_timer.HasElapsed(0.150_s);    // 0.075 sec => 3 or 4 20ms periodic cycles
+    return (rotationOk && positionOk && speedOk) || m_timer.HasElapsed(0.075_s);    // 0.075 sec => 3 or 4 20ms periodic cycles
     //     endTriggerDebounced = endTrigger.debounce(kEndTriggerDebounce.in(Seconds));
 }
 
 void PositionPIDCommand::End(bool interrupted)
 {
+    printf("PositionPIDCommand::End\n");
     m_driveSubsystem.Stop();
     m_logStartCommand.Append(false);
 }
