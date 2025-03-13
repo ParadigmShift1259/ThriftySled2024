@@ -9,6 +9,8 @@
 
 #include <units/math.h>
 
+#include <cmath>  // For sqrt
+
 constexpr units::kilogram_t c_RobotMass = 140_lb;
 constexpr units::kilogram_square_meter_t c_MOI = (c_RobotMass * (0.7903212_sq_m + 0.7903212_sq_m)) / 12.0;
 
@@ -241,7 +243,16 @@ frc::Pose2d DriveSubsystem::GetPose()
 
 frc::ChassisSpeeds DriveSubsystem::GetChassisSpeeds()
 {
-  return m_kinematics.ToChassisSpeeds({m_frontLeft.GetState(), m_frontRight.GetState(), m_rearLeft.GetState(), m_rearRight.GetState()});
+  return m_kinematics.ToChassisSpeeds(GetModuleStates());
+}
+
+units::velocity::meters_per_second_t DriveSubsystem::GetSpeed()
+{
+    frc::ChassisSpeeds robotRelativeSpeeds = m_kinematics.ToChassisSpeeds(GetModuleStates());
+    frc::ChassisSpeeds fieldVelocity = frc::ChassisSpeeds::FromRobotRelativeSpeeds(robotRelativeSpeeds, m_poseEstimator.GetEstimatedPosition().Rotation());
+    auto vx = fieldVelocity.vx.value();
+    auto vy = fieldVelocity.vy.value();
+    return units::velocity::meters_per_second_t {sqrt(vx * vx + vy * vy)};
 }
 
 void DriveSubsystem::ResyncAbsRelEnc()

@@ -82,8 +82,10 @@ public:
   units::degree_t GetPitch() override { return m_gyro.GetPitch(); }
   frc::Pose2d GetPose() override;
   frc::ChassisSpeeds GetChassisSpeeds() override;
+  units::velocity::meters_per_second_t GetSpeed();
   void SetModuleStates(SwerveModuleStates desiredStates) override;
 
+  frc::Pose2d GetCurrentPose() { return m_poseEstimator.GetEstimatedPosition(); }
   units::length::meter_t GetX() override { return m_poseEstimator.GetEstimatedPosition().X(); }
   units::length::meter_t GetY() override { return m_poseEstimator.GetEstimatedPosition().Y(); }
 
@@ -123,6 +125,7 @@ public:
 
 private:
   void SetAllDesiredState(frc::SwerveModuleState& sms);
+  wpi::array<frc::SwerveModuleState, 4> GetModuleStates() { return {m_frontLeft.GetState(), m_frontRight.GetState(), m_rearLeft.GetState(), m_rearRight.GetState()}; }
 
   static constexpr auto kTrackWidth = 24_in;
   static constexpr auto kWheelBase = 24_in;
