@@ -386,7 +386,7 @@ void RobotContainer::SetDefaultCommands()
       {
         // const double kDeadband = 0.02;
         constexpr double kDeadband = 0.02;
-		    constexpr double direction = 1.0;
+		    constexpr double direction = -1.0;
 
         const auto xInput = direction* ApplyDeadband(m_primaryController.GetLeftY(), kDeadband);
         const auto yInput = direction * ApplyDeadband(m_primaryController.GetLeftX(), kDeadband);
@@ -568,7 +568,6 @@ void RobotContainer::ConfigButtonBoxBindings()
   buttonBox.B().OnTrue(frc2::SequentialCommandGroup{
       m_elevL1
     , CoralIntakeCommand(*this)
-    , m_setL3
     , m_elevL3
   }.ToPtr());
   buttonBox.Start().OnTrue(&m_elevL3_4);
