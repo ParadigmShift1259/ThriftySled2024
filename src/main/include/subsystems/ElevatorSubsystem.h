@@ -30,7 +30,7 @@ constexpr double c_defaultResetTurns = 0.0;
 constexpr double c_defaultParkTurns = 0.0;
 constexpr double c_defaultL1Turns = 0.0;
 constexpr double c_defaultL2Turns =  3.0; // originally 2.0
-constexpr double c_defaultL3Turns = 15.5; 
+constexpr double c_defaultL3Turns = 14.0; 
 
 constexpr double c_defaultL4Turns = 40.0;
 constexpr double c_defaultLoadTurns = 10.0;

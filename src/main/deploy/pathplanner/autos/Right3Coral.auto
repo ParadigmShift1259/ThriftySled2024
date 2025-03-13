@@ -7,13 +7,25 @@
         {
           "type": "named",
           "data": {
-            "name": "RaiseL2"
+            "name": "RaiseL3"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "L2FirstPlace.0"
+            "pathName": "FirstPlaceRight.0"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "PlaceL4L_OTFP"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "FirstIntakeRight.0"
           }
         },
         {
@@ -25,7 +37,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "SecondPlace.0"
+            "pathName": "SecondPlaceRight.0"
           }
         },
         {

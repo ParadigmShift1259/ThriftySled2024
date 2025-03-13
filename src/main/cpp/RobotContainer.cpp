@@ -159,16 +159,28 @@ RobotContainer::RobotContainer()
 {
 
   NamedCommands::registerCommand("RaiseL3", std::move(frc2::SequentialCommandGroup{m_setL3, m_elevL3}.ToPtr()));
+  NamedCommands::registerCommand("RaiseL2", std::move(frc2::SequentialCommandGroup{m_setL2, m_elevL2}.ToPtr()));
 
-    NamedCommands::registerCommand("PlaceL2", std::move(
-    frc2::SequentialCommandGroup{
-      m_setL2
-    , CoralPrepCommand(*this, L4)
-    , WaitCommand(0.75_s)
-    , CoralEjectCommand(*this)
-    , WaitCommand(0.25_s)
-    , CoralEjectPostCommand(*this)
-    }.ToPtr()));
+
+  NamedCommands::registerCommand("PlaceL2", std::move(
+  frc2::SequentialCommandGroup{
+    m_setL2
+  , CoralPrepCommand(*this, L4)
+  , WaitCommand(0.75_s)
+  , CoralEjectCommand(*this)
+  , WaitCommand(0.25_s)
+  , CoralEjectPostCommand(*this)
+  }.ToPtr()));
+
+  NamedCommands::registerCommand("ShootCoral", std::move(
+  frc2::SequentialCommandGroup{
+    CoralEjectCommand(*this)
+  , m_elevL1
+  }.ToPtr()));
+  NamedCommands::registerCommand("StopCoral", std::move(
+  frc2::SequentialCommandGroup{
+    m_coralStop
+  }.ToPtr()));
   
   NamedCommands::registerCommand("PlaceL4", std::move(
     frc2::SequentialCommandGroup{
@@ -712,8 +724,7 @@ void RobotContainer::ConfigButtonBoxBindings()
   buttonBox.POVUp().OnTrue(&m_ClimberDeployRelUp);
   buttonBox.POVDown().OnTrue(&m_ClimberDeployRelDown);
   buttonBox.POVRight().OnTrue(frc2::SequentialCommandGroup{
-      m_setHighSpeedCmd
-    , CoralPrepCommand(*this, L4)
+      CoralPrepCommand(*this, L4)
     , ConditionalCommand (InstantCommand{[this] {m_coral.DeployManipulator(); }, {&m_coral} }, 
                           InstantCommand{[this] {m_coral.RetractManipulator(); }, {&m_coral} }, 
                                          [this](){return m_elevator.GetPresetLevel() == L4;})
