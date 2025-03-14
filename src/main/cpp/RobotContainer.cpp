@@ -5,7 +5,6 @@
 #include "Constants.h"
 #include "RobotContainer.h"
 
-// #include "commands/GoToPositionCommand.h"
 #include "commands/ElevatorGoToCommand.h"
 #include "commands/CoralIntakeCommand.h"
 #include "commands/CoralPrepCommand.h"
@@ -15,14 +14,14 @@
 #include "commands/ClimbRetractCommand.h"
 #include "commands/ClimbDeployCommand.h"
 #include "commands/PositionPIDCommand.h"
+#include "commands/ResetAngleAtLoadCommand.h"
 
-//#include <frc/MathUtil.h>
 #include <frc/smartdashboard/SmartDashboard.h>
-// #include <frc/trajectory/TrajectoryGenerator.h>
 #include <frc/DriverStation.h>
 #include <frc/smartdashboard/Field2d.h>
 
 #include <frc2/command/Commands.h>
+#include <frc2/command/CommandScheduler.h>
 #include <frc2/command/ParallelDeadlineGroup.h>
 #include <frc2/command/ParallelCommandGroup.h>
 #include <frc2/command/PrintCommand.h>
@@ -157,15 +156,13 @@ RobotContainer::RobotContainer()
   , m_orchestra("output.chrp")
 #endif
 {
-
   NamedCommands::registerCommand("RaiseL3", std::move(frc2::SequentialCommandGroup{m_setL3, m_elevL3}.ToPtr()));
   NamedCommands::registerCommand("RaiseL2", std::move(frc2::SequentialCommandGroup{m_setL2, m_elevL2}.ToPtr()));
-
 
   NamedCommands::registerCommand("PlaceL2", std::move(
   frc2::SequentialCommandGroup{
     m_setL2
-  , CoralPrepCommand(*this, L4)
+  , CoralPrepCommand(*this)
   , WaitCommand(0.75_s)
   , CoralEjectCommand(*this)
   , WaitCommand(0.25_s)
@@ -185,7 +182,7 @@ RobotContainer::RobotContainer()
   NamedCommands::registerCommand("PlaceL4", std::move(
     frc2::SequentialCommandGroup{
       m_setL4
-    , CoralPrepCommand(*this, L4)
+    , CoralPrepCommand(*this)
     , ConditionalCommand (InstantCommand{[this] {m_coral.DeployManipulator(); }, {&m_coral} }, 
                           InstantCommand{[this] {m_coral.RetractManipulator(); }, {&m_coral} }, [](){return true;})
     , WaitCommand(0.75_s)
@@ -200,7 +197,7 @@ RobotContainer::RobotContainer()
     , m_setLeft
     , DeferredCommand(GetFollowPathCommand, {&m_drive} )
     , m_setHighSpeedCmd
-    , CoralPrepCommand(*this, L4)
+    , CoralPrepCommand(*this)
     , ConditionalCommand (InstantCommand{[this] {m_coral.DeployManipulator(); }, {&m_coral} }, 
                           InstantCommand{[this] {m_coral.RetractManipulator(); }, {&m_coral} }, [](){return true;})
     , WaitCommand(0.75_s)
@@ -216,7 +213,7 @@ RobotContainer::RobotContainer()
     , m_setRight
     , DeferredCommand(GetFollowPathCommand, {&m_drive} )
     , m_setHighSpeedCmd
-    , CoralPrepCommand(*this, L4)
+    , CoralPrepCommand(*this)
     , ConditionalCommand (InstantCommand{[this] {m_coral.DeployManipulator(); }, {&m_coral} }, 
                           InstantCommand{[this] {m_coral.RetractManipulator(); }, {&m_coral} }, [](){return true;})
     , WaitCommand(0.75_s)
@@ -551,23 +548,21 @@ void RobotContainer::SetDefaultCommands()
 void RobotContainer::ConfigureBindings()
 {
   ConfigPrimaryButtonBindings();
+#ifdef USE_SECOND_XBOX_CONTROLLER
   ConfigSecondaryButtonBindings();
+#endif
 #ifdef USE_BUTTON_BOX
   ConfigButtonBoxBindings();
 #endif
 }
 
-void RobotContainer::
-ConfigPrimaryButtonBindings()
+void RobotContainer::ConfigPrimaryButtonBindings()
 {
   auto& primary = m_primaryController;
  
   // Primary
   // Keep the bindings in this order
   // A, B, X, Y, Left Bumper, Right Bumper, Back, Start
-
-  primary.RightBumper().OnTrue(DeferredCommand(GetFollowPathCommand, {&m_drive} ).ToPtr());
-
   primary.A().OnTrue(frc2::SequentialCommandGroup{
       m_setHighSpeedCmd
     , CoralEjectCommand(*this)
@@ -575,32 +570,22 @@ ConfigPrimaryButtonBindings()
     , WaitCommand(0.4_s)
     , ElevatorGoToCommand(*this, L1)
   }.ToPtr());
-  primary.B().OnTrue(CoralPrepCommand(*this, L4).ToPtr());
-#define CLIMB
-#ifdef CLIMB
+  primary.B().OnTrue(CoralPrepCommand(*this).ToPtr());
   primary.X().OnTrue(&m_ClimberDeploy);
-  primary.Back().OnTrue(ClimbRetractCommand(*this).ToPtr()); // Temp
-#else  
-  primary.X().OnTrue(CoralIntakeCommand(*this).ToPtr());
-  primary.Back().OnTrue(ClimbDeployCommand(*this).ToPtr());
-#endif
+  primary.Y().OnTrue(InstantCommand{[this] { CommandScheduler::GetInstance().CancelAll(); }, {} }.ToPtr());
 
-  primary.Y().OnTrue(&m_coralStop);
-  primary.LeftBumper().OnTrue(&m_toggleFieldRelative);
+  primary.Back().OnTrue(ClimbRetractCommand(*this).ToPtr());
   primary.Start().OnTrue(&m_toggleSlowSpeed);
+  primary.LeftBumper().OnTrue(&m_toggleFieldRelative);
+  primary.RightBumper().OnTrue(DeferredCommand(GetFollowPathCommand, {&m_drive} ).ToPtr());
 
   primary.POVUp().OnTrue(StopAllCommand(*this).ToPtr());
-  primary.POVDown().OnTrue(InstantCommand([this]{GetOnTheFlyPath();},{&m_drive}).ToPtr());
-
-  // Only needed for testing on the fly paths, aligns the gyro with the tag currently being imaged
-  primary.POVLeft().OnTrue(&m_resetOdo);
-
-//   primary.POVUp().OnTrue(GoToPositionCommand(*this, eJogForward, m_path).ToPtr());
-//   primary.POVDown().OnTrue(GoToPositionCommand(*this, eJogBackward, m_path).ToPtr());
-//   primary.POVRight().OnTrue(GoToPositionCommand(*this, eJogRight, m_path).ToPtr());
-//   primary.POVLeft().OnTrue(GoToPositionCommand(*this, eJogLeft, m_path).ToPtr());
+  // open primary.POVDown().OnTrue();
+  primary.POVLeft().OnTrue(&m_resetOdo);                                // Aligns the gyro with the tag currently being imaged
+  primary.POVRight().OnTrue(ResetAngleAtLoadCommand(*this).ToPtr());    // Uses blue/red and Y position to decide angle and sign
 }
 
+#ifdef USE_SECOND_XBOX_CONTROLLER
 void RobotContainer::ConfigSecondaryButtonBindings()
 {
   auto& secondary = m_secondaryController;
@@ -619,7 +604,7 @@ void RobotContainer::ConfigSecondaryButtonBindings()
 
   secondary.LeftBumper().OnTrue(CoralEjectPostCommand(*this).ToPtr());
   secondary.RightBumper().OnTrue(frc2::SequentialCommandGroup{
-    CoralPrepCommand(*this, L4)
+    CoralPrepCommand(*this)
     , ConditionalCommand (InstantCommand{[this] {m_coral.DeployManipulator(); }, {&m_coral} }, 
                           InstantCommand{[this] {m_coral.RetractManipulator(); }, {&m_coral} }, [](){return true;})
     , WaitCommand(0.75_s)
@@ -652,6 +637,7 @@ void RobotContainer::ConfigSecondaryButtonBindings()
   secondary.POVRight(loop).Rising().IfHigh([this] { m_wheelsForward.Schedule(); });
 #endif  //  TEST_WHEEL_CONTROL
 }
+#endif
 
 #ifdef USE_BUTTON_BOX
 void RobotContainer::ConfigButtonBoxBindings()
@@ -675,59 +661,40 @@ void RobotContainer::ConfigButtonBoxBindings()
   buttonBox.X().OnTrue(&m_setL4);
   buttonBox.Y().OnTrue(&m_setL3);
   buttonBox.RightBumper().OnTrue(&m_setL2);
-  buttonBox.LeftBumper().OnTrue(&m_setL1);
-
-#define USE_SELECT_LEFT_RIGHT
-#ifdef USE_SELECT_LEFT_RIGHT
-  buttonBox.LeftTrigger().OnTrue(&m_setLeft);
-  buttonBox.RightTrigger().OnTrue(&m_setRight);
-#else
-  buttonBox.LeftTrigger().OnTrue(frc2::SequentialCommandGroup{        // Drive back
-      InstantCommand{[this](){m_drive.WheelsForward();}, {&m_drive}}
-    , WaitCommand(0.125_s)
-    , InstantCommand{[this](){m_drive.Stop();}, {&m_drive}}
-  }.ToPtr());
-  buttonBox.RightTrigger().OnTrue(CoralIntakeCommand(*this).ToPtr());
-#endif
+  buttonBox.LeftBumper().OnTrue(&m_elevL1); // m_elevL1 calls m_elevator.GoToPosition which updates the preset level
 
   buttonBox.Back().OnTrue(&m_elevRelPosUp);
-  
   buttonBox.LeftStick().OnTrue(&m_elevRelPosDown);
-
-  //buttonBox.B().OnTrue(&m_intakeParkAtZero);
-  //buttonBox.B().OnTrue(&m_intakeAlign);
-  //buttonBox.B().OnTrue(CoralIntakeCommand(*this).ToPtr());
   buttonBox.B().OnTrue(frc2::SequentialCommandGroup{
       m_elevL1
     , CoralIntakeCommand(*this)
     , m_elevL3
   }.ToPtr());
+  buttonBox.LeftTrigger().OnTrue(&m_setLeft);
+
   buttonBox.Start().OnTrue(&m_elevL3_4);
   buttonBox.RightStick().OnTrue(&m_elevL2_3);
-
-  // Score
-  buttonBox.A().OnTrue(frc2::SequentialCommandGroup{
+  buttonBox.A().OnTrue(frc2::SequentialCommandGroup{      // Score
       DeferredCommand(GetFollowPathCommand, {&m_drive} )
-    , CoralPrepCommand(*this, L4)
+    , CoralPrepCommand(*this)
     , ConditionalCommand (InstantCommand{[this] {m_coral.DeployManipulator(); }, {&m_coral} }, 
                           InstantCommand{[this] {m_coral.RetractManipulator(); }, {&m_coral} }, 
-                                         [this](){return m_elevator.GetPresetLevel() == L4;})
+                                         [this](){return (m_elevator.GetPresetLevel() == L4 || m_elevator.GetPresetLevel() == L1);})
     , WaitCommand(0.75_s)
     , CoralEjectCommand(*this)
     , WaitCommand(0.25_s)
     , CoralEjectPostCommand(*this)
     , m_elevL1
   }.ToPtr());
+  buttonBox.RightTrigger().OnTrue(&m_setRight);
 
-  //buttonBox.A().OnTrue(&m_coralRetract);
-
-  buttonBox.POVUp().OnTrue(&m_ClimberDeployRelUp);
-  buttonBox.POVDown().OnTrue(&m_ClimberDeployRelDown);
+  buttonBox.POVUp().OnTrue(&m_ClimberDeployRelUp);        // Jog out
+  buttonBox.POVDown().OnTrue(&m_ClimberDeployRelDown);    // Jog in
   buttonBox.POVRight().OnTrue(frc2::SequentialCommandGroup{
-      CoralPrepCommand(*this, L4)
+      CoralPrepCommand(*this)
     , ConditionalCommand (InstantCommand{[this] {m_coral.DeployManipulator(); }, {&m_coral} }, 
                           InstantCommand{[this] {m_coral.RetractManipulator(); }, {&m_coral} }, 
-                                         [this](){return m_elevator.GetPresetLevel() == L4;})
+                                         [this](){return (m_elevator.GetPresetLevel() == L4 || m_elevator.GetPresetLevel() == L1);})
     , WaitCommand(0.75_s)
     , CoralEjectCommand(*this)
     , WaitCommand(0.25_s)
@@ -735,11 +702,20 @@ void RobotContainer::ConfigButtonBoxBindings()
     , m_elevL1
   }.ToPtr());
 
+#define DRIVE_BACK
+#ifdef DRIVE_BACK
+  buttonBox.POVLeft().OnTrue(frc2::SequentialCommandGroup{        // Drive back
+      InstantCommand{[this](){m_drive.WheelsForward();}, {&m_drive}}
+    , WaitCommand(0.125_s)
+    , InstantCommand{[this](){m_drive.Stop();}, {&m_drive}}
+  }.ToPtr());
+#else
   buttonBox.POVLeft().OnTrue(frc2::SequentialCommandGroup{
         m_setHighSpeedCmd
       , DeferredCommand(GetFollowPathCommand, {&m_drive} )
       , PositionPIDCommand(*this, m_targetPose)  
   }.ToPtr());
+#endif
 
   // Wiring
   // See Game Pad 2040 project https://gp2040-ce.info/introduction

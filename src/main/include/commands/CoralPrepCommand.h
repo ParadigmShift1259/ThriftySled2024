@@ -9,7 +9,7 @@
 class CoralPrepCommand : public frc2::CommandHelper<frc2::Command, CoralPrepCommand>
 {
     public:
-        explicit CoralPrepCommand(ISubsystemAccess& subsystemAccess, ELevels coralLevel);
+        explicit CoralPrepCommand(ISubsystemAccess& subsystemAccess);
         void Initialize() override;
         void Execute() override;
         bool IsFinished() override;

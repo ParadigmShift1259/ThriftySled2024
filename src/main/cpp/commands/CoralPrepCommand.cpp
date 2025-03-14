@@ -3,13 +3,12 @@
 
 #include <frc/smartdashboard/SmartDashboard.h>
 
-CoralPrepCommand::CoralPrepCommand(ISubsystemAccess& subsystemAccess, ELevels coralLevel)
+CoralPrepCommand::CoralPrepCommand(ISubsystemAccess& subsystemAccess)
     : m_coralSubsystem(subsystemAccess.GetCoral())
     , m_elevatorSubsystem(subsystemAccess.GetElevator())
 #ifdef LED
     , m_ledSubsystem(subsystemAccess.GetLED())
 #endif
-    , m_coralLevel(coralLevel)
 {
 #ifdef LED
     AddRequirements(frc2::Requirements{&subsystemAccess.GetCoral(), &subsystemAccess.GetElevator(), &subsystemAccess.GetLED()});
@@ -27,6 +26,7 @@ void CoralPrepCommand::Initialize()
     auto turns = frc::SmartDashboard::GetNumber("CoralRetractTurns", 3.25);
     m_timer.Reset();
     m_timer.Start();
+    m_coralLevel = m_elevatorSubsystem.GetPresetLevel();
     m_blocked = (m_coralLevel == L4 || m_coralLevel == L3) && m_coralSubsystem.IsCoralPresentInput();
     if (m_blocked)
     {
