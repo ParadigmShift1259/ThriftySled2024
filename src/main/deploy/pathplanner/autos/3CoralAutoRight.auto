@@ -13,7 +13,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "FirstPlace.0"
+            "pathName": "FirstPlaceRight.0"
           }
         },
         {
@@ -25,7 +25,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "FirstIntake.0"
+            "pathName": "FirstIntakeRight.0"
           }
         },
         {
@@ -37,7 +37,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "SecondPlace.0"
+            "pathName": "SecondPlaceRight.0"
           }
         },
         {
@@ -49,7 +49,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "SecondIntake.0"
+            "pathName": "SecondIntakeRight.0"
           }
         },
         {
@@ -61,7 +61,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "ThirdPlace.0"
+            "pathName": "SecondPlaceRight.0"
           }
         },
         {
