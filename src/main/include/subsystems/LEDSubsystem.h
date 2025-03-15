@@ -32,6 +32,7 @@ const RBGAColor c_colorBlue   = {   0,   0, 255,   0 };
 const RBGAColor c_colorRed    = { 255,   0,   0,   0 };
 const RBGAColor c_colorOrange = {  43,   6,   0, 255 };
 const RBGAColor c_colorYellow = { 255,   0,   0,   0 };
+const RBGAColor c_colorPurple = {  80,   0,  80,   0 };
 const RBGAColor c_colorBlack  = {   0,   0,   0,   0 };
 const RBGAColor c_colorWhite  = { 255, 255, 255,  10 };
 
@@ -65,6 +66,8 @@ class LEDSubsystem : public frc2::SubsystemBase
       kPostCoral,
       kElevator,
       kClimbing,
+      kSequenceStart,
+      kFollowPath,
       kClimbFinish
     };
 

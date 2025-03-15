@@ -29,8 +29,8 @@ using namespace rev::spark;
 constexpr double c_defaultResetTurns = 0.0;
 constexpr double c_defaultParkTurns = 0.0;
 constexpr double c_defaultL1Turns = 0.0;
-constexpr double c_defaultL2Turns =  3.0; // originally 2.0
-constexpr double c_defaultL3Turns = 14.0; 
+constexpr double c_defaultL2Turns =  2.0; // originally 2.0
+constexpr double c_defaultL3Turns = 15.0; 
 
 constexpr double c_defaultL4Turns = 40.0;
 constexpr double c_defaultLoadTurns = 10.0;
@@ -66,6 +66,7 @@ public:
     ELevels GetPresetLevel() {return m_level;}
     void GoToPresetLevel();
     double GetPositionForLevel(ELevels eLevel);
+    void GoToPosition(double position);
 
     enum Position {
         kDefaultPosition,
@@ -75,8 +76,6 @@ public:
     };
 
 private:
-    void GoToPosition(double position);
-
     SparkBaseConfig m_leadConfig{};
     SparkBaseConfig m_followConfig{};
     SparkFlex m_leadMotor;

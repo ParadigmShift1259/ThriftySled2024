@@ -192,6 +192,12 @@ class RobotContainer : public ISubsystemAccess
   frc2::InstantCommand m_ClimberDeployRelUp{[this] { m_climber.GoToPositionRel(c_defaultClimbDeployRelTurns);}, {&m_climber} };
   frc2::InstantCommand m_ClimberDeployRelDown{[this] { m_climber.GoToPositionRel(-c_defaultClimbDeployRelTurns);}, {&m_climber} };
 
+  frc2::InstantCommand m_FollowPathLED{[this] 
+  {
+    m_led.SetCurrentAction(LEDSubsystem::kFollowPath);
+    m_led.SetAnimation(c_colorPurple, LEDSubsystem::kScanner) ;
+  }, {&m_led} };
+   frc2::InstantCommand m_EndLED{[this] { m_led.SetCurrentAction(LEDSubsystem::kIdle);}, {&m_led} };
   // For on the fly paths
 //  PathConstraints m_pathConstraints { m_drive.m_currentMaxSpeed / 2.0, 4.0_mps_sq, 180_deg_per_s, 360_deg_per_s_sq };
   PathConstraints m_pathConstraints { 1.5_mps, 3.0_mps_sq, 180_deg_per_s, 360_deg_per_s_sq };

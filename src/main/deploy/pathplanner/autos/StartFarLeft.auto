@@ -5,21 +5,15 @@
     "data": {
       "commands": [
         {
-          "type": "named",
-          "data": {
-            "name": "RaiseL3"
-          }
-        },
-        {
           "type": "path",
           "data": {
-            "pathName": "OneCoralStraight.0"
+            "pathName": "StartFarOneCoral.0"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "PlaceL4R_OTFP"
+            "name": "PlaceL4L_OTFP"
           }
         }
       ]

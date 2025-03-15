@@ -5,15 +5,9 @@
     "data": {
       "commands": [
         {
-          "type": "named",
-          "data": {
-            "name": "RaiseL3"
-          }
-        },
-        {
           "type": "path",
           "data": {
-            "pathName": "OneCoralStraight.0"
+            "pathName": "StartFarOneCoral.0"
           }
         },
         {
