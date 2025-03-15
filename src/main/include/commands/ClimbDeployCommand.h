@@ -14,6 +14,7 @@ public:
 
 private:
     ClimberSubsystem& m_climbSubsystem;
+    IntakeSubsystem& m_intake;
 #ifdef LED
     LEDSubsystem& m_led;
 #endif

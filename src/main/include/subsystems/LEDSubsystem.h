@@ -76,6 +76,7 @@ class LEDSubsystem : public frc2::SubsystemBase
     RBGAColor GetDefaultColor() { return m_defaultColor; }
 
     void SetCurrentAction(ECurrentAction action) { m_currentAction = action; }
+
     ECurrentAction GetCurrentAction() { return m_currentAction; }
     
   private:

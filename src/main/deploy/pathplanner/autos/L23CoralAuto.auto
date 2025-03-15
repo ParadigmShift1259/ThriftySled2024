@@ -17,12 +17,6 @@
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "Intake"
-          }
-        },
-        {
           "type": "path",
           "data": {
             "pathName": "SecondPlace.0"
@@ -38,12 +32,6 @@
           "type": "path",
           "data": {
             "pathName": "SecondIntake.0"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Intake"
           }
         },
         {

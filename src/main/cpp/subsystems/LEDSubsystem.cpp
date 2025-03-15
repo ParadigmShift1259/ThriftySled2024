@@ -30,38 +30,10 @@ void LEDSubsystem::Periodic()
   bool robotEnabled = frc::SmartDashboard::GetBoolean("Robot Enabled", false);
   if (robotEnabled)
   {
-    // if ((GetCurrentAction() == LEDSubsystem::kAmpPosition && GetVision().IsValidAmp())
-    // || (GetCurrentAction() == LEDSubsystem::kPreShoot && GetVision().IsValidShooter()))
-    // {
-    //  if (GetCurrentAction() == LEDSubsystem::kAmpPosition)
-    // {
-    //     m_vision.SetPositionStarted(true);
-    //   }
-    //   else
-    //   {
-    //     m_vision.SetAzimuthStarted(true);
-    //   }
-    //   SetDefaultColor(c_colorWhite);
-    //   SetAnimation(GetDefaultColor(), LEDSubsystem::kSolid);
-    // }
-    // else if (
-    //   ((GetCurrentAction() == LEDSubsystem::kAmpPosition && !GetVision().IsValidAmp())
-    //   && m_vision.IsPositionStarted())
-    // || ((GetCurrentAction() == LEDSubsystem::kPreShoot && !GetVision().IsValidShooter())
-    //   && m_vision.IsAzimuthStarted())
-    // )
-    // {
-    //   SetDefaultColor(GetIntake().IsNotePresent() ? c_colorPink : c_colorGreen);
-    //   SetAnimation(GetDefaultColor(), LEDSubsystem::kSolid);
-    // }
-    // else
-    // {
-    //   SetDefaultColor(GetIntake().IsNotePresent() ? c_colorPink : c_colorGreen);
       if (!IsRobotBusy())
       {
         SetAnimation(GetDefaultColor(), LEDSubsystem::kSolid);
       }
-   // }
   }
   else
   {
@@ -74,6 +46,7 @@ void LEDSubsystem::Periodic()
 
 void LEDSubsystem::SetAnimation(RBGAColor color, EAnimation animate)
 {
+  //printf("LEDSubsystem::SetAnimation color %d %d %d animation %d\n", color.red, color.green, color.blue, animate);
   switch (animate)
   {
     case (EAnimation::kSolid):

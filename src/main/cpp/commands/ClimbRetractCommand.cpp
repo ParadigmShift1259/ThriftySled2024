@@ -37,9 +37,9 @@ bool ClimbRetractCommand::IsFinished()
 
 void ClimbRetractCommand::End(bool interrupted)
 {
-  m_logStartCommand.Append(false);
 #ifdef LED
   m_led.SetAnimation(c_colorBlue, LEDSubsystem::kSolid);
   m_led.SetCurrentAction(LEDSubsystem::kClimbFinish);
 #endif
+  m_logStartCommand.Append(false);
 }

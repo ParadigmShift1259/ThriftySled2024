@@ -20,7 +20,7 @@ CoralEjectCommand::CoralEjectCommand(ISubsystemAccess& subsystemAccess)
 
 void CoralEjectCommand::Initialize()
 {
-    printf("CoralEjectCommand::Initialize\n");
+    //printf("CoralEjectCommand::Initialize\n");
     m_logStartCommand.Append(true);
     m_coralSubsystem.EjectCoral(false);
 #ifdef LED 
@@ -40,7 +40,7 @@ bool CoralEjectCommand::IsFinished()
 
 void CoralEjectCommand::End(bool interrupted)
 {
-    printf("CoralEjectCommand::End\n");
+    //printf("CoralEjectCommand::End\n");
     m_coralSubsystem.RetractManipulator();
     m_coralSubsystem.Stop(); //Stops coral eject motors
     m_logStartCommand.Append(false);

@@ -19,7 +19,7 @@ PositionPIDCommand::PositionPIDCommand(ISubsystemAccess& subsystemAccess, Pose2d
 
 void PositionPIDCommand::Initialize()
 {
-    printf("PositionPIDCommand::Initialize\n");
+    // printf("PositionPIDCommand::Initialize\n");
     m_logStartCommand.Append(true);
     m_timer.Reset();
     m_timer.Start();
@@ -48,7 +48,7 @@ bool PositionPIDCommand::IsFinished()
         , oneTurn        // max
     );
 
-    printf("PositionPIDCommand turnDiff %.3f translation norm %.3f speed %.3f\n", turnDiff.value(), diff.Translation().Norm().value(), m_driveSubsystem.GetSpeed().value());
+    // printf("PositionPIDCommand turnDiff %.3f translation norm %.3f speed %.3f\n", turnDiff.value(), diff.Translation().Norm().value(), m_driveSubsystem.GetSpeed().value());
 
     auto positionOk = diff.Translation().Norm() < c_PositionTolerance;
 
@@ -63,7 +63,7 @@ bool PositionPIDCommand::IsFinished()
 
 void PositionPIDCommand::End(bool interrupted)
 {
-    printf("PositionPIDCommand::End\n");
+    // printf("PositionPIDCommand::End\n");
     m_driveSubsystem.Stop();
     m_logStartCommand.Append(false);
 }

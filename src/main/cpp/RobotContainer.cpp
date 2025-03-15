@@ -316,6 +316,53 @@ RobotContainer::RobotContainer()
   frc::SmartDashboard::PutNumber("MatchTime", frc::DriverStation::GetMatchTime().value());
   SmartDashboard::PutNumber("PathTransP", DriveConstants::c_HolomonicTranslateP);
 
+  ConfigureNetworkButtons();
+  CalcTargetPoses();
+  PrintTargetPoses();
+}
+
+void RobotContainer::ConfigureNetworkButtons()
+{
+  frc2::NetworkButton(nt::NetworkTableInstance::GetDefault().GetBooleanTopic(m_dbvRunIntakeStartup.Path())).OnChange
+  (
+    frc2::InstantCommand([this] { if (m_runIntakeStartup) StartUp(); m_runIntakeStartup = false; }, {}).ToPtr()
+  );
+
+  frc2::NetworkButton(nt::NetworkTableInstance::GetDefault().GetBooleanTopic(m_dbvRunCoralRetract.Path())).OnChange
+  (
+    frc2::InstantCommand([this] { if (m_runCoralRetract) m_coral.RetractCoral(L1); m_runCoralRetract = false; }, {}).ToPtr()
+  );
+
+  frc2::NetworkButton(nt::NetworkTableInstance::GetDefault().GetBooleanTopic(m_dbvRunElevL2.Path())).OnChange
+  (
+    frc2::InstantCommand([this] { if (m_runElevL2) m_elevator.GoToPosition(L2); m_runElevL2 = false; }, {}).ToPtr()
+  );
+
+  frc2::NetworkButton(nt::NetworkTableInstance::GetDefault().GetBooleanTopic(m_dbvRunElevL3.Path())).OnChange
+  (
+    frc2::InstantCommand([this] { if (m_runElevL3) m_elevator.GoToPosition(L3); m_runElevL3 = false; }, {}).ToPtr()
+  );
+
+  frc2::NetworkButton(nt::NetworkTableInstance::GetDefault().GetBooleanTopic(m_dbvRunElevL4.Path())).OnChange
+  (
+    frc2::InstantCommand([this] { if (m_runElevL4) m_elevator.GoToPosition(L4); m_runElevL4 = false; }, {}).ToPtr()
+  );
+
+  frc2::NetworkButton(nt::NetworkTableInstance::GetDefault().GetBooleanTopic(m_dbvRunElevJogDown.Path())).OnChange
+  (
+    frc2::InstantCommand([this] { if (m_runElevJogDown) m_elevator.GotoPositionRel(-1.0); m_runElevJogDown = false; }, {}).ToPtr()
+  );
+
+  frc2::NetworkButton(nt::NetworkTableInstance::GetDefault().GetBooleanTopic(m_dbvRunDeploManip.Path())).OnChange
+  (
+    frc2::InstantCommand([this] { if (m_runDeployManip) m_coral.DeployManipulator(); m_runDeployManip = false; }, {}).ToPtr()
+  );
+
+  frc2::NetworkButton(nt::NetworkTableInstance::GetDefault().GetBooleanTopic(m_dbvRunRetractManip.Path())).OnChange
+  (
+    frc2::InstantCommand([this] { if (m_runRetractManip) m_coral.RetractManipulator(); m_runRetractManip = false; }, {}).ToPtr()
+  );
+
   // frc2::NetworkButton
   // (
   //   nt::NetworkTableInstance::GetDefault().GetBooleanTopic(m_dbvFieldRelative.Path())).OnChange
@@ -323,22 +370,11 @@ RobotContainer::RobotContainer()
   //     frc2::cmd::RunOnce([this] { m_fieldRelative = !m_fieldRelative; }, {}
   //   )
   // );
-
-  frc2::NetworkButton
-  (
-    nt::NetworkTableInstance::GetDefault().GetBooleanTopic(m_dbvRunIntakeStartup.Path())).OnChange
-    (
-      frc2::cmd::RunOnce([this] { if (m_runIntakeStartup) StartUp(); m_runIntakeStartup = false; }, {}
-    )
-  );
-
-  CalcTargetPoses();
-  PrintTargetPoses();
 }
 
 void RobotContainer::CalcTargetPoses()
 {
-  constexpr units::length::meter_t c_reefOffset = 24.0_in;
+  constexpr units::length::meter_t c_reefOffset = 25.0_in;
   constexpr units::length::meter_t c_leftRightOffset = 6.5_in;
 
   for (auto tagLoc : c_mapTagLocations)
@@ -370,8 +406,6 @@ void RobotContainer::CalcTargetPoses()
 
 void RobotContainer::PrintTargetPoses()
 {
-  // constexpr double c_reefOffset = 22.0;
-
   for (auto pair : c_mapTagPoses)
   {
     int tagId = pair.first;
@@ -382,7 +416,6 @@ void RobotContainer::PrintTargetPoses()
     printf("  mid %.2f, %.2f, %.2f ", ti.m_poseMid.X().value(), ti.m_poseMid.Y().value(), ti.m_poseMid.Rotation().Degrees().value());
     printf("right %.2f, %.2f, %.2f\n", ti.m_poseRight.X().value(), ti.m_poseRight.Y().value(), ti.m_poseRight.Rotation().Degrees().value());
   }
-
 
   printf("\n");
   for (auto pair : c_mapTagPoses)
@@ -432,13 +465,6 @@ void RobotContainer::AreWeInTheSweetSpot()
   Pose2d targetPose;
   if (GetTagPose(targetPose))
   {
-    //auto currentX = m_drive.GetX();
-    //auto currentY = m_drive.GetY();
-
-    //units::length::meter_t targetX;
-    //units::length::meter_t targetY;
-    //units::angle::degree_t targetRot;
-
     auto targetX = targetPose.X();
     auto targetY = targetPose.Y();
     auto targetRot = targetPose.Rotation().Degrees();
@@ -448,9 +474,6 @@ void RobotContainer::AreWeInTheSweetSpot()
     frc::SmartDashboard::PutNumber("targetRot", targetRot.value());
 
     // Calculate the path length based on where we are and where we want to go
-    //double xDelta = targetX.value() - currentX.value();
-    //double yDelta = targetY.value() - currentY.value();
-//    double pathLen = sqrt(xDelta * xDelta + yDelta * yDelta);
     double pathLen = m_drive.GetCurrentPose().Translation().Distance(targetPose.Translation()).value();
     m_dbvDistToTag.Put(pathLen);
 
@@ -482,7 +505,7 @@ void RobotContainer::AreWeInTheSweetSpot()
       m_led.SetCurrentAction(LEDSubsystem::kTagVisible);
       m_led.SetAnimation(c_colorWhite, LEDSubsystem::kStrobe);
     }
-    else 
+    else if (m_led.GetCurrentAction() == LEDSubsystem::kTagVisible)
     {
       m_led.SetCurrentAction(LEDSubsystem::kIdle);
     }
@@ -515,7 +538,7 @@ void RobotContainer::SetDefaultCommands()
       {
         // const double kDeadband = 0.02;
         constexpr double kDeadband = 0.02;
-		    constexpr double direction = 1.0;
+		    constexpr double direction = -1.0;
 
         const auto xInput = direction* ApplyDeadband(m_primaryController.GetLeftY(), kDeadband);
         const auto yInput = direction * ApplyDeadband(m_primaryController.GetLeftX(), kDeadband);
@@ -571,7 +594,8 @@ void RobotContainer::ConfigPrimaryButtonBindings()
     , ElevatorGoToCommand(*this, L1)
   }.ToPtr());
   primary.B().OnTrue(CoralPrepCommand(*this).ToPtr());
-  primary.X().OnTrue(&m_ClimberDeploy);
+  primary.X().OnTrue(ClimbDeployCommand(*this).ToPtr());
+
   primary.Y().OnTrue(InstantCommand{[this] { CommandScheduler::GetInstance().CancelAll(); }, {} }.ToPtr());
 
   primary.Back().OnTrue(ClimbRetractCommand(*this).ToPtr());
@@ -580,7 +604,7 @@ void RobotContainer::ConfigPrimaryButtonBindings()
   primary.RightBumper().OnTrue(DeferredCommand(GetFollowPathCommand, {&m_drive} ).ToPtr());
 
   primary.POVUp().OnTrue(StopAllCommand(*this).ToPtr());
-  // open primary.POVDown().OnTrue();
+  primary.POVDown().OnTrue(&m_intakeAlign);
   primary.POVLeft().OnTrue(&m_resetOdo);                                // Aligns the gyro with the tag currently being imaged
   primary.POVRight().OnTrue(ResetAngleAtLoadCommand(*this).ToPtr());    // Uses blue/red and Y position to decide angle and sign
 }
@@ -627,7 +651,7 @@ void RobotContainer::ConfigSecondaryButtonBindings()
   secondary.LeftTrigger().OnTrue(&m_elevL3_4);
   secondary.RightTrigger().OnTrue(&m_elevL2_3);
   secondary.LeftStick().OnTrue(&m_intakeAlign);
-  secondary.RightStick().OnTrue(&m_intakeParkForClimb);
+  //secondary.RightStick().OnTrue(&m_intakeParkForClimb);
   secondary.POVRight().OnTrue(&m_coralDeployManip);
   secondary.POVLeft().OnTrue(&m_coralRetractManip);
 
@@ -659,8 +683,14 @@ void RobotContainer::ConfigButtonBoxBindings()
   // │  LB   │   LT  │  RT   │  DL   │        
   // └───────┴───────┴───────┘───────┘  
   buttonBox.X().OnTrue(&m_setL4);
-  buttonBox.Y().OnTrue(&m_setL3);
-  buttonBox.RightBumper().OnTrue(&m_setL2);
+  buttonBox.Y().OnTrue(frc2::SequentialCommandGroup{
+      m_elevL3
+    , m_setL3
+  }.ToPtr());
+  buttonBox.RightBumper().OnTrue(frc2::SequentialCommandGroup{
+      m_elevL2
+    , m_setL2
+  }.ToPtr());
   buttonBox.LeftBumper().OnTrue(&m_elevL1); // m_elevL1 calls m_elevator.GoToPosition which updates the preset level
 
   buttonBox.Back().OnTrue(&m_elevRelPosUp);
@@ -755,7 +785,7 @@ void RobotContainer::StopAll()
   m_drive.Stop();
 #ifdef LED
   m_led.SetAnimation(m_led.GetDefaultColor(), LEDSubsystem::kSolid);
-  m_led.SetCurrentAction(LEDSubsystem::ECurrentAction::kIdle);
+  m_led.SetCurrentAction(LEDSubsystem::kIdle);
 #endif
   // TODO scheduler cancel???
 }

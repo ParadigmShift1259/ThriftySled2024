@@ -21,7 +21,7 @@ CoralEjectPostCommand::CoralEjectPostCommand(ISubsystemAccess& subsystemAccess)
 
 void CoralEjectPostCommand::Initialize()
 {
-    printf("CoralEjectPostCommand::Initialize\n");
+    //printf("CoralEjectPostCommand::Initialize\n");
 
     m_logStartCommand.Append(true);
     m_timer.Reset();
@@ -44,8 +44,8 @@ bool CoralEjectPostCommand::IsFinished()
 
 void CoralEjectPostCommand::End(bool interrupted)
 {
-   printf("CoralEjectPostCommand::End\n");
-   m_elevatorSubsystem.Stop();
+   //printf("CoralEjectPostCommand::End\n");
+   // Don't need to do this, the limit switch should turn off the motor m_elevatorSubsystem.Stop();
     m_driveSubsystem.Stop();
     m_logStartCommand.Append(false);
 }

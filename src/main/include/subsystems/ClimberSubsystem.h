@@ -24,7 +24,7 @@ using namespace ctre::phoenix::motorcontrol::can;
 using namespace ctre::phoenix::motorcontrol;
 using namespace rev::spark;
 
-constexpr double c_defaultClimbResetTurns = 0.0;
+constexpr double c_defaultClimbResetTurns = -20.0;
 constexpr double c_defaultClimbDeployTurns = 370.0; // 370 ~35 degrees 500.0; ~ 90 degrees (parallel with floor)
 constexpr double c_defaultClimbDeployRelTurns = 10.0;
 

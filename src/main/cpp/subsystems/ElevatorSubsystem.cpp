@@ -203,7 +203,10 @@ double ElevatorSubsystem::GetPositionForLevel(ELevels eLevel)
 
 void ElevatorSubsystem::GoToPosition(ELevels eLevel)
 {
-    SetPresetLevel(eLevel);
+    //if (eLevel != algaeRemovalL3_4)
+    {
+        SetPresetLevel(eLevel);
+    }
     GoToPosition(GetPositionForLevel(eLevel));  
 }
 

@@ -276,7 +276,6 @@ void DriveSubsystem::UpdateOdometry()
 
 void DriveSubsystem::ResetOdometry(frc::Pose2d pose)
 {
-
   printf ("resetx %.3f resety %.3f resetrot %.3f\n", pose.X().value(), pose.Y().value(), pose.Rotation().Degrees().value());
   // Do not set the gyro, the pose estimator keeps track of the offset 
   m_poseEstimator.ResetPose(pose);
@@ -284,14 +283,14 @@ void DriveSubsystem::ResetOdometry(frc::Pose2d pose)
 
 void DriveSubsystem::WheelsForward()
 {
-  printf("DriveSubsystem::WheelsForward\n");
+  // printf("DriveSubsystem::WheelsForward\n");
 
   m_bOverrideXboxInput = true;
   frc::SwerveModuleState sms;
   sms.angle = frc::Rotation2d{0.0_deg};
   sms.speed = 0.1_mps;
   SetAllDesiredState(sms);
-  printf("DriveSubsystem::WheelsForward DONE\n");
+  // printf("DriveSubsystem::WheelsForward DONE\n");
 }
 
 void DriveSubsystem::WheelsLeft()

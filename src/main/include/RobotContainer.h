@@ -77,12 +77,16 @@ class RobotContainer : public ISubsystemAccess
   void SetDefaultCommands();
   void ConfigureBindings();
   void ConfigPrimaryButtonBindings();
+#define USE_SECOND_XBOX_CONTROLLER
+#ifdef USE_SECOND_XBOX_CONTROLLER
   void ConfigSecondaryButtonBindings();
+#endif
 #define USE_BUTTON_BOX
 // #define USE_POSITION_PID
 #ifdef USE_BUTTON_BOX
   void ConfigButtonBoxBindings();
 #endif
+  void ConfigureNetworkButtons();
 
   bool GetTagPose(Pose2d& tagPose);
   void AreWeInTheSweetSpot();
@@ -119,16 +123,32 @@ class RobotContainer : public ISubsystemAccess
   // TODO Make sure field relative starts how the drive team wants
   bool m_fieldRelative = false;//true;
   bool m_isAutoRunning = false;
-  bool m_runIntakeStartup = true;
   DashBoardValue<bool> m_dbvFieldRelative{"Drive", "FieldRelative", m_fieldRelative};
-  DashBoardValue<bool> m_dbvRunIntakeStartup{"Intake", "RunStartup", m_runIntakeStartup};
   DashBoardValue<double> m_dbvOnTheFlyPathAccel{"Drive", "OTFPaccel", 3.0};
   DashBoardValue<double> m_dbvDistToTag{"Vision", "Dist2tag", -1.0};
-
   DashBoardValue<bool> m_dbv1Meter{"Vision", "1Meter", false};  
   DashBoardValue<bool> m_dbv2Meter{"Vision", "2Meter", false};  
   DashBoardValue<bool> m_dbv3Meter{"Vision", "3Meter", false};  
   DashBoardValue<bool> m_dbv4Meter{"Vision", "4Meter", false};  
+
+  bool m_runIntakeStartup = true;
+  bool m_runCoralRetract  = false;
+  bool m_runElevL2        = false;
+  bool m_runElevL3        = false;
+  bool m_runElevL4        = false;
+  bool m_runElevJogDown   = false;
+  bool m_runDeployManip   = false;
+  bool m_runRetractManip  = false;
+  //bool m_run = true;
+  DashBoardValue<bool> m_dbvRunIntakeStartup{"Intake", "RunStartup", m_runIntakeStartup};
+  DashBoardValue<bool> m_dbvRunCoralRetract{"Coral", "CoralRetract", m_runCoralRetract};
+  DashBoardValue<bool> m_dbvRunElevL2{"Elevator", "GoL2", m_runElevL2};
+  DashBoardValue<bool> m_dbvRunElevL3{"Elevator", "GoL3", m_runElevL3};
+  DashBoardValue<bool> m_dbvRunElevL4{"Elevator", "GoL4", m_runElevL4};
+  DashBoardValue<bool> m_dbvRunElevJogDown{"Elevator", "ElevJogDn", m_runElevJogDown};
+  DashBoardValue<bool> m_dbvRunDeploManip{"Coral", "DeployManip", m_runDeployManip};
+  DashBoardValue<bool> m_dbvRunRetractManip{"Coral", "RetractManip", m_runRetractManip};
+  //DashBoardValue<bool> m_dbvRun{"", "", m_run};
 
   ESideSelected m_sideSelected = Unselected;
 
@@ -149,7 +169,7 @@ class RobotContainer : public ISubsystemAccess
   frc2::InstantCommand m_elevL4{[this] { m_elevator.GoToPosition(L4); }, {&m_elevator} };
   frc2::InstantCommand m_elevL3{[this] { m_elevator.GoToPosition(L3); }, {&m_elevator} };
   frc2::InstantCommand m_elevL2{[this] { m_elevator.GoToPosition(L2); }, {&m_elevator} };
-  frc2::InstantCommand m_elevL1{[this] { m_elevator.GoToPosition(L1); }, {&m_elevator} };  
+  frc2::InstantCommand m_elevL1{[this] { m_elevator.GoToPosition(L1); }, {&m_elevator} };
 
   frc2::InstantCommand m_elevL2_3{[this] { m_elevator.GoToPosition(algaeRemovalL2_3); }, {&m_elevator} };
   frc2::InstantCommand m_elevL3_4{[this] { m_elevator.GoToPosition(algaeRemovalL3_4); }, {&m_elevator} };
@@ -167,7 +187,7 @@ class RobotContainer : public ISubsystemAccess
   frc2::InstantCommand m_elevRelPosDown{[this] { m_elevator.GotoPositionRel(-1.0); }, {&m_elevator} };
 
   frc2::InstantCommand m_intakeAlign{[this] { m_intake.AlignIntake(); }, {&m_intake} };
-  frc2::InstantCommand m_intakeParkForClimb{[this] { m_intake.ParkIntakeForClimb(); }, {&m_intake} };
+  //frc2::InstantCommand m_intakeParkForClimb{[this] { m_intake.ParkIntakeForClimb(); }, {&m_intake} };
   //frc2::InstantCommand m_intakeParkAtZero{[this] { m_intake.ParkIntakeAtZero(); }, {&m_intake} };
 
   frc2::InstantCommand m_coralStop{[this] { m_coral.Stop(); }, {&m_coral} };
@@ -178,24 +198,6 @@ class RobotContainer : public ISubsystemAccess
   frc2::InstantCommand m_rumblePrimary{[this] { m_primaryController.SetRumble(GenericHID::RumbleType::kBothRumble, 1); }, {} };
   frc2::InstantCommand m_stopRumblePrimary{[this] { m_primaryController.SetRumble(GenericHID::RumbleType::kBothRumble, 0); }, {} };
 
-  frc2::InstantCommand m_ClimberDeploy{[this] 
-  { 
-#ifdef LED
-    m_led.SetCurrentAction(LEDSubsystem::kClimbing);
-    m_led.SetAnimation(c_colorGreen, LEDSubsystem::kFlow);
-#endif
-    m_climber.GoToPosition(c_defaultClimbDeployTurns);
-  }, {&m_climber} };
-  frc2::InstantCommand m_ClimberRetract{[this] 
-  { 
-#ifdef LED
-    m_led.SetAnimation(c_colorBlue, LEDSubsystem::kFlow);
-#endif
-    m_climber.GoToPosition(c_defaultClimbResetTurns);
-#ifdef LED
-    m_led.SetCurrentAction(LEDSubsystem::kClimbFinish);
-#endif
-  }, {&m_climber} };
   frc2::InstantCommand m_ClimberDeployRelUp{[this] { m_climber.GoToPositionRel(c_defaultClimbDeployRelTurns);}, {&m_climber} };
   frc2::InstantCommand m_ClimberDeployRelDown{[this] { m_climber.GoToPositionRel(-c_defaultClimbDeployRelTurns);}, {&m_climber} };
 

@@ -101,7 +101,7 @@ void ClimberSubsystem::Periodic()
 
 void ClimberSubsystem::GoToPositionRel(double relPos)
 {
-    relPos = frc::SmartDashboard::GetNumber("ClimbRel", c_defaultClimbDeployRelTurns);
+    //relPos = frc::SmartDashboard::GetNumber("ClimbRel", c_defaultClimbDeployRelTurns);
     GoToPosition(m_relativeEnc.GetPosition() + relPos);
 }
 
