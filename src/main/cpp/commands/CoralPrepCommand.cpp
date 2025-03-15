@@ -37,11 +37,12 @@ void CoralPrepCommand::Initialize()
     m_ledSubsystem.SetAnimation(c_colorPink, LEDSubsystem::kStrobe);  //TODO Replace constant color with var based on left/right & Set height based on level
 #endif
 
-    // if (m_coralLevel == L4)
-    // {
-    //     m_elevatorSubsystem.GoToPosition(algaeRemovalL3_4);
-    // }
-    // else
+    if (m_coralLevel == L4)
+    {
+        //printf("CoralPrepCommand going to level algae3_4\n");
+        m_elevatorSubsystem.GoToPosition(algaeRemovalL3_4);
+    }
+    else
     {
         m_elevatorSubsystem.GoToPresetLevel();
     }
@@ -52,11 +53,6 @@ void CoralPrepCommand::Initialize()
 
 void CoralPrepCommand::Execute()
 {
-    // if (m_coralLevel == L4 && m_timer.HasElapsed(0.25_s))
-    // {
-    //     m_elevatorSubsystem.GoToPresetLevel();
-    // }
-    
     if (m_retract)
     {
         m_coralSubsystem.RetractCoral(m_coralLevel);
@@ -66,7 +62,7 @@ void CoralPrepCommand::Execute()
 
 bool CoralPrepCommand::IsFinished()
 {   
-    return m_blocked || fabs(m_coralSubsystem.GetPosition() - m_coralEncPos) <= 0.5 || m_timer.HasElapsed(2.0_s);
+    return m_blocked || fabs(m_coralSubsystem.GetPosition() - m_coralEncPos) <= 0.75 || m_timer.HasElapsed(0.75_s);
 }
 
 void CoralPrepCommand::End(bool interrupted)

@@ -183,9 +183,13 @@ RobotContainer::RobotContainer()
     frc2::SequentialCommandGroup{
       m_setL4
     , CoralPrepCommand(*this)
-    , ConditionalCommand (InstantCommand{[this] {m_coral.DeployManipulator(); }, {&m_coral} }, 
-                          InstantCommand{[this] {m_coral.RetractManipulator(); }, {&m_coral} }, [](){return true;})
-    , WaitCommand(0.75_s)
+    , ConditionalCommand (SequentialCommandGroup{
+                                WaitCommand(0.20_s)
+                              , ElevatorGoToCommand(*this, L4, c_bUsePresetLevel)
+                              , InstantCommand{[this] {m_coral.DeployManipulator(); }, {&m_coral} } }, 
+                          InstantCommand{[this] {m_coral.RetractManipulator(); }, {&m_coral} }, 
+                          [this](){return (m_elevator.GetPresetLevel() == L4 || m_elevator.GetPresetLevel() == L1);})
+    , WaitCommand(0.55_s)
     , CoralEjectCommand(*this)
     , WaitCommand(0.25_s)
     , CoralEjectPostCommand(*this)
@@ -198,9 +202,13 @@ RobotContainer::RobotContainer()
     , DeferredCommand(GetFollowPathCommand, {&m_drive} )
     , m_setHighSpeedCmd
     , CoralPrepCommand(*this)
-    , ConditionalCommand (InstantCommand{[this] {m_coral.DeployManipulator(); }, {&m_coral} }, 
-                          InstantCommand{[this] {m_coral.RetractManipulator(); }, {&m_coral} }, [](){return true;})
-    , WaitCommand(0.75_s)
+    , ConditionalCommand (SequentialCommandGroup{
+                                WaitCommand(0.20_s)
+                              , ElevatorGoToCommand(*this, L4, c_bUsePresetLevel)
+                              , InstantCommand{[this] {m_coral.DeployManipulator(); }, {&m_coral} } }, 
+                          InstantCommand{[this] {m_coral.RetractManipulator(); }, {&m_coral} }, 
+                          [this](){return (m_elevator.GetPresetLevel() == L4 || m_elevator.GetPresetLevel() == L1);})
+    , WaitCommand(0.55_s)
     , CoralEjectCommand(*this)
     , WaitCommand(0.25_s)
     , CoralEjectPostCommand(*this)
@@ -214,9 +222,13 @@ RobotContainer::RobotContainer()
     , DeferredCommand(GetFollowPathCommand, {&m_drive} )
     , m_setHighSpeedCmd
     , CoralPrepCommand(*this)
-    , ConditionalCommand (InstantCommand{[this] {m_coral.DeployManipulator(); }, {&m_coral} }, 
-                          InstantCommand{[this] {m_coral.RetractManipulator(); }, {&m_coral} }, [](){return true;})
-    , WaitCommand(0.75_s)
+    , ConditionalCommand (SequentialCommandGroup{
+                                WaitCommand(0.20_s)
+                              , ElevatorGoToCommand(*this, L4, c_bUsePresetLevel)
+                              , InstantCommand{[this] {m_coral.DeployManipulator(); }, {&m_coral} } }, 
+                          InstantCommand{[this] {m_coral.RetractManipulator(); }, {&m_coral} }, 
+                          [this](){return (m_elevator.GetPresetLevel() == L4 || m_elevator.GetPresetLevel() == L1);})
+    , WaitCommand(0.55_s)
     , CoralEjectCommand(*this)
     , WaitCommand(0.25_s)
     , CoralEjectPostCommand(*this)
@@ -593,7 +605,7 @@ void RobotContainer::ConfigPrimaryButtonBindings()
   primary.A().OnTrue(frc2::SequentialCommandGroup{
       m_setHighSpeedCmd
     , CoralEjectCommand(*this)
-    , ElevatorGoToCommand(*this, L2)
+    , ElevatorGoToCommand(*this, L1)  // ElevatorGoToCommand will use algaeL2_3 if too high
     , WaitCommand(0.4_s)
     , ElevatorGoToCommand(*this, L1)
   }.ToPtr());
@@ -624,7 +636,7 @@ void RobotContainer::ConfigSecondaryButtonBindings()
   secondary.B().OnTrue(&m_elevL3);
   secondary.X().OnTrue(frc2::SequentialCommandGroup{
     m_setHighSpeedCmd
-    , ElevatorGoToCommand(*this, L2)
+    , ElevatorGoToCommand(*this, L1)  // ElevatorGoToCommand will use algaeL2_3 if too high
     , WaitCommand(0.4_s)
     , ElevatorGoToCommand(*this, L1)
   }.ToPtr());
@@ -632,10 +644,14 @@ void RobotContainer::ConfigSecondaryButtonBindings()
 
   secondary.LeftBumper().OnTrue(CoralEjectPostCommand(*this).ToPtr());
   secondary.RightBumper().OnTrue(frc2::SequentialCommandGroup{
-    CoralPrepCommand(*this)
-    , ConditionalCommand (InstantCommand{[this] {m_coral.DeployManipulator(); }, {&m_coral} }, 
-                          InstantCommand{[this] {m_coral.RetractManipulator(); }, {&m_coral} }, [](){return true;})
-    , WaitCommand(0.75_s)
+      CoralPrepCommand(*this)
+    , ConditionalCommand (SequentialCommandGroup{
+                                WaitCommand(0.20_s)
+                              , ElevatorGoToCommand(*this, L4, c_bUsePresetLevel)
+                              , InstantCommand{[this] {m_coral.DeployManipulator(); }, {&m_coral} } }, 
+                          InstantCommand{[this] {m_coral.RetractManipulator(); }, {&m_coral} }, 
+                          [this](){return (m_elevator.GetPresetLevel() == L4 || m_elevator.GetPresetLevel() == L1);})
+    , WaitCommand(0.55_s)
     , CoralEjectCommand(*this)
     , WaitCommand(0.25_s)
     , CoralEjectPostCommand(*this)
@@ -644,9 +660,9 @@ void RobotContainer::ConfigSecondaryButtonBindings()
   // secondary.Back().OnTrue(&m_elevReset);
   secondary.Back().OnTrue(frc2::SequentialCommandGroup{
     m_setHighSpeedCmd
-    , ElevatorGoToCommand(*this, L2)
+    , ElevatorGoToCommand(*this, L1)  // ElevatorGoToCommand will use algaeL2_3 if too high
     , WaitCommand(0.4_s)
-    , ElevatorGoToCommand(*this, L2)
+    , ElevatorGoToCommand(*this, L1)
     , m_elevReset
   }.ToPtr());
   secondary.Start().OnTrue(&m_coralRetract);
@@ -695,7 +711,11 @@ void RobotContainer::ConfigButtonBoxBindings()
       m_elevL2
     , m_setL2
   }.ToPtr());
-  buttonBox.LeftBumper().OnTrue(&m_elevL1); // m_elevL1 calls m_elevator.GoToPosition which updates the preset level
+  buttonBox.LeftBumper().OnTrue(frc2::SequentialCommandGroup{
+      ElevatorGoToCommand(*this, L1)  // ElevatorGoToCommand will use algaeL2_3 if too high
+    , WaitCommand(0.4_s)
+    , ElevatorGoToCommand(*this, L1)
+  }.ToPtr());
 
   buttonBox.Back().OnTrue(&m_elevRelPosUp);
   buttonBox.LeftStick().OnTrue(&m_elevRelPosDown);
@@ -711,10 +731,13 @@ void RobotContainer::ConfigButtonBoxBindings()
   buttonBox.A().OnTrue(frc2::SequentialCommandGroup{      // Score
       DeferredCommand(GetFollowPathCommand, {&m_drive} )
     , CoralPrepCommand(*this)
-    , ConditionalCommand (InstantCommand{[this] {m_coral.DeployManipulator(); }, {&m_coral} }, 
+    , ConditionalCommand (SequentialCommandGroup{
+                                WaitCommand(0.20_s)
+                              , ElevatorGoToCommand(*this, L4, c_bUsePresetLevel)
+                              , InstantCommand{[this] {m_coral.DeployManipulator(); }, {&m_coral} } }, 
                           InstantCommand{[this] {m_coral.RetractManipulator(); }, {&m_coral} }, 
-                                         [this](){return (m_elevator.GetPresetLevel() == L4 || m_elevator.GetPresetLevel() == L1);})
-    , WaitCommand(0.75_s)
+                          [this](){return (m_elevator.GetPresetLevel() == L4 || m_elevator.GetPresetLevel() == L1);})
+    , WaitCommand(0.55_s)
     , CoralEjectCommand(*this)
     , WaitCommand(0.25_s)
     , CoralEjectPostCommand(*this)
@@ -726,10 +749,13 @@ void RobotContainer::ConfigButtonBoxBindings()
   buttonBox.POVDown().OnTrue(&m_ClimberDeployRelDown);    // Jog in
   buttonBox.POVRight().OnTrue(frc2::SequentialCommandGroup{
       CoralPrepCommand(*this)
-    , ConditionalCommand (InstantCommand{[this] {m_coral.DeployManipulator(); }, {&m_coral} }, 
+    , ConditionalCommand (SequentialCommandGroup{
+                                WaitCommand(0.20_s)
+                              , ElevatorGoToCommand(*this, L4, c_bUsePresetLevel)
+                              , InstantCommand{[this] {m_coral.DeployManipulator(); }, {&m_coral} } }, 
                           InstantCommand{[this] {m_coral.RetractManipulator(); }, {&m_coral} }, 
-                                         [this](){return (m_elevator.GetPresetLevel() == L4 || m_elevator.GetPresetLevel() == L1);})
-    , WaitCommand(0.75_s)
+                          [this](){return (m_elevator.GetPresetLevel() == L4 || m_elevator.GetPresetLevel() == L1);})
+    , WaitCommand(0.55_s)
     , CoralEjectCommand(*this)
     , WaitCommand(0.25_s)
     , CoralEjectPostCommand(*this)

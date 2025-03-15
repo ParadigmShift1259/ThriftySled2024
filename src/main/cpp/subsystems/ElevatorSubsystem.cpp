@@ -203,10 +203,18 @@ double ElevatorSubsystem::GetPositionForLevel(ELevels eLevel)
 
 void ElevatorSubsystem::GoToPosition(ELevels eLevel)
 {
-    //if (eLevel != algaeRemovalL3_4)
+    if (eLevel != algaeRemovalL3_4)
     {
         SetPresetLevel(eLevel);
     }
+
+    auto transition = GetPositionForLevel(L3) + c_elevToleranceTurns;
+    if (eLevel == L1 && (GetCurrentPosition() > transition))
+    {
+        // Too high, will slam; caller needs to wait and re-go to L1
+        eLevel = L3;
+    }
+
     GoToPosition(GetPositionForLevel(eLevel));  
 }
 
@@ -245,8 +253,7 @@ bool ElevatorSubsystem::IsAtPosition(ELevels level)
 {
     double levelPos = GetPositionForLevel(level);
     double difference = fabs(m_leadRelativeEnc.GetPosition() - levelPos);
-    // return difference > -0.53 && difference < 0.5;
-    return difference > -6.0 && difference < 6.0;
+    return difference > -c_elevToleranceTurns && difference < c_elevToleranceTurns;
 }
 
 void ElevatorSubsystem::SetPresetLevel(ELevels level)

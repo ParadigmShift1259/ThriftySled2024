@@ -38,6 +38,8 @@ constexpr double c_algaeRemovalL3_4 = 33.0;
 constexpr double c_algaeRemovalL2_3 = 20.75;
 constexpr double c_algaeRemovalGripBall = -4.0;
 
+constexpr double c_elevToleranceTurns = 6.0;
+
 class ElevatorSubsystem : public frc2::SubsystemBase
 {
 public:
@@ -63,6 +65,7 @@ public:
     void SetPresetLevel(ELevels level);
     ELevels GetPresetLevel() {return m_level;}
     void GoToPresetLevel();
+    double GetPositionForLevel(ELevels eLevel);
 
     enum Position {
         kDefaultPosition,
@@ -73,7 +76,6 @@ public:
 
 private:
     void GoToPosition(double position);
-    double GetPositionForLevel(ELevels eLevel);
 
     SparkBaseConfig m_leadConfig{};
     SparkBaseConfig m_followConfig{};
