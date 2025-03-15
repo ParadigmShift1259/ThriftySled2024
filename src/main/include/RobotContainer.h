@@ -131,23 +131,14 @@ class RobotContainer : public ISubsystemAccess
   DashBoardValue<bool> m_dbv3Meter{"Vision", "3Meter", false};  
   DashBoardValue<bool> m_dbv4Meter{"Vision", "4Meter", false};  
 
-  bool m_runIntakeStartup = true;
-  bool m_runCoralRetract  = false;
-  bool m_runElevL2        = false;
-  bool m_runElevL3        = false;
-  bool m_runElevL4        = false;
-  bool m_runElevJogDown   = false;
-  bool m_runDeployManip   = false;
-  bool m_runRetractManip  = false;
-  //bool m_run = true;
-  DashBoardValue<bool> m_dbvRunIntakeStartup{"Intake", "RunStartup", m_runIntakeStartup};
-  DashBoardValue<bool> m_dbvRunCoralRetract{"Coral", "CoralRetract", m_runCoralRetract};
-  DashBoardValue<bool> m_dbvRunElevL2{"Elevator", "GoL2", m_runElevL2};
-  DashBoardValue<bool> m_dbvRunElevL3{"Elevator", "GoL3", m_runElevL3};
-  DashBoardValue<bool> m_dbvRunElevL4{"Elevator", "GoL4", m_runElevL4};
-  DashBoardValue<bool> m_dbvRunElevJogDown{"Elevator", "ElevJogDn", m_runElevJogDown};
-  DashBoardValue<bool> m_dbvRunDeploManip{"Coral", "DeployManip", m_runDeployManip};
-  DashBoardValue<bool> m_dbvRunRetractManip{"Coral", "RetractManip", m_runRetractManip};
+  DashBoardValue<bool> m_dbvRunIntakeStartup{"Intake", "RunStartup", false};
+  DashBoardValue<bool> m_dbvRunCoralRetract{"Coral", "CoralRetract", false};
+  DashBoardValue<bool> m_dbvRunElevL2{"Elevator", "GoL2", false};
+  DashBoardValue<bool> m_dbvRunElevL3{"Elevator", "GoL3", false};
+  DashBoardValue<bool> m_dbvRunElevL4{"Elevator", "GoL4", false};
+  DashBoardValue<bool> m_dbvRunElevJogDown{"Elevator", "ElevJogDn", false};
+  DashBoardValue<bool> m_dbvRunDeploManip{"Coral", "DeployManip", false};
+  DashBoardValue<bool> m_dbvRunRetractManip{"Coral", "RetractManip", false};
   //DashBoardValue<bool> m_dbvRun{"", "", m_run};
 
   ESideSelected m_sideSelected = Unselected;

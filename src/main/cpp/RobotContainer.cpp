@@ -323,49 +323,54 @@ RobotContainer::RobotContainer()
 
 void RobotContainer::ConfigureNetworkButtons()
 {
-  frc2::NetworkButton(nt::NetworkTableInstance::GetDefault().GetBooleanTopic(m_dbvRunIntakeStartup.Path())).OnChange
+  using NetBtn = frc2::NetworkButton;
+  using InstCmd = frc2::InstantCommand;
+
+  auto netTable = nt::NetworkTableInstance::GetDefault();
+
+  NetBtn(netTable.GetBooleanTopic(m_dbvRunIntakeStartup.Path())).OnChange
   (
-    frc2::InstantCommand([this] { if (m_runIntakeStartup) StartUp(); m_runIntakeStartup = false; }, {}).ToPtr()
+    InstCmd([this] { if (m_dbvRunIntakeStartup.Get()) StartUp(); m_dbvRunIntakeStartup.Put(false); }, {}).ToPtr()
   );
 
-  frc2::NetworkButton(nt::NetworkTableInstance::GetDefault().GetBooleanTopic(m_dbvRunCoralRetract.Path())).OnChange
+  NetBtn(netTable.GetBooleanTopic(m_dbvRunCoralRetract.Path())).OnChange
   (
-    frc2::InstantCommand([this] { if (m_runCoralRetract) m_coral.RetractCoral(L1); m_runCoralRetract = false; }, {}).ToPtr()
+    InstCmd([this] { if (m_dbvRunCoralRetract.Get()) m_coral.RetractCoral(L1); m_dbvRunCoralRetract.Put(false); }, {}).ToPtr()
   );
 
-  frc2::NetworkButton(nt::NetworkTableInstance::GetDefault().GetBooleanTopic(m_dbvRunElevL2.Path())).OnChange
+  NetBtn(netTable.GetBooleanTopic(m_dbvRunElevL2.Path())).OnChange
   (
-    frc2::InstantCommand([this] { if (m_runElevL2) m_elevator.GoToPosition(L2); m_runElevL2 = false; }, {}).ToPtr()
+    InstCmd([this] { if (m_dbvRunElevL2.Get()) m_elevator.GoToPosition(L2); m_dbvRunElevL2.Put(false); }, {}).ToPtr()
   );
 
-  frc2::NetworkButton(nt::NetworkTableInstance::GetDefault().GetBooleanTopic(m_dbvRunElevL3.Path())).OnChange
+  NetBtn(netTable.GetBooleanTopic(m_dbvRunElevL3.Path())).OnChange
   (
-    frc2::InstantCommand([this] { if (m_runElevL3) m_elevator.GoToPosition(L3); m_runElevL3 = false; }, {}).ToPtr()
+    InstCmd([this] { if (m_dbvRunElevL3.Get()) m_elevator.GoToPosition(L3); m_dbvRunElevL3.Put(false); }, {}).ToPtr()
   );
 
-  frc2::NetworkButton(nt::NetworkTableInstance::GetDefault().GetBooleanTopic(m_dbvRunElevL4.Path())).OnChange
+  NetBtn(netTable.GetBooleanTopic(m_dbvRunElevL4.Path())).OnChange
   (
-    frc2::InstantCommand([this] { if (m_runElevL4) m_elevator.GoToPosition(L4); m_runElevL4 = false; }, {}).ToPtr()
+    InstCmd([this] { if (m_dbvRunElevL4.Get()) m_elevator.GoToPosition(L4); m_dbvRunElevL4.Put(false); }, {}).ToPtr()
   );
 
-  frc2::NetworkButton(nt::NetworkTableInstance::GetDefault().GetBooleanTopic(m_dbvRunElevJogDown.Path())).OnChange
+  NetBtn(netTable.GetBooleanTopic(m_dbvRunElevJogDown.Path())).OnChange
   (
-    frc2::InstantCommand([this] { if (m_runElevJogDown) m_elevator.GotoPositionRel(-1.0); m_runElevJogDown = false; }, {}).ToPtr()
+    InstCmd([this] { if (m_dbvRunElevJogDown.Get()) m_elevator.GotoPositionRel(-1.0); m_dbvRunElevJogDown.Put(false); }, {}).ToPtr()
   );
 
-  frc2::NetworkButton(nt::NetworkTableInstance::GetDefault().GetBooleanTopic(m_dbvRunDeploManip.Path())).OnChange
+  NetBtn(netTable.GetBooleanTopic(m_dbvRunDeploManip.Path())).OnChange
   (
-    frc2::InstantCommand([this] { if (m_runDeployManip) m_coral.DeployManipulator(); m_runDeployManip = false; }, {}).ToPtr()
+    InstCmd([this] { if (m_dbvRunDeploManip.Get()) m_coral.DeployManipulator(); m_dbvRunDeploManip.Put(false); }, {}).ToPtr()
   );
 
-  frc2::NetworkButton(nt::NetworkTableInstance::GetDefault().GetBooleanTopic(m_dbvRunRetractManip.Path())).OnChange
+  NetBtn(netTable.GetBooleanTopic(m_dbvRunRetractManip.Path())).OnChange
   (
-    frc2::InstantCommand([this] { if (m_runRetractManip) m_coral.RetractManipulator(); m_runRetractManip = false; }, {}).ToPtr()
+    InstCmd([this] { if (m_dbvRunRetractManip.Get()) m_coral.RetractManipulator(); m_dbvRunRetractManip.Put(false); }, {}).ToPtr()
   );
 
-  // frc2::NetworkButton
+  // NetBtn
   // (
-  //   nt::NetworkTableInstance::GetDefault().GetBooleanTopic(m_dbvFieldRelative.Path())).OnChange
+  //   netTable.GetBooleanTopic(m_dbvFieldRelative.Path())).OnChange
   //   (
   //     frc2::cmd::RunOnce([this] { m_fieldRelative = !m_fieldRelative; }, {}
   //   )
@@ -451,7 +456,6 @@ void RobotContainer::Periodic()
   }
 
   m_dbvFieldRelative.Put(m_fieldRelative);
-  m_dbvRunIntakeStartup.Put(m_runIntakeStartup);
 
   frc::SmartDashboard::PutNumber("MatchTime", frc::DriverStation::GetMatchTime().value());
   m_field.SetRobotPose(m_drive.GetPose());
