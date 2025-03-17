@@ -63,7 +63,7 @@ class RobotContainer : public ISubsystemAccess
     m_timer.Reset();
     m_timer.Start();
   }
-
+  bool commandRunning;
   // ConfigureRobotLEDs called by Robot class, passes enabled state via dashboard value "Robot Enabled"
   void ConfigureRobotLEDs();
 

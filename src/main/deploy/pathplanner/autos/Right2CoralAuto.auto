@@ -5,9 +5,15 @@
     "data": {
       "commands": [
         {
+          "type": "named",
+          "data": {
+            "name": "RaiseL3"
+          }
+        },
+        {
           "type": "path",
           "data": {
-            "pathName": "ppFirstPlace"
+            "pathName": "FirstPlaceRight.0"
           }
         },
         {
@@ -19,31 +25,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "ppFirstIntake"
+            "pathName": "FirstIntakeRight.0"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "ppSecondPlace"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "PlaceL4L_OTFP"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "ppSecondIntake"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "ppThirdPlace"
+            "pathName": "SecondPlaceRightCenter.0"
           }
         },
         {
@@ -57,5 +45,5 @@
   },
   "resetOdom": true,
   "folder": null,
-  "choreoAuto": false
+  "choreoAuto": true
 }

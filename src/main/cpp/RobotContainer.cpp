@@ -156,6 +156,7 @@ RobotContainer::RobotContainer()
   , m_orchestra("output.chrp")
 #endif
 {
+  commandRunning = false;
   NamedCommands::registerCommand("RaiseL3", std::move(frc2::SequentialCommandGroup{m_setL3, m_elevL3}.ToPtr()));
   NamedCommands::registerCommand("RaiseL2", std::move(frc2::SequentialCommandGroup{m_setL2, m_elevL2}.ToPtr()));
 
@@ -509,9 +510,11 @@ void RobotContainer::AreWeInTheSweetSpot()
       m_led.SetCurrentAction(LEDSubsystem::kTagVisible);
       m_led.SetAnimation(c_colorWhite, LEDSubsystem::kStrobe);
     }
-    else if (m_led.GetCurrentAction() == LEDSubsystem::kTagVisible)
+    else if ((m_led.GetCurrentAction() == LEDSubsystem::kTagVisible) && commandRunning == false) //commandRunning is meant to make it so that it doesn't idle when the on the fly path is running
     {
-      m_led.SetCurrentAction(LEDSubsystem::kIdle);
+      // m_led.SetCurrentAction(LEDSubsystem::kIdle);
+      m_led.SetCurrentAction(LEDSubsystem::kHasCoral);
+      m_led.SetAnimation(c_colorPink, LEDSubsystem::kSolid);
     }
 #endif
   }
@@ -832,6 +835,7 @@ frc2::CommandPtr RobotContainer::GetFollowPathCommandImpl()
 
 #define USE_POSITION_PID
 #ifdef USE_POSITION_PID
+  commandRunning = true;
   double pathLen = m_drive.GetCurrentPose().Translation().Distance(targetPose.Translation()).value();
   if (pathLen < 0.01)   // 10cm ~ 4in
   {
@@ -886,6 +890,7 @@ frc2::CommandPtr RobotContainer::GetFollowPathCommandImpl()
         },
         {&m_drive} // Drive requirements, usually just a single drive subsystem
       ).ToPtr();
+      commandRunning = false;
 #endif
 }
 

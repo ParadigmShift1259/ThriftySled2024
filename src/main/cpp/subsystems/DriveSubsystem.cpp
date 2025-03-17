@@ -6,6 +6,7 @@
 
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <frc/RobotBase.h>
+#include <frc/DriverStation.h>
 
 #include <units/math.h>
 
@@ -96,9 +97,15 @@ void DriveSubsystem::Drive(units::meters_per_second_t xSpeed,
   if (m_bOverrideXboxInput == false)
   {
     frc::ChassisSpeeds chassisSpeeds;
+    auto alliance = frc::DriverStation::GetAlliance();
     if (fieldRelative)
     {
-      chassisSpeeds = frc::ChassisSpeeds::FromFieldRelativeSpeeds(-xSpeed, -ySpeed, rot, m_poseEstimator.GetEstimatedPosition().Rotation());
+      if (alliance.value() == frc::DriverStation::kBlue){
+        chassisSpeeds = frc::ChassisSpeeds::FromFieldRelativeSpeeds(-xSpeed, -ySpeed, rot, m_poseEstimator.GetEstimatedPosition().Rotation());
+      }
+      else {
+        chassisSpeeds = frc::ChassisSpeeds::FromFieldRelativeSpeeds(xSpeed, ySpeed, rot, m_poseEstimator.GetEstimatedPosition().Rotation());
+      }
     }
     else
     {
