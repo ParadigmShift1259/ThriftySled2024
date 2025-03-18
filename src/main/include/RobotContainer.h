@@ -62,8 +62,10 @@ class RobotContainer : public ISubsystemAccess
     m_intake.AlignIntake();
     m_timer.Reset();
     m_timer.Start();
+    // Move the climb partway out to relieve the spring tension
+    //m_climber.GoToPosition(c_defaultClimbSpringTensionTurns);
   }
-
+  bool commandRunning = false;
   // ConfigureRobotLEDs called by Robot class, passes enabled state via dashboard value "Robot Enabled"
   void ConfigureRobotLEDs();
 
@@ -77,7 +79,7 @@ class RobotContainer : public ISubsystemAccess
   void SetDefaultCommands();
   void ConfigureBindings();
   void ConfigPrimaryButtonBindings();
-#define USE_SECOND_XBOX_CONTROLLER
+//#define USE_SECOND_XBOX_CONTROLLER
 #ifdef USE_SECOND_XBOX_CONTROLLER
   void ConfigSecondaryButtonBindings();
 #endif

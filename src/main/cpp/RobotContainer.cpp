@@ -156,6 +156,7 @@ RobotContainer::RobotContainer()
   , m_orchestra("output.chrp")
 #endif
 {
+  commandRunning = false;
   NamedCommands::registerCommand("RaiseL3", std::move(frc2::SequentialCommandGroup{m_setL3, m_elevL3}.ToPtr()));
   NamedCommands::registerCommand("RaiseL2", std::move(frc2::SequentialCommandGroup{m_setL2, m_elevL2}.ToPtr()));
 
@@ -509,9 +510,11 @@ void RobotContainer::AreWeInTheSweetSpot()
       m_led.SetCurrentAction(LEDSubsystem::kTagVisible);
       m_led.SetAnimation(c_colorWhite, LEDSubsystem::kStrobe);
     }
-    else if (m_led.GetCurrentAction() == LEDSubsystem::kTagVisible)
+    else if ((m_led.GetCurrentAction() == LEDSubsystem::kTagVisible) && commandRunning == false) //commandRunning is meant to make it so that it doesn't idle when the on the fly path is running
     {
-      m_led.SetCurrentAction(LEDSubsystem::kIdle);
+      // m_led.SetCurrentAction(LEDSubsystem::kIdle);
+      m_led.SetCurrentAction(LEDSubsystem::kHasCoral);
+      m_led.SetAnimation(c_colorPink, LEDSubsystem::kSolid);
     }
 #endif
   }
@@ -607,6 +610,12 @@ void RobotContainer::ConfigPrimaryButtonBindings()
   primary.LeftBumper().OnTrue(&m_toggleFieldRelative);
   primary.RightBumper().OnTrue(DeferredCommand(GetFollowPathCommand, {&m_drive} ).ToPtr());
 
+  // Borrowing the m_isAutoRunning flag to supress the joystick input
+  primary.RightTrigger().WhileTrue(InstantCommand{[this](){ m_isAutoRunning = true; m_drive.JogRotate(true); }, {&m_drive} }.ToPtr());
+  primary.LeftTrigger().WhileTrue(InstantCommand{[this](){ m_isAutoRunning = true; m_drive.JogRotate(false); }, {&m_drive} }.ToPtr());
+  primary.RightTrigger().OnFalse(InstantCommand{[this](){ m_isAutoRunning = false; }, {} }.ToPtr());
+  primary.LeftTrigger().OnFalse(InstantCommand{[this](){ m_isAutoRunning = false; }, {} }.ToPtr());
+
   primary.POVUp().OnTrue(StopAllCommand(*this).ToPtr());
   primary.POVDown().OnTrue(&m_intakeAlign);
   primary.POVLeft().OnTrue(&m_resetOdo);                                // Aligns the gyro with the tag currently being imaged
@@ -661,9 +670,6 @@ void RobotContainer::ConfigSecondaryButtonBindings()
   //secondary.RightStick().OnTrue(&m_intakeParkForClimb);
   secondary.POVRight().OnTrue(&m_coralDeployManip);
   secondary.POVLeft().OnTrue(&m_coralRetractManip);
-
-  secondary.RightTrigger().OnTrue(InstantCommand{[this](){ m_drive.JogRotate(true); }, {&m_drive} }.ToPtr());
-  secondary.LeftTrigger().OnTrue(InstantCommand{[this](){ m_drive.JogRotate(false); }, {&m_drive} }.ToPtr());
 
 #ifdef TEST_WHEEL_CONTROL
   auto loop = CommandScheduler::GetInstance().GetDefaultButtonLoop();
@@ -759,7 +765,7 @@ void RobotContainer::ConfigButtonBoxBindings()
 #define DRIVE_BACK
 #ifdef DRIVE_BACK
   buttonBox.POVLeft().OnTrue(frc2::SequentialCommandGroup{        // Drive back
-      InstantCommand{[this](){m_drive.WheelsForward();}, {&m_drive}}
+      InstantCommand{[this](){m_drive.DriveBack();}, {&m_drive}}
     , WaitCommand(0.125_s)
     , InstantCommand{[this](){m_drive.Stop();}, {&m_drive}}
   }.ToPtr());
@@ -832,6 +838,7 @@ frc2::CommandPtr RobotContainer::GetFollowPathCommandImpl()
 
 #define USE_POSITION_PID
 #ifdef USE_POSITION_PID
+  commandRunning = true;
   double pathLen = m_drive.GetCurrentPose().Translation().Distance(targetPose.Translation()).value();
   if (pathLen < 0.01)   // 10cm ~ 4in
   {
@@ -886,6 +893,7 @@ frc2::CommandPtr RobotContainer::GetFollowPathCommandImpl()
         },
         {&m_drive} // Drive requirements, usually just a single drive subsystem
       ).ToPtr();
+      commandRunning = false;
 #endif
 }
 

@@ -92,6 +92,7 @@ public:
   void ResyncAbsRelEnc() override;
   void SetOverrideXboxInput(bool bOverride) override { m_bOverrideXboxInput = bOverride; }
   void JogRotate(bool bClockwise);
+  void DriveBack();
   void WheelsForward() override;
   void WheelsLeft() override;
   void WheelsBackward() override;
