@@ -610,6 +610,12 @@ void RobotContainer::ConfigPrimaryButtonBindings()
   primary.LeftBumper().OnTrue(&m_toggleFieldRelative);
   primary.RightBumper().OnTrue(DeferredCommand(GetFollowPathCommand, {&m_drive} ).ToPtr());
 
+  // Borrowing the m_isAutoRunning flag to supress the joystick input
+  primary.RightTrigger().WhileTrue(InstantCommand{[this](){ m_isAutoRunning = true; m_drive.JogRotate(true); }, {&m_drive} }.ToPtr());
+  primary.LeftTrigger().WhileTrue(InstantCommand{[this](){ m_isAutoRunning = true; m_drive.JogRotate(false); }, {&m_drive} }.ToPtr());
+  primary.RightTrigger().OnFalse(InstantCommand{[this](){ m_isAutoRunning = false; }, {} }.ToPtr());
+  primary.LeftTrigger().OnFalse(InstantCommand{[this](){ m_isAutoRunning = false; }, {} }.ToPtr());
+
   primary.POVUp().OnTrue(StopAllCommand(*this).ToPtr());
   primary.POVDown().OnTrue(&m_intakeAlign);
   primary.POVLeft().OnTrue(&m_resetOdo);                                // Aligns the gyro with the tag currently being imaged
@@ -664,9 +670,6 @@ void RobotContainer::ConfigSecondaryButtonBindings()
   //secondary.RightStick().OnTrue(&m_intakeParkForClimb);
   secondary.POVRight().OnTrue(&m_coralDeployManip);
   secondary.POVLeft().OnTrue(&m_coralRetractManip);
-
-  secondary.RightTrigger().OnTrue(InstantCommand{[this](){ m_drive.JogRotate(true); }, {&m_drive} }.ToPtr());
-  secondary.LeftTrigger().OnTrue(InstantCommand{[this](){ m_drive.JogRotate(false); }, {&m_drive} }.ToPtr());
 
 #ifdef TEST_WHEEL_CONTROL
   auto loop = CommandScheduler::GetInstance().GetDefaultButtonLoop();
@@ -762,7 +765,7 @@ void RobotContainer::ConfigButtonBoxBindings()
 #define DRIVE_BACK
 #ifdef DRIVE_BACK
   buttonBox.POVLeft().OnTrue(frc2::SequentialCommandGroup{        // Drive back
-      InstantCommand{[this](){m_drive.WheelsForward();}, {&m_drive}}
+      InstantCommand{[this](){m_drive.DriveBack();}, {&m_drive}}
     , WaitCommand(0.125_s)
     , InstantCommand{[this](){m_drive.Stop();}, {&m_drive}}
   }.ToPtr());

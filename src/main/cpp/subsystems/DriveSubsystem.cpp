@@ -290,33 +290,33 @@ void DriveSubsystem::ResetOdometry(frc::Pose2d pose)
 
 void DriveSubsystem::JogRotate(bool bClockwise)
 {
-  // printf("DriveSubsystem::WheelsForward\n");
-
-  m_bOverrideXboxInput = true;
-  frc::SwerveModuleState sms;
-  const frc::Rotation2d pos{2.0_deg};
-  const frc::Rotation2d neg{-2.0_deg};
-  frc::Rotation2d rot = bClockwise ? pos : neg;
-  sms.angle = m_poseEstimator.GetEstimatedPosition().Rotation().RotateBy(rot);
-  sms.speed = 0.1_mps;
-  SetAllDesiredState(sms);
-  // printf("DriveSubsystem::WheelsForward DONE\n");
+  const frc::Rotation2d angle{5.0_deg};
+  frc::Rotation2d rot = bClockwise ? angle : -angle;
+  auto rotRate = rot.Radians() / 1_s;
+  Drive(0_mps, 0_mps, rotRate, false);
 }
 
-void DriveSubsystem::WheelsForward()
+void DriveSubsystem::DriveBack()
 {
-  // printf("DriveSubsystem::WheelsForward\n");
-
   m_bOverrideXboxInput = true;
   frc::SwerveModuleState sms;
   sms.angle = frc::Rotation2d{0.0_deg};
   sms.speed = 0.1_mps;
   SetAllDesiredState(sms);
-  // printf("DriveSubsystem::WheelsForward DONE\n");
+}
+
+void DriveSubsystem::WheelsForward()
+{
+  m_bOverrideXboxInput = true;
+  frc::SwerveModuleState sms;
+  sms.angle = frc::Rotation2d{0.0_deg};
+  sms.speed = 0.0_mps;
+  SetAllDesiredState(sms);
 }
 
 void DriveSubsystem::WheelsLeft()
 {
+  m_bOverrideXboxInput = true;
   frc::SwerveModuleState sms;
   sms.angle = frc::Rotation2d{90.0_deg};
   sms.speed = 0.0_mps;
@@ -325,6 +325,7 @@ void DriveSubsystem::WheelsLeft()
 
 void DriveSubsystem::WheelsBackward()
 {
+  m_bOverrideXboxInput = true;
   frc::SwerveModuleState sms;
   sms.angle = frc::Rotation2d{180.0_deg};
   sms.speed = 0.0_mps;
@@ -333,6 +334,7 @@ void DriveSubsystem::WheelsBackward()
 
 void DriveSubsystem::WheelsRight()
 {
+  m_bOverrideXboxInput = true;
   frc::SwerveModuleState sms;
   sms.angle = frc::Rotation2d{-90.0_deg};
   sms.speed = 0.0_mps;
