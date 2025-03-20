@@ -44,6 +44,9 @@ frc::Field2d m_field;
 
 RobotContainer* RobotContainer::m_pThis = nullptr;
 
+constexpr units::second_t c_coralDeployDelay = 0.95_s; // How long to wait between deplying the coral manipulator and ejecting
+constexpr units::second_t c_coralPostEjectDelay = 0.25_s; // How long to wait between deplying the coral manipulator and ejecting
+
 // Data for each tag position
 struct TagInfo
 {
@@ -193,9 +196,9 @@ RobotContainer::RobotContainer()
                               , InstantCommand{[this] {m_coral.DeployManipulator(); }, {&m_coral} } }, 
                           InstantCommand{[this] {m_coral.RetractManipulator(); }, {&m_coral} }, 
                           [this](){return (m_elevator.GetPresetLevel() == L4 || m_elevator.GetPresetLevel() == L1);})
-    , WaitCommand(0.55_s)
+    , WaitCommand(c_coralDeployDelay)
     , CoralEjectCommand(*this)
-    , WaitCommand(0.25_s)
+    , WaitCommand(c_coralPostEjectDelay)
     , CoralEjectPostCommand(*this)
     , m_elevL1
     , m_EndLED
@@ -215,9 +218,9 @@ RobotContainer::RobotContainer()
                               , InstantCommand{[this] {m_coral.DeployManipulator(); }, {&m_coral} } }, 
                           InstantCommand{[this] {m_coral.RetractManipulator(); }, {&m_coral} }, 
                           [this](){return (m_elevator.GetPresetLevel() == L4 || m_elevator.GetPresetLevel() == L1);})
-    , WaitCommand(0.55_s)
+    , WaitCommand(c_coralDeployDelay)
     , CoralEjectCommand(*this)
-    , WaitCommand(0.25_s)
+    , WaitCommand(c_coralPostEjectDelay)
     , CoralEjectPostCommand(*this)
     , m_elevL1
     , m_EndLED
@@ -667,9 +670,9 @@ void RobotContainer::ConfigSecondaryButtonBindings()
                               , InstantCommand{[this] {m_coral.DeployManipulator(); }, {&m_coral} } }, 
                           InstantCommand{[this] {m_coral.RetractManipulator(); }, {&m_coral} }, 
                           [this](){return (m_elevator.GetPresetLevel() == L4 || m_elevator.GetPresetLevel() == L1);})
-    , WaitCommand(0.55_s)
+    , WaitCommand(c_coralDeployDelay)
     , CoralEjectCommand(*this)
-    , WaitCommand(0.25_s)
+    , WaitCommand(c_coralPostEjectDelay)
     , CoralEjectPostCommand(*this)
   }.ToPtr());
       
@@ -755,9 +758,9 @@ void RobotContainer::ConfigButtonBoxBindings()
                           InstantCommand{[this] {m_coral.RetractManipulator(); }, {&m_coral} }, 
                           [this](){return m_elevator.GetPresetLevel() == L4;})
 //                          [this](){return (m_elevator.GetPresetLevel() == L4 || m_elevator.GetPresetLevel() == L1);})
-    , WaitCommand(0.55_s)
+    , WaitCommand(c_coralDeployDelay)
     , CoralEjectCommand(*this)
-    , WaitCommand(0.25_s)
+    , WaitCommand(c_coralPostEjectDelay)
     , CoralEjectPostCommand(*this)
     , m_elevL1
     , m_EndLED
@@ -774,15 +777,15 @@ void RobotContainer::ConfigButtonBoxBindings()
                               , InstantCommand{[this] {m_coral.DeployManipulator(); }, {&m_coral} } }, 
                           InstantCommand{[this] {m_coral.RetractManipulator(); }, {&m_coral} }, 
                           [this](){return (m_elevator.GetPresetLevel() == L4 || m_elevator.GetPresetLevel() == L1);})
-    , WaitCommand(0.55_s)
+    , WaitCommand(c_coralDeployDelay)
     , CoralEjectCommand(*this)
-    , WaitCommand(0.25_s)
+    , WaitCommand(c_coralPostEjectDelay)
     , CoralEjectPostCommand(*this)
     , m_elevL1
     , m_EndLED
   }.ToPtr());
 
-#define DRIVE_BACK
+//#define DRIVE_BACK
 #ifdef DRIVE_BACK
   buttonBox.POVLeft().OnTrue(frc2::SequentialCommandGroup{        // Drive back
       InstantCommand{[this](){m_drive.DriveBack();}, {&m_drive}}
@@ -790,11 +793,8 @@ void RobotContainer::ConfigButtonBoxBindings()
     , InstantCommand{[this](){m_drive.Stop();}, {&m_drive}}
   }.ToPtr());
 #else
-  buttonBox.POVLeft().OnTrue(frc2::SequentialCommandGroup{
-        m_setHighSpeedCmd
-      , DeferredCommand(GetFollowPathCommand, {&m_drive} )
-      , PositionPIDCommand(*this, m_targetPose)  
-  }.ToPtr());
+  //buttonBox.POVLeft().OnTrue(CoralEjectCommand(*this).ToPtr());
+  buttonBox.POVLeft().OnTrue(InstantCommand{[this] {m_coral.EjectCoral(false); }, {&m_coral} }.ToPtr() );
 #endif
 
   // Wiring

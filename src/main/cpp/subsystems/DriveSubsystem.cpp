@@ -101,10 +101,10 @@ void DriveSubsystem::Drive(units::meters_per_second_t xSpeed,
     if (fieldRelative)
     {
       if (alliance.value() == frc::DriverStation::kBlue){
-        chassisSpeeds = frc::ChassisSpeeds::FromFieldRelativeSpeeds(-xSpeed, -ySpeed, rot, m_poseEstimator.GetEstimatedPosition().Rotation());
+        chassisSpeeds = frc::ChassisSpeeds::FromFieldRelativeSpeeds(xSpeed, ySpeed, rot, m_poseEstimator.GetEstimatedPosition().Rotation());
       }
       else {
-        chassisSpeeds = frc::ChassisSpeeds::FromFieldRelativeSpeeds(xSpeed, ySpeed, rot, m_poseEstimator.GetEstimatedPosition().Rotation());
+        chassisSpeeds = frc::ChassisSpeeds::FromFieldRelativeSpeeds(-xSpeed, -ySpeed, rot, m_poseEstimator.GetEstimatedPosition().Rotation());
       }
     }
     else
