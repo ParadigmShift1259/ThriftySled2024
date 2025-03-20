@@ -166,7 +166,7 @@ RobotContainer::RobotContainer()
   frc2::SequentialCommandGroup{
     m_setL2
   , CoralPrepCommand(*this)
-  , WaitCommand(0.75_s)
+  , WaitCommand(0.75_s)     // May not need this
   , CoralEjectCommand(*this)
   , WaitCommand(0.25_s)
   , CoralEjectPostCommand(*this)
@@ -191,7 +191,6 @@ RobotContainer::RobotContainer()
     , DeferredCommand(GetFollowPathCommand, {&m_drive} )
     , m_setHighSpeedCmd
     , ConditionalCommand (SequentialCommandGroup{
-                                //WaitCommand(0.20_s)
                                 ElevatorGoToCommand(*this, L4, c_bUsePresetLevel)
                               , InstantCommand{[this] {m_coral.DeployManipulator(); }, {&m_coral} } }, 
                           InstantCommand{[this] {m_coral.RetractManipulator(); }, {&m_coral} }, 
@@ -213,7 +212,6 @@ RobotContainer::RobotContainer()
     , DeferredCommand(GetFollowPathCommand, {&m_drive} )
     , m_setHighSpeedCmd
     , ConditionalCommand (SequentialCommandGroup{
-                                //WaitCommand(0.20_s)
                                 ElevatorGoToCommand(*this, L4, c_bUsePresetLevel)
                               , InstantCommand{[this] {m_coral.DeployManipulator(); }, {&m_coral} } }, 
                           InstantCommand{[this] {m_coral.RetractManipulator(); }, {&m_coral} }, 
@@ -234,7 +232,7 @@ RobotContainer::RobotContainer()
     m_pThis = this;
     //---------------------------------------------------------
     //printf("************************Calling SilenceJoystickConnectionWarning - Wisco2024 Day 1 only REMOVE!!!!!\n");
-    DriverStation::SilenceJoystickConnectionWarning(true);
+    //DriverStation::SilenceJoystickConnectionWarning(true);
     //---------------------------------------------------------
 
     wpi::log::DataLog& log = GetLogger();
@@ -752,13 +750,13 @@ void RobotContainer::ConfigButtonBoxBindings()
     , DeferredCommand(GetFollowPathCommand, {&m_drive} )
     , CoralPrepCommand(*this)
     , ConditionalCommand (SequentialCommandGroup{
-                                //WaitCommand(0.20_s)
                                 ElevatorGoToCommand(*this, L4, c_bUsePresetLevel)
-                              , InstantCommand{[this] {m_coral.DeployManipulator(); }, {&m_coral} } }, 
-                          InstantCommand{[this] {m_coral.RetractManipulator(); }, {&m_coral} }, 
+                              , InstantCommand{[this] {m_coral.DeployManipulator(); }, {&m_coral} } 
+                              , WaitCommand(c_coralDeployDelay)
+                              }
+                          , InstantCommand{[this] {m_coral.RetractManipulator(); }, {&m_coral} }, 
                           [this](){return m_elevator.GetPresetLevel() == L4;})
 //                          [this](){return (m_elevator.GetPresetLevel() == L4 || m_elevator.GetPresetLevel() == L1);})
-    , WaitCommand(c_coralDeployDelay)
     , CoralEjectCommand(*this)
     , WaitCommand(c_coralPostEjectDelay)
     , CoralEjectPostCommand(*this)
