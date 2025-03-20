@@ -156,7 +156,6 @@ RobotContainer::RobotContainer()
   , m_orchestra("output.chrp")
 #endif
 {
-  commandRunning = false;
   NamedCommands::registerCommand("RaiseL3", std::move(frc2::SequentialCommandGroup{m_setL3, m_elevL3}.ToPtr()));
   NamedCommands::registerCommand("RaiseL2", std::move(frc2::SequentialCommandGroup{m_setL2, m_elevL2}.ToPtr()));
 
@@ -329,14 +328,42 @@ void RobotContainer::ConfigureNetworkButtons()
 
   auto netTable = nt::NetworkTableInstance::GetDefault();
 
+  // -------------INTAKE------------------------------------------------------------------------
   NetBtn(netTable.GetBooleanTopic(m_dbvRunIntakeStartup.Path())).OnChange
   (
     InstCmd([this] { if (m_dbvRunIntakeStartup.Get()) StartUp(); m_dbvRunIntakeStartup.Put(false); }, {}).ToPtr()
   );
 
+  NetBtn(netTable.GetBooleanTopic(m_dbvRunIntakePark4Load.Path())).OnChange
+  (
+    InstCmd([this] { if (m_dbvRunIntakePark4Load.Get()) m_intake.ParkIntakeForLoad(); m_dbvRunIntakePark4Load.Put(false); }, {}).ToPtr()
+  );
+
+  NetBtn(netTable.GetBooleanTopic(m_dbvRunIntakePark4Climb.Path())).OnChange
+  (
+    InstCmd([this] { if (m_dbvRunIntakePark4Climb.Get()) m_intake.ParkIntakeForClimb(); m_dbvRunIntakePark4Climb.Put(false); }, {}).ToPtr()
+  );
+
+  // -------------CORAL------------------------------------------------------------------------
   NetBtn(netTable.GetBooleanTopic(m_dbvRunCoralRetract.Path())).OnChange
   (
     InstCmd([this] { if (m_dbvRunCoralRetract.Get()) m_coral.RetractCoral(L1); m_dbvRunCoralRetract.Put(false); }, {}).ToPtr()
+  );
+
+  NetBtn(netTable.GetBooleanTopic(m_dbvRunDeploManip.Path())).OnChange
+  (
+    InstCmd([this] { if (m_dbvRunDeploManip.Get()) m_coral.DeployManipulator(); m_dbvRunDeploManip.Put(false); }, {}).ToPtr()
+  );
+
+  NetBtn(netTable.GetBooleanTopic(m_dbvRunRetractManip.Path())).OnChange
+  (
+    InstCmd([this] { if (m_dbvRunRetractManip.Get()) m_coral.RetractManipulator(); m_dbvRunRetractManip.Put(false); }, {}).ToPtr()
+  );
+
+  // -------------ELEVATOR------------------------------------------------------------------------
+  NetBtn(netTable.GetBooleanTopic(m_dbvRunElevL1.Path())).OnChange
+  (
+    InstCmd([this] { if (m_dbvRunElevL1.Get()) m_elevator.GoToPosition(L1); m_dbvRunElevL1.Put(false); }, {}).ToPtr()
   );
 
   NetBtn(netTable.GetBooleanTopic(m_dbvRunElevL2.Path())).OnChange
@@ -354,19 +381,14 @@ void RobotContainer::ConfigureNetworkButtons()
     InstCmd([this] { if (m_dbvRunElevL4.Get()) m_elevator.GoToPosition(L4); m_dbvRunElevL4.Put(false); }, {}).ToPtr()
   );
 
+  NetBtn(netTable.GetBooleanTopic(m_dbvRunElevJogUp.Path())).OnChange
+  (
+    InstCmd([this] { if (m_dbvRunElevJogUp.Get()) m_elevator.GotoPositionRel(1.0); m_dbvRunElevJogUp.Put(false); }, {}).ToPtr()
+  );
+
   NetBtn(netTable.GetBooleanTopic(m_dbvRunElevJogDown.Path())).OnChange
   (
     InstCmd([this] { if (m_dbvRunElevJogDown.Get()) m_elevator.GotoPositionRel(-1.0); m_dbvRunElevJogDown.Put(false); }, {}).ToPtr()
-  );
-
-  NetBtn(netTable.GetBooleanTopic(m_dbvRunDeploManip.Path())).OnChange
-  (
-    InstCmd([this] { if (m_dbvRunDeploManip.Get()) m_coral.DeployManipulator(); m_dbvRunDeploManip.Put(false); }, {}).ToPtr()
-  );
-
-  NetBtn(netTable.GetBooleanTopic(m_dbvRunRetractManip.Path())).OnChange
-  (
-    InstCmd([this] { if (m_dbvRunRetractManip.Get()) m_coral.RetractManipulator(); m_dbvRunRetractManip.Put(false); }, {}).ToPtr()
   );
 
   // NetBtn
@@ -510,11 +532,9 @@ void RobotContainer::AreWeInTheSweetSpot()
       m_led.SetCurrentAction(LEDSubsystem::kTagVisible);
       m_led.SetAnimation(c_colorWhite, LEDSubsystem::kStrobe);
     }
-    else if ((m_led.GetCurrentAction() == LEDSubsystem::kTagVisible) && commandRunning == false) //commandRunning is meant to make it so that it doesn't idle when the on the fly path is running
+    else if ((m_led.GetCurrentAction() == LEDSubsystem::kTagVisible))
     {
-      // m_led.SetCurrentAction(LEDSubsystem::kIdle);
-      m_led.SetCurrentAction(LEDSubsystem::kHasCoral);
-      m_led.SetAnimation(c_colorPink, LEDSubsystem::kSolid);
+      m_led.SetCurrentAction(LEDSubsystem::kIdle);
     }
 #endif
   }
@@ -838,7 +858,6 @@ frc2::CommandPtr RobotContainer::GetFollowPathCommandImpl()
 
 #define USE_POSITION_PID
 #ifdef USE_POSITION_PID
-  commandRunning = true;
   double pathLen = m_drive.GetCurrentPose().Translation().Distance(targetPose.Translation()).value();
   if (pathLen < 0.01)   // 10cm ~ 4in
   {
@@ -893,7 +912,6 @@ frc2::CommandPtr RobotContainer::GetFollowPathCommandImpl()
         },
         {&m_drive} // Drive requirements, usually just a single drive subsystem
       ).ToPtr();
-      commandRunning = false;
 #endif
 }
 

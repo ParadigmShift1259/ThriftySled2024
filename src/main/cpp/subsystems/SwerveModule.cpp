@@ -122,28 +122,17 @@ SwerveModule::SwerveModule(const int driveMotorCanId, const int turningMotorCanI
     .WithWidget(frc::BuiltInWidgets::kVoltageView)
     .GetEntry();
 #endif
-  frc::SmartDashboard::PutNumber("NewRef", 0.0);
+  //frc::SmartDashboard::PutNumber("NewRef", 0.0);
   frc::SmartDashboard::PutNumber("Offset" + m_id, 0.0);
 
-  auto pos = m_driveMotor.GetPosition().GetValue().value();
-  frc::SmartDashboard::PutNumber("DrvTurns" + m_id, pos);
-  frc::SmartDashboard::PutNumber("DrvMtrs" + m_id, kWheelCircumfMeters.value() * pos);
-  frc::SmartDashboard::PutNumber("DrvGrRt" + m_id, kWheelCircumfMeters.value() * pos / units::angle::turn_t(kDriveGearRatio).value());
+  // auto pos = m_driveMotor.GetPosition().GetValue().value();
+  // frc::SmartDashboard::PutNumber("DrvTurns" + m_id, pos);
+  // frc::SmartDashboard::PutNumber("DrvMtrs" + m_id, kWheelCircumfMeters.value() * pos);
+  // frc::SmartDashboard::PutNumber("DrvGrRt" + m_id, kWheelCircumfMeters.value() * pos / units::angle::turn_t(kDriveGearRatio).value());
 }
 
 void SwerveModule::Periodic()
 {
-  // auto time = m_timer.Get();
-  // if (time < 5.0_s)
-  // {
-  //   ResyncAbsRelEnc();
-  // }
-
-  //static int count = 0;
-  // if (count++ % 50)
-  // {
-  //   ResyncAbsRelEnc();
-  // }
   double turnP = frc::SmartDashboard::GetNumber("SwrvP", m_turnP);
   double turnI = frc::SmartDashboard::GetNumber("SwrvI", m_turnI);
   double turnD = frc::SmartDashboard::GetNumber("SwrvD", m_turnD);
@@ -177,10 +166,10 @@ void SwerveModule::Periodic()
   frc::SmartDashboard::PutNumber("Abs Pos Offset" + m_id, m_offset);  
   frc::SmartDashboard::PutNumber("Turn Enc Pos" + m_id, GetTurnPosition().to<double>());
 
-  auto pos = m_driveMotor.GetPosition().GetValue().value();
-  frc::SmartDashboard::PutNumber("DrvTurns" + m_id, pos);
-  frc::SmartDashboard::PutNumber("DrvMtrs" + m_id, kWheelCircumfMeters.value() * pos);
-  frc::SmartDashboard::PutNumber("DrvGrRt" + m_id, kWheelCircumfMeters.value() * pos / units::angle::turn_t(kDriveGearRatio).value());
+  // auto pos = m_driveMotor.GetPosition().GetValue().value();
+  // frc::SmartDashboard::PutNumber("DrvTurns" + m_id, pos);
+  // frc::SmartDashboard::PutNumber("DrvMtrs" + m_id, kWheelCircumfMeters.value() * pos);
+  // frc::SmartDashboard::PutNumber("DrvGrRt" + m_id, kWheelCircumfMeters.value() * pos / units::angle::turn_t(kDriveGearRatio).value());
 
   auto faults = m_turningMotor.GetStickyFaults();
   m_dbvOther.Put(faults.other);
@@ -280,7 +269,7 @@ void SwerveModule::SetDesiredState(frc::SwerveModuleState& referenceState)
   m_logDriveNewSpeed.Append(referenceState.speed.to<double>());
   m_logDriveNormalizedSpeed.Append((referenceState.speed / m_currentMaxSpeed).to<double>());
 
-  frc::SmartDashboard::PutNumber("Turn Ref Motor" + m_id, newRef);
+  //frc::SmartDashboard::PutNumber("Turn Ref Motor" + m_id, newRef);
   m_turningPIDController.SetReference(newRef, SparkBase::ControlType::kPosition);
 }
 

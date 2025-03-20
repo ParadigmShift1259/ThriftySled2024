@@ -63,9 +63,8 @@ class RobotContainer : public ISubsystemAccess
     m_timer.Reset();
     m_timer.Start();
     // Move the climb partway out to relieve the spring tension
-    //m_climber.GoToPosition(c_defaultClimbSpringTensionTurns);
+    m_climber.GoToPosition(c_defaultClimbSpringTensionTurns);
   }
-  bool commandRunning = false;
   // ConfigureRobotLEDs called by Robot class, passes enabled state via dashboard value "Robot Enabled"
   void ConfigureRobotLEDs();
 
@@ -134,13 +133,19 @@ class RobotContainer : public ISubsystemAccess
   DashBoardValue<bool> m_dbv4Meter{"Vision", "4Meter", false};  
 
   DashBoardValue<bool> m_dbvRunIntakeStartup{"Intake", "RunStartup", false};
+  DashBoardValue<bool> m_dbvRunIntakePark4Load{"Intake", "Park4Load", false};
+  DashBoardValue<bool> m_dbvRunIntakePark4Climb{"Intake", "Park4Climb", false};
+
   DashBoardValue<bool> m_dbvRunCoralRetract{"Coral", "CoralRetract", false};
-  DashBoardValue<bool> m_dbvRunElevL2{"Elevator", "GoL2", false};
-  DashBoardValue<bool> m_dbvRunElevL3{"Elevator", "GoL3", false};
-  DashBoardValue<bool> m_dbvRunElevL4{"Elevator", "GoL4", false};
-  DashBoardValue<bool> m_dbvRunElevJogDown{"Elevator", "ElevJogDn", false};
   DashBoardValue<bool> m_dbvRunDeploManip{"Coral", "DeployManip", false};
   DashBoardValue<bool> m_dbvRunRetractManip{"Coral", "RetractManip", false};
+  
+  DashBoardValue<bool> m_dbvRunElevL4{"Elevator", "GoL4", false};
+  DashBoardValue<bool> m_dbvRunElevL3{"Elevator", "GoL3", false};
+  DashBoardValue<bool> m_dbvRunElevL2{"Elevator", "GoL2", false};
+  DashBoardValue<bool> m_dbvRunElevL1{"Elevator", "GoL1", false};
+  DashBoardValue<bool> m_dbvRunElevJogUp{"Elevator", "ElevJogUp", false};
+  DashBoardValue<bool> m_dbvRunElevJogDown{"Elevator", "ElevJogDn", false};
   //DashBoardValue<bool> m_dbvRun{"", "", m_run};
 
   ESideSelected m_sideSelected = Unselected;

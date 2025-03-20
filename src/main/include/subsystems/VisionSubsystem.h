@@ -40,13 +40,13 @@ class VisionSubsystem : public frc2::SubsystemBase
     int GetTagId() { return m_tidReef; }
     void EnableReefLEDs() { m_netTableReef->PutNumber("ledMode", 3); }
     void DisableReefLEDs() { m_netTableReef->PutNumber("ledMode", 1); }
-    void ToggleAllowedReef() { m_isAllowedReef = !m_isAllowedReef; }
+    //void ToggleAllowedReef() { m_isAllowedReef = !m_isAllowedReef; }
 
   private:
     void PeriodicReef();
 
     bool m_isValidReef = false;
-    bool m_isAllowedReef = true;
+    // bool m_isAllowedReef = true;
     std::vector<double> m_netBufferField{2};
     std::vector<double> m_netBufferAlli{2};
     std::vector<double> m_zero_vector = {42.0, 42.0, 42.0, 92, 10, 22};

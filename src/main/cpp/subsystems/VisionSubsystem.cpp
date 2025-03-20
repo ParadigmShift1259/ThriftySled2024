@@ -26,21 +26,22 @@ VisionSubsystem::VisionSubsystem()
   m_logtyReef = wpi::log::DoubleLogEntry(log, "/vision/tyReef");
   m_logtidReef = wpi::log::IntegerLogEntry(log, "/vision/tidReef");
 
-  frc::SmartDashboard::PutBoolean("AllowedReef", m_isAllowedReef);
+  // frc::SmartDashboard::PutBoolean("AllowedReef", m_isAllowedReef);
 }
 
 void VisionSubsystem::Periodic()
 {
 //  PeriodicLoad();
   PeriodicReef();
-  m_isAllowedReef = true;//frc::SmartDashboard::GetBoolean("AllowedReef", m_isAllowedReef);
+  // m_isAllowedReef = true;//frc::SmartDashboard::GetBoolean("AllowedReef", m_isAllowedReef);
 }
 
 void VisionSubsystem::PeriodicReef()
 {
   m_isValidReef = m_netTableReef->GetNumber("tv", 0) == 1.0;
   frc::SmartDashboard::PutNumber("tv Reef", m_isValidReef);
-  if (m_isValidReef && m_isAllowedReef)
+  // if (m_isValidReef && m_isAllowedReef)
+  if (m_isValidReef)
   {
       m_netBufferField = m_netTableReef->GetNumberArray("botpose", m_zero_vector);
       m_logRobotPoseX.Append(m_netBufferField[eX]);
