@@ -221,7 +221,7 @@ class RobotContainer : public ISubsystemAccess
 	wpi::log::DoubleLogEntry m_logTargetPoseY;
 	wpi::log::DoubleLogEntry m_logTargetPoseRot;
 
-#define TEST_WHEEL_CONTROL
+//#define TEST_WHEEL_CONTROL
 #ifdef TEST_WHEEL_CONTROL
 #define DISABLE_DRIVING
   frc2::InstantCommand m_wheelsForward{[this] { GetDrive().WheelsForward(); }, {&m_drive} };

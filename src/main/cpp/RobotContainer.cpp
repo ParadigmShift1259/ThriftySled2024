@@ -396,12 +396,12 @@ void RobotContainer::ConfigureNetworkButtons()
 #ifdef TEST_WHEEL_CONTROL
   NetBtn(netTable.GetBooleanTopic(m_dbvWheelsForward.Path())).OnChange
   (
-    InstCmd([this] { if (m_dbvWheelsForward.Get()) m_drive.WheelsForward(); m_dbvWheelsForward.Put(false); }, {}).ToPtr()
+    InstCmd([this] { if (m_dbvWheelsForward.Get()) m_drive.WheelsForward(); }, {}).ToPtr()
   );
 
   NetBtn(netTable.GetBooleanTopic(m_dbvWheelsLeft.Path())).OnChange
   (
-    InstCmd([this] { if (m_dbvWheelsLeft.Get()) m_drive.WheelsLeft(); m_dbvWheelsLeft.Put(false); }, {}).ToPtr()
+    InstCmd([this] { if (m_dbvWheelsLeft.Get()) m_drive.WheelsLeft(); }, {}).ToPtr()
   );
 #endif  //  TEST_WHEEL_CONTROL
 
@@ -485,6 +485,15 @@ void RobotContainer::Periodic()
     m_intake.ParkIntakeForLoad();
     m_timer.Stop();
   }
+
+#ifdef TEST_WHEEL_CONTROL
+  if (m_dbvWheelsForward.Get() || m_dbvWheelsLeft.Get())
+  {
+        m_drive.SetOverrideXboxInput(false);
+        m_dbvWheelsForward.Put(false);
+        m_dbvWheelsLeft.Put(false);
+  }
+#endif
 
   static int count = 0;
   if (count++ % 25 == 0)
