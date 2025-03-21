@@ -122,10 +122,13 @@ class RobotContainer : public ISubsystemAccess
   SlewRateLimiter<units::scalar> m_yspeedLimiter{3 / 1_s, -3 / 1_s};
   SlewRateLimiter<units::scalar> m_rotLimiter{3 / 1_s};
   // TODO Make sure field relative starts how the drive team wants
-  bool m_fieldRelative = false;//true;
+  bool m_fieldRelative = true;
   bool m_isAutoRunning = false;
   DashBoardValue<bool> m_dbvFieldRelative{"Drive", "FieldRelative", m_fieldRelative};
   DashBoardValue<double> m_dbvOnTheFlyPathAccel{"Drive", "OTFPaccel", 3.0};
+  DashBoardValue<bool> m_dbvWheelsForward{"Drive", "WheelsFwd", false};
+  DashBoardValue<bool> m_dbvWheelsLeft{"Drive", "WheelsLeft", false};
+  
   DashBoardValue<double> m_dbvDistToTag{"Vision", "Dist2tag", -1.0};
   DashBoardValue<bool> m_dbv1Meter{"Vision", "1Meter", false};  
   DashBoardValue<bool> m_dbv2Meter{"Vision", "2Meter", false};  
@@ -185,16 +188,14 @@ class RobotContainer : public ISubsystemAccess
   frc2::InstantCommand m_elevRelPosDown{[this] { m_elevator.GotoPositionRel(-1.0); }, {&m_elevator} };
 
   frc2::InstantCommand m_intakeAlign{[this] { m_intake.AlignIntake(); }, {&m_intake} };
-  //frc2::InstantCommand m_intakeParkForClimb{[this] { m_intake.ParkIntakeForClimb(); }, {&m_intake} };
-  //frc2::InstantCommand m_intakeParkAtZero{[this] { m_intake.ParkIntakeAtZero(); }, {&m_intake} };
 
   frc2::InstantCommand m_coralStop{[this] { m_coral.Stop(); }, {&m_coral} };
   frc2::InstantCommand m_coralRetract{[this] { m_coral.RetractCoral(L1); }, {&m_coral} };
   frc2::InstantCommand m_coralDeployManip{[this] {m_coral.DeployManipulator(); }, {&m_coral} };
   frc2::InstantCommand m_coralRetractManip{[this] {m_coral.RetractManipulator(); }, {&m_coral} };
 
-  frc2::InstantCommand m_rumblePrimary{[this] { m_primaryController.SetRumble(GenericHID::RumbleType::kBothRumble, 1); }, {} };
-  frc2::InstantCommand m_stopRumblePrimary{[this] { m_primaryController.SetRumble(GenericHID::RumbleType::kBothRumble, 0); }, {} };
+  // frc2::InstantCommand m_rumblePrimary{[this] { m_primaryController.SetRumble(GenericHID::RumbleType::kBothRumble, 1); }, {} };
+  // frc2::InstantCommand m_stopRumblePrimary{[this] { m_primaryController.SetRumble(GenericHID::RumbleType::kBothRumble, 0); }, {} };
 
   frc2::InstantCommand m_ClimberDeployRelUp{[this] { m_climber.GoToPositionRel(c_defaultClimbDeployRelTurns);}, {&m_climber} };
   frc2::InstantCommand m_ClimberDeployRelDown{[this] { m_climber.GoToPositionRel(-c_defaultClimbDeployRelTurns);}, {&m_climber} };
@@ -206,7 +207,6 @@ class RobotContainer : public ISubsystemAccess
   }, {&m_led} };
    frc2::InstantCommand m_EndLED{[this] { m_led.SetCurrentAction(LEDSubsystem::kIdle);}, {&m_led} };
   // For on the fly paths
-//  PathConstraints m_pathConstraints { m_drive.m_currentMaxSpeed / 2.0, 4.0_mps_sq, 180_deg_per_s, 360_deg_per_s_sq };
   PathConstraints m_pathConstraints { 1.5_mps, 3.0_mps_sq, 180_deg_per_s, 360_deg_per_s_sq };
   std::shared_ptr<PathPlannerPath> m_path;
 
@@ -221,7 +221,7 @@ class RobotContainer : public ISubsystemAccess
 	wpi::log::DoubleLogEntry m_logTargetPoseY;
 	wpi::log::DoubleLogEntry m_logTargetPoseRot;
 
-//#define TEST_WHEEL_CONTROL
+#define TEST_WHEEL_CONTROL
 #ifdef TEST_WHEEL_CONTROL
 #define DISABLE_DRIVING
   frc2::InstantCommand m_wheelsForward{[this] { GetDrive().WheelsForward(); }, {&m_drive} };

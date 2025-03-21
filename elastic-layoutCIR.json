@@ -1360,6 +1360,23 @@
               "period": 0.06,
               "sort_options": false
             }
+          },
+          {
+            "title": "FieldRelative",
+            "x": 512.0,
+            "y": 128.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/Drive/FieldRelative",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
           }
         ]
       }
@@ -1548,6 +1565,46 @@
             "type": "Toggle Button",
             "properties": {
               "topic": "/Elevator/ElevJogUp",
+              "period": 0.06,
+              "data_type": "boolean"
+            }
+          },
+          {
+            "title": "ClimbPosEcho",
+            "x": 1408.0,
+            "y": 0.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/ClimbPosEcho",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "WheelsFwd",
+            "x": 1152.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Toggle Button",
+            "properties": {
+              "topic": "/Drive/WheelsFwd",
+              "period": 0.06,
+              "data_type": "boolean"
+            }
+          },
+          {
+            "title": "WheelsLeft",
+            "x": 1152.0,
+            "y": 128.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Toggle Button",
+            "properties": {
+              "topic": "/Drive/WheelsLeft",
               "period": 0.06,
               "data_type": "boolean"
             }

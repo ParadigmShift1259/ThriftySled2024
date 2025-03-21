@@ -392,6 +392,19 @@ void RobotContainer::ConfigureNetworkButtons()
     InstCmd([this] { if (m_dbvRunElevJogDown.Get()) m_elevator.GotoPositionRel(-1.0); m_dbvRunElevJogDown.Put(false); }, {}).ToPtr()
   );
 
+  // -------------DRIVE------------------------------------------------------------------------
+#ifdef TEST_WHEEL_CONTROL
+  NetBtn(netTable.GetBooleanTopic(m_dbvWheelsForward.Path())).OnChange
+  (
+    InstCmd([this] { if (m_dbvWheelsForward.Get()) m_drive.WheelsForward(); m_dbvWheelsForward.Put(false); }, {}).ToPtr()
+  );
+
+  NetBtn(netTable.GetBooleanTopic(m_dbvWheelsLeft.Path())).OnChange
+  (
+    InstCmd([this] { if (m_dbvWheelsLeft.Get()) m_drive.WheelsLeft(); m_dbvWheelsLeft.Put(false); }, {}).ToPtr()
+  );
+#endif  //  TEST_WHEEL_CONTROL
+
   // NetBtn
   // (
   //   netTable.GetBooleanTopic(m_dbvFieldRelative.Path())).OnChange
@@ -691,12 +704,6 @@ void RobotContainer::ConfigSecondaryButtonBindings()
   //secondary.RightStick().OnTrue(&m_intakeParkForClimb);
   secondary.POVRight().OnTrue(&m_coralDeployManip);
   secondary.POVLeft().OnTrue(&m_coralRetractManip);
-
-#ifdef TEST_WHEEL_CONTROL
-  auto loop = CommandScheduler::GetInstance().GetDefaultButtonLoop();
-  secondary.POVUp(loop).Rising().IfHigh([this] { m_wheelsLeft.Schedule(); });
-  secondary.POVRight(loop).Rising().IfHigh([this] { m_wheelsForward.Schedule(); });
-#endif  //  TEST_WHEEL_CONTROL
 }
 #endif
 
