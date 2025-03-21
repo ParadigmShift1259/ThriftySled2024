@@ -791,8 +791,7 @@ void RobotContainer::ConfigButtonBoxBindings()
     , InstantCommand{[this](){m_drive.Stop();}, {&m_drive}}
   }.ToPtr());
 #else
-  //buttonBox.POVLeft().OnTrue(CoralEjectCommand(*this).ToPtr());
-  buttonBox.POVLeft().OnTrue(InstantCommand{[this] {m_coral.EjectCoral(false); }, {&m_coral} }.ToPtr() );
+  buttonBox.POVLeft().OnTrue(CoralEjectCommand(*this).ToPtr());
 #endif
 
   // Wiring
