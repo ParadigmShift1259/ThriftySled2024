@@ -26,7 +26,8 @@ void CoralEjectPostCommand::Initialize()
     m_logStartCommand.Append(true);
     m_timer.Reset();
     m_timer.Start();
-    m_driveSubsystem.WheelsForward();
+    // m_driveSubsystem.WheelsForward();
+    m_driveSubsystem.DriveBack();
 }
 
 void CoralEjectPostCommand::Execute()

@@ -223,6 +223,26 @@ RobotContainer::RobotContainer()
     , m_elevL1
     , m_EndLED
     }.ToPtr()));
+  
+    NamedCommands::registerCommand("PlaceL4", std::move(
+    frc2::SequentialCommandGroup{
+      m_FollowPathLED
+    , m_setL4
+    , m_setRight
+    , CoralPrepCommand(*this)
+    , m_setHighSpeedCmd
+    , ConditionalCommand (SequentialCommandGroup{
+                                ElevatorGoToCommand(*this, L4, c_bUsePresetLevel)
+                              , InstantCommand{[this] {m_coral.DeployManipulator(); }, {&m_coral} } }, 
+                          InstantCommand{[this] {m_coral.RetractManipulator(); }, {&m_coral} }, 
+                          [this](){return (m_elevator.GetPresetLevel() == L4 || m_elevator.GetPresetLevel() == L1);})
+    , WaitCommand(c_coralDeployDelay)
+    , CoralEjectCommand(*this)
+    , WaitCommand(c_coralPostEjectDelay)
+    , CoralEjectPostCommand(*this)
+    , m_elevL1
+    , m_EndLED
+    }.ToPtr()));
 
   NamedCommands::registerCommand("Intake", std::move(
     frc2::SequentialCommandGroup{
@@ -807,7 +827,7 @@ void RobotContainer::ConfigButtonBoxBindings()
     , InstantCommand{[this](){m_drive.Stop();}, {&m_drive}}
   }.ToPtr());
 #else
-  buttonBox.POVLeft().OnTrue(CoralEjectCommand(*this).ToPtr());
+  buttonBox.POVLeft().OnTrue(&m_coralAlgaeRemove);
 #endif
 
   // Wiring

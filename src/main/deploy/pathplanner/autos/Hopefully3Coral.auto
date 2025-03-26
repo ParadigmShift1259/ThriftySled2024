@@ -13,31 +13,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "FirstPlace.0"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "PlaceL4"
+            "pathName": "firstPLACE"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "FirstIntake.0"
+            "pathName": "secondPLACE"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "SecondPlaceCenter.0"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "PlaceL4R_OTFP"
+            "pathName": "thirdPLACE"
           }
         }
       ]
@@ -45,5 +33,5 @@
   },
   "resetOdom": true,
   "folder": null,
-  "choreoAuto": true
+  "choreoAuto": false
 }
