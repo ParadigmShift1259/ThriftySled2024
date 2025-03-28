@@ -159,6 +159,7 @@ RobotContainer::RobotContainer()
   , m_orchestra("output.chrp")
 #endif
 {
+  NamedCommands::registerCommand("RaiseL4", std::move(frc2::SequentialCommandGroup{m_setL4, m_elevL4}.ToPtr()));
   NamedCommands::registerCommand("RaiseL3", std::move(frc2::SequentialCommandGroup{m_setL3, m_elevL3}.ToPtr()));
   NamedCommands::registerCommand("RaiseL2", std::move(frc2::SequentialCommandGroup{m_setL2, m_elevL2}.ToPtr()));
 
@@ -249,6 +250,7 @@ RobotContainer::RobotContainer()
        CoralIntakeCommand(*this)
       , m_elevL3
     }.ToPtr()));
+    
     m_pThis = this;
     //---------------------------------------------------------
     //printf("************************Calling SilenceJoystickConnectionWarning - Wisco2024 Day 1 only REMOVE!!!!!\n");
@@ -308,8 +310,8 @@ RobotContainer::RobotContainer()
           [this](auto initPose) { m_drive.ResetOdometry(initPose); }, // Function used to reset odometry at the beginning of auto
           [this]() { return m_drive.GetChassisSpeeds(); },
           [this](frc::ChassisSpeeds speeds) { m_drive.Drive(-speeds.vx, -speeds.vy, -speeds.omega, false); }, // Output function that accepts field relative ChassisSpeeds
-          std::make_shared<PPHolonomicDriveController>(PIDConstants(DriveConstants::c_HolomonicTranslateP, 0.0, 0.0), 
-                                                       PIDConstants(DriveConstants::c_HolomonicRotateP, 0.0, 0.0)),
+          std::make_shared<PPHolonomicDriveController>(PIDConstants(DriveConstants::c_HolomonicTranslateP, 0.0, 0.2), 
+                                                       PIDConstants(DriveConstants::c_HolomonicRotateP, 0.0, 0.2)),
           m_drive.GetRobotCfg(),
           [this]() 
           {
