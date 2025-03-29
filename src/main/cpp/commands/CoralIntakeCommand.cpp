@@ -21,8 +21,6 @@ CoralIntakeCommand::CoralIntakeCommand(ISubsystemAccess& subsystemAccess)
 void CoralIntakeCommand::Initialize()
 {
     m_logStartCommand.Append(true);
-    m_timer.Reset();
-    m_timer.Start();
     m_coralSubsystem.SetManipulator(-0.5);
 #ifdef LED
     m_ledSubsystem.SetCurrentAction(LEDSubsystem::kHasCoral);

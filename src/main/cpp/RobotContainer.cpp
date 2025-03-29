@@ -167,10 +167,8 @@ RobotContainer::RobotContainer()
   frc2::SequentialCommandGroup{
     m_setL2
   , CoralPrepCommand(*this)
-  , WaitCommand(0.75_s)     // May not need this
   , CoralEjectCommand(*this)
-  , WaitCommand(0.25_s)
-  , CoralEjectPostCommand(*this)
+  , m_elevL1
   }.ToPtr()));
 
   NamedCommands::registerCommand("ShootCoral", std::move(
@@ -188,8 +186,8 @@ RobotContainer::RobotContainer()
       m_FollowPathLED
     ,  m_setL4
     , m_setLeft
-    , CoralPrepCommand(*this)
     , DeferredCommand(GetFollowPathCommand, {&m_drive} )
+    , CoralPrepCommand(*this)
     , m_setHighSpeedCmd
     , ConditionalCommand (SequentialCommandGroup{
                                 ElevatorGoToCommand(*this, L4, c_bUsePresetLevel) // Continue moving to L4 (anti-slam)
@@ -201,14 +199,14 @@ RobotContainer::RobotContainer()
     , WaitCommand(c_coralPostEjectDelay)
     // , CoralEjectPostCommand(*this)
 //    , m_elevL1
-    , m_elevL3
+    , m_elevL1
     , m_EndLED
     }.ToPtr()));
 
   NamedCommands::registerCommand("PlaceL2L_OTFP", std::move(
     frc2::SequentialCommandGroup{
       m_FollowPathLED
-    ,  m_setL2
+    , m_setL2
     , m_setLeft
     , CoralPrepCommand(*this)
     , DeferredCommand(GetFollowPathCommand, {&m_drive} )
@@ -218,9 +216,7 @@ RobotContainer::RobotContainer()
                               , InstantCommand{[this] {m_coral.DeployManipulator(); }, {&m_coral} } }, 
                           InstantCommand{[this] {m_coral.RetractManipulator(); }, {&m_coral} }, 
                           [this](){return (m_elevator.GetPresetLevel() == L4 || m_elevator.GetPresetLevel() == L1);})
-    , WaitCommand(c_coralDeployDelay)
     , CoralEjectCommand(*this)
-    , WaitCommand(c_coralPostEjectDelay)
     // , CoralEjectPostCommand(*this)
     , m_elevL1
     , m_EndLED
@@ -231,8 +227,8 @@ RobotContainer::RobotContainer()
       m_FollowPathLED
     , m_setL4
     , m_setRight
-    , CoralPrepCommand(*this)
     , DeferredCommand(GetFollowPathCommand, {&m_drive} )
+    , CoralPrepCommand(*this)
     , m_setHighSpeedCmd
     , ConditionalCommand (SequentialCommandGroup{
                                 ElevatorGoToCommand(*this, L4, c_bUsePresetLevel)
@@ -263,7 +259,7 @@ RobotContainer::RobotContainer()
     , WaitCommand(c_coralDeployDelay)
     , CoralEjectCommand(*this)
     , WaitCommand(c_coralPostEjectDelay)
-    , CoralEjectPostCommand(*this)
+    // , CoralEjectPostCommand(*this)
     , m_elevL1
     , m_EndLED
     }.ToPtr()));
@@ -439,6 +435,7 @@ void RobotContainer::ConfigureNetworkButtons()
   );
 
   // -------------DRIVE------------------------------------------------------------------------
+#define TEST_WHEEL_CONTROL
 #ifdef TEST_WHEEL_CONTROL
   NetBtn(netTable.GetBooleanTopic(m_dbvWheelsForward.Path())).OnChange
   (
@@ -533,16 +530,26 @@ void RobotContainer::Periodic()
   }
 
 #ifdef TEST_WHEEL_CONTROL
-  if (m_dbvWheelsForward.Get() || m_dbvWheelsLeft.Get())
+  if (m_dbvWheelsForward.Get())
   {
-        m_drive.SetOverrideXboxInput(false);
         m_dbvWheelsForward.Put(false);
+  }
+
+  if (m_dbvWheelsLeft.Get())
+  {
         m_dbvWheelsLeft.Put(false);
   }
 #endif
 
   static int count = 0;
-  if (count++ % 25 == 0)
+  frc::Pose2d targetPose{10.252_m, 3.55_m, 90_deg};
+  double pathLen = m_drive.GetCurrentPose().Translation().Distance(targetPose.Translation()).value();
+  if (pathLen < 0.01 && frc::DriverStation::IsDisabled())   // 10cm ~ 4in
+  {
+    m_led.SetCurrentAction(LEDSubsystem::kTagVisible);
+    m_led.SetAnimation(c_colorWhite, LEDSubsystem::kStrobe);
+  }
+  else if (count++ % 25 == 0)
   {
     ConfigureRobotLEDs();
   }
@@ -978,7 +985,7 @@ std::shared_ptr<PathPlannerPath> RobotContainer::GetOnTheFlyPath()
 {
   std::shared_ptr<PathPlannerPath> path;
 
-  m_drive.SetSlowSpeed(true);
+  //m_drive.SetSlowSpeed(true);
 
   units::length::meter_t targetX;
   units::length::meter_t targetY;
@@ -1016,6 +1023,9 @@ std::shared_ptr<PathPlannerPath> RobotContainer::GetOnTheFlyPath()
   std::vector<frc::Pose2d> poses {  frc::Pose2d { currentX, currentY, startRot } // USED TO BE tanAngle
                                   , frc::Pose2d { targetX, targetY, targetRot }
   };
+
+  frc::SmartDashboard::PutNumber("OTFPInitSpeed", m_drive.GetSpeed().value());
+  frc::SmartDashboard::PutNumber("OTFPInitRot", currentPose.Rotation().Degrees().value());
 
   path = std::make_shared<PathPlannerPath>(
       PathPlannerPath::waypointsFromPoses(poses),

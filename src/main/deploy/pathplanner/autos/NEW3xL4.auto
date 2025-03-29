@@ -7,19 +7,19 @@
         {
           "type": "named",
           "data": {
-            "name": "RaiseL2"
+            "name": "RaiseL3"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "FirstPlace.0"
+            "pathName": "FirstPlace"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "PlaceL2L_OTFP"
+            "name": "PlaceL4"
           }
         },
         {
@@ -29,21 +29,33 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "Intake"
+          }
+        },
+        {
           "type": "path",
           "data": {
-            "pathName": "SecondPlace.0"
+            "pathName": "TheRightSecondPlace.0"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "PlaceL4L_OTFP"
+            "name": "PlaceL4"
           }
         },
         {
           "type": "path",
           "data": {
             "pathName": "SecondIntake.0"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Intake"
           }
         },
         {
@@ -55,7 +67,7 @@
         {
           "type": "named",
           "data": {
-            "name": "PlaceL4R_OTFP"
+            "name": "PlaceL4"
           }
         }
       ]

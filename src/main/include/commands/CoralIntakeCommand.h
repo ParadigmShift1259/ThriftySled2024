@@ -1,10 +1,7 @@
 #include <frc2/command/Command.h>
 #include <frc2/command/CommandHelper.h>
 
-#include <frc/Timer.h>
-
 #include "ISubsystemAccess.h"
-
 
 class CoralIntakeCommand: public frc2::CommandHelper<frc2::Command, CoralIntakeCommand>
 {
@@ -20,8 +17,6 @@ class CoralIntakeCommand: public frc2::CommandHelper<frc2::Command, CoralIntakeC
 #ifdef LED
     LEDSubsystem&                     m_ledSubsystem;
 #endif
-
-    frc::Timer m_timer;
 
 	wpi::log::BooleanLogEntry     m_logStartCommand;
 };

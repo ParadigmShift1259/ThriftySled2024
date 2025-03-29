@@ -13,7 +13,31 @@
         {
           "type": "path",
           "data": {
-            "pathName": "L2FirstPlace.0"
+            "pathName": "FirstPlace"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ShootCoral"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.2
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "StopCoral"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "FirstIntake.0"
           }
         },
         {
@@ -25,13 +49,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "NewSecondPlace.0"
+            "pathName": "TheRightSecondPlace.0"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "PlaceL4L_OTFP"
+            "name": "PlaceL4"
           }
         },
         {
@@ -55,7 +79,7 @@
         {
           "type": "named",
           "data": {
-            "name": "PlaceL4R_OTFP"
+            "name": "PlaceL4"
           }
         }
       ]

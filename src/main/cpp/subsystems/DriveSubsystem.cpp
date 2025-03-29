@@ -94,7 +94,7 @@ void DriveSubsystem::Drive(units::meters_per_second_t xSpeed,
   // frc::SmartDashboard::PutNumber("Input y speed", ySpeed.value());
   // frc::SmartDashboard::PutNumber("Input rot", rot.value());
 
-  if (m_bOverrideXboxInput == false)
+  if (m_bOverrideXboxInput == false && m_bAdjustingWheelAngle == false)
   {
     frc::ChassisSpeeds chassisSpeeds;
     auto alliance = frc::DriverStation::GetAlliance();
@@ -123,6 +123,8 @@ void DriveSubsystem::Drive(units::meters_per_second_t xSpeed,
     m_rearLeft.SetDesiredState(bl);
     m_rearRight.SetDesiredState(br);
   }
+
+  m_bAdjustingWheelAngle = false;
 }
 
 //Field Relative, Changes rotation to match the field
@@ -307,7 +309,7 @@ void DriveSubsystem::DriveBack()
 
 void DriveSubsystem::WheelsForward()
 {
-  m_bOverrideXboxInput = true;
+  m_bAdjustingWheelAngle = true;
   frc::SwerveModuleState sms;
   sms.angle = frc::Rotation2d{0.0_deg};
   sms.speed = 0.0_mps;
@@ -316,7 +318,7 @@ void DriveSubsystem::WheelsForward()
 
 void DriveSubsystem::WheelsLeft()
 {
-  m_bOverrideXboxInput = true;
+  m_bAdjustingWheelAngle = true;
   frc::SwerveModuleState sms;
   sms.angle = frc::Rotation2d{90.0_deg};
   sms.speed = 0.0_mps;
@@ -325,7 +327,7 @@ void DriveSubsystem::WheelsLeft()
 
 void DriveSubsystem::WheelsBackward()
 {
-  m_bOverrideXboxInput = true;
+  m_bAdjustingWheelAngle = true;
   frc::SwerveModuleState sms;
   sms.angle = frc::Rotation2d{180.0_deg};
   sms.speed = 0.0_mps;
@@ -334,7 +336,7 @@ void DriveSubsystem::WheelsBackward()
 
 void DriveSubsystem::WheelsRight()
 {
-  m_bOverrideXboxInput = true;
+  m_bAdjustingWheelAngle = true;
   frc::SwerveModuleState sms;
   sms.angle = frc::Rotation2d{-90.0_deg};
   sms.speed = 0.0_mps;

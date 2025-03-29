@@ -26,10 +26,10 @@ void CoralEjectPostCommand::Initialize()
     m_timer.Reset();
     m_timer.Start();
 
-    if (frc::DriverStation::IsTeleopEnabled())
-    {
-        m_driveSubsystem.DriveBack();
-    }
+    // if (frc::DriverStation::IsTeleopEnabled())
+    // {
+    //     m_driveSubsystem.DriveBack();
+    // }
 }
 
 void CoralEjectPostCommand::Execute()
