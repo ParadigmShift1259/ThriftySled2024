@@ -39,9 +39,7 @@ void CoralPrepCommand::Initialize()
 
     if (m_coralLevel == L4)
     {
-        //printf("CoralPrepCommand going to level algae3_4\n");
-//        m_elevatorSubsystem.GoToPosition(algaeRemovalL3_4);
-        m_elevatorSubsystem.GoToPosition(37.0);
+        m_elevatorSubsystem.GoToPosition(37.0); // Anti-slam, subsequent command should move it to L4
     }
     else
     {

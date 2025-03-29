@@ -27,36 +27,6 @@
           "data": {
             "pathName": "pp3CoralPath2"
           }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "pp3CoralPath3"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "PlaceL4L_OTFP"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "pp3CoralPath4"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "pp3CoralPath5"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "PlaceL4R_OTFP"
-          }
         }
       ]
     }

@@ -2,6 +2,7 @@
 #include "commands/CoralEjectPostCommand.h"
 
 #include <frc/smartdashboard/SmartDashboard.h>
+#include <frc/DriverStation.h>
 
 CoralEjectPostCommand::CoralEjectPostCommand(ISubsystemAccess& subsystemAccess)
     : m_elevatorSubsystem(subsystemAccess.GetElevator())
@@ -24,7 +25,11 @@ void CoralEjectPostCommand::Initialize()
     m_logStartCommand.Append(true);
     m_timer.Reset();
     m_timer.Start();
-    //m_driveSubsystem.DriveBack();         /// Leave out for auto
+
+    if (frc::DriverStation::IsTeleopEnabled())
+    {
+        m_driveSubsystem.DriveBack();
+    }
 }
 
 void CoralEjectPostCommand::Execute()
@@ -37,13 +42,22 @@ void CoralEjectPostCommand::Execute()
 
 bool CoralEjectPostCommand::IsFinished()
 {
-    //return m_elevatorSubsystem.GetLowerLimit() || m_timer.HasElapsed(0.5_s);    // Test for auto
-    return m_elevatorSubsystem.GetLowerLimit() || m_timer.HasElapsed(0.75_s);
+    if (frc::DriverStation::IsAutonomousEnabled())
+    {
+        return m_elevatorSubsystem.GetLowerLimit() || m_timer.HasElapsed(0.25_s);
+    }
+    else
+    {
+        return m_elevatorSubsystem.GetLowerLimit() || m_timer.HasElapsed(0.75_s);
+    }
 }
 
 void CoralEjectPostCommand::End(bool interrupted)
 {
-   // Don't need to do this, the limit switch should turn off the motor m_elevatorSubsystem.Stop();
-   m_driveSubsystem.Stop();
-   m_logStartCommand.Append(false);
+    // Don't need to do this, the limit switch should turn off the motor m_elevatorSubsystem.Stop();
+    if (frc::DriverStation::IsTeleopEnabled())
+    {
+        m_driveSubsystem.Stop();
+    }
+    m_logStartCommand.Append(false);
 }

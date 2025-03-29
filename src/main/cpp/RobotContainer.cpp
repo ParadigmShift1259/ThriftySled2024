@@ -192,6 +192,28 @@ RobotContainer::RobotContainer()
     , DeferredCommand(GetFollowPathCommand, {&m_drive} )
     , m_setHighSpeedCmd
     , ConditionalCommand (SequentialCommandGroup{
+                                ElevatorGoToCommand(*this, L4, c_bUsePresetLevel) // Continue moving to L4 (anti-slam)
+                              , InstantCommand{[this] {m_coral.DeployManipulator(); }, {&m_coral} } }, 
+                          InstantCommand{[this] {m_coral.RetractManipulator(); }, {&m_coral} }, 
+                          [this](){return (m_elevator.GetPresetLevel() == L4 || m_elevator.GetPresetLevel() == L1);})
+    , WaitCommand(c_coralDeployDelay)
+    , CoralEjectCommand(*this)
+    , WaitCommand(c_coralPostEjectDelay)
+    // , CoralEjectPostCommand(*this)
+//    , m_elevL1
+    , m_elevL3
+    , m_EndLED
+    }.ToPtr()));
+
+  NamedCommands::registerCommand("PlaceL2L_OTFP", std::move(
+    frc2::SequentialCommandGroup{
+      m_FollowPathLED
+    ,  m_setL2
+    , m_setLeft
+    , CoralPrepCommand(*this)
+    , DeferredCommand(GetFollowPathCommand, {&m_drive} )
+    , m_setHighSpeedCmd
+    , ConditionalCommand (SequentialCommandGroup{
                                 ElevatorGoToCommand(*this, L4, c_bUsePresetLevel)
                               , InstantCommand{[this] {m_coral.DeployManipulator(); }, {&m_coral} } }, 
                           InstantCommand{[this] {m_coral.RetractManipulator(); }, {&m_coral} }, 
@@ -199,7 +221,7 @@ RobotContainer::RobotContainer()
     , WaitCommand(c_coralDeployDelay)
     , CoralEjectCommand(*this)
     , WaitCommand(c_coralPostEjectDelay)
-    , CoralEjectPostCommand(*this)
+    // , CoralEjectPostCommand(*this)
     , m_elevL1
     , m_EndLED
     }.ToPtr()));
@@ -220,8 +242,9 @@ RobotContainer::RobotContainer()
     , WaitCommand(c_coralDeployDelay)
     , CoralEjectCommand(*this)
     , WaitCommand(c_coralPostEjectDelay)
-    , CoralEjectPostCommand(*this)
-    , m_elevL1
+    // , CoralEjectPostCommand(*this)
+//    , m_elevL1
+    , m_elevL3
     , m_EndLED
     }.ToPtr()));
   
@@ -247,7 +270,8 @@ RobotContainer::RobotContainer()
 
   NamedCommands::registerCommand("Intake", std::move(
     frc2::SequentialCommandGroup{
-       CoralIntakeCommand(*this)
+        m_elevL1
+      , CoralIntakeCommand(*this)
       , m_elevL3
     }.ToPtr()));
     
@@ -797,7 +821,7 @@ void RobotContainer::ConfigButtonBoxBindings()
 //                          [this](){return (m_elevator.GetPresetLevel() == L4 || m_elevator.GetPresetLevel() == L1);})
     , CoralEjectCommand(*this)
     , WaitCommand(c_coralPostEjectDelay)
-    , CoralEjectPostCommand(*this)
+    // , CoralEjectPostCommand(*this)
     , m_elevL1
     , m_EndLED
   }.ToPtr());
