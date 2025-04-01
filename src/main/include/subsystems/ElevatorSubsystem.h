@@ -34,8 +34,8 @@ constexpr double c_defaultL3Turns = 15.0;
 
 constexpr double c_defaultL4Turns = 40.0;
 constexpr double c_defaultLoadTurns = 10.0;
-constexpr double c_algaeRemovalL3_4 = 33.0;
-constexpr double c_algaeRemovalL2_3 = 20.75;
+constexpr double c_algaeRemovalL3_4 = 17.0;
+constexpr double c_algaeRemovalL2_3 = 3.5;
 constexpr double c_algaeRemovalGripBall = -4.0;
 
 constexpr double c_elevToleranceTurns = 6.0;

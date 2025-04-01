@@ -812,8 +812,16 @@ void RobotContainer::ConfigButtonBoxBindings()
   }.ToPtr());
   buttonBox.LeftTrigger().OnTrue(&m_setLeft);
 
-  buttonBox.Start().OnTrue(&m_elevL3_4);
-  buttonBox.RightStick().OnTrue(&m_elevL2_3);
+  buttonBox.Start().OnTrue(frc2::SequentialCommandGroup{
+    m_elevL3_4
+    , m_coralAlgaeRemove
+  }.ToPtr());
+  buttonBox.Start().OnFalse(&m_coralStop);
+  buttonBox.RightStick().OnTrue(frc2::SequentialCommandGroup{
+    m_elevL2_3
+    , m_coralAlgaeRemove
+  }.ToPtr());
+  buttonBox.RightStick().OnFalse(&m_coralStop);
   buttonBox.A().OnTrue(frc2::SequentialCommandGroup{      // Score
       m_FollowPathLED
     , DeferredCommand(GetFollowPathCommand, {&m_drive} )
