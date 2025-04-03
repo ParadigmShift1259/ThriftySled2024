@@ -845,7 +845,8 @@ void RobotContainer::ConfigButtonBoxBindings()
   buttonBox.POVUp().OnTrue(&m_ClimberDeployRelUp);        // Jog out
   buttonBox.POVDown().OnTrue(&m_ClimberDeployRelDown);    // Jog in
   buttonBox.POVRight().OnTrue(frc2::SequentialCommandGroup{
-      m_FollowPathLED
+      m_driveStop
+    , m_FollowPathLED
     , CoralPrepCommand(*this)
     , ConditionalCommand (SequentialCommandGroup{
                                 ElevatorGoToCommand(*this, L4, c_bUsePresetLevel)

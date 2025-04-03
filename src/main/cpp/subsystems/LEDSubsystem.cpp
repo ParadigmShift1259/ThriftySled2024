@@ -38,7 +38,7 @@ void LEDSubsystem::Periodic()
   else
   {
     // Robot is disabled, turn red
-    SetAnimation(c_colorRed, LEDSubsystem::kSolid);
+    SetAnimation(c_colorRed, LEDSubsystem::kScanner);
   }
 
   // m_log.Append(add_data_here);

@@ -201,6 +201,8 @@ class RobotContainer : public ISubsystemAccess
   frc2::InstantCommand m_ClimberDeployRelUp{[this] { m_climber.GoToPositionRel(c_defaultClimbDeployRelTurns);}, {&m_climber} };
   frc2::InstantCommand m_ClimberDeployRelDown{[this] { m_climber.GoToPositionRel(-c_defaultClimbDeployRelTurns);}, {&m_climber} };
 
+  frc2::InstantCommand m_driveStop{[this]  { m_drive.DriveBack();}, {&m_drive} };
+
   frc2::InstantCommand m_FollowPathLED{[this] 
   {
     m_led.SetCurrentAction(LEDSubsystem::kFollowPath);
