@@ -14,6 +14,7 @@
 #include <frc2/command/SubsystemBase.h>
 #include <frc/DataLogManager.h>
 #include <frc/AddressableLED.h>
+#include <frc/DriverStation.h>
 
 using namespace ctre::phoenix::led;
 
@@ -75,7 +76,7 @@ class LEDSubsystem : public frc2::SubsystemBase
 
     bool IsRobotBusy() { return m_currentAction != kIdle; }
 
-    void SetDefaultColor(RBGAColor color) { m_defaultColor = color; }
+    //void SetDefaultColor(RBGAColor color) { m_defaultColor = color; }
     RBGAColor GetDefaultColor() { return m_defaultColor; }
 
     void SetCurrentAction(ECurrentAction action) { m_currentAction = action; }
@@ -84,19 +85,33 @@ class LEDSubsystem : public frc2::SubsystemBase
     
   private:
     // Convienince function to set LED color by accessing color struct components
-    void SetColor(const RBGAColor& color) { m_candle.SetLEDs(color.red, color.green, color.blue, color.white, c_ledOffset, c_ledNum); }
+    void SetColor(const RBGAColor& color) 
+    { 
+      m_currentColor = color;
+      m_candle.SetLEDs(color.red, color.green, color.blue, color.white, c_ledOffset, c_ledNum);
+    }
     // Convienince function to set an animation color by accessing color struct components
     void SetColor(BaseTwoSizeAnimation& animation, const RBGAColor& color)
     {
+      m_currentColor = color;
       animation.SetR(color.red);
       animation.SetG(color.green);
       animation.SetB(color.blue);
       animation.SetW(color.white);
     }
 
+    bool IsSameColor(const RBGAColor& color1, const RBGAColor& color2)
+    {
+      return    color1.red == color2.red 
+             && color1.green == color2.green
+             && color1.blue == color2.blue
+             && color1.white == color2.white;
+    }
+
     CANdleConfiguration m_candleConfig;
     wpi::log::DoubleLogEntry m_log;
     CANdle m_candle{kLEDCANID};
+    std::optional<frc::DriverStation::Alliance> m_alliance;
 
     static constexpr double c_defaultSpeed = 0.5;
     static constexpr int c_ledNum = 16;
@@ -124,6 +139,7 @@ class LEDSubsystem : public frc2::SubsystemBase
     LarsonAnimation m_larsonAnimation{0, 0, 0, 0, c_defaultSpeed, c_ledNum, LarsonAnimation::Front, 3, c_ledOffset};
 
     RBGAColor       m_defaultColor;
+    RBGAColor       m_currentColor = c_colorBlack;
     ECurrentAction  m_currentAction;
 };
 

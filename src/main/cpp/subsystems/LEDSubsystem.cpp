@@ -23,6 +23,7 @@ LEDSubsystem::LEDSubsystem()
 
   // printf("candle error: %d", error);
   // printf("candle fault: %d", faultsError);
+  m_alliance = frc::DriverStation::GetAlliance();
 }
 
 void LEDSubsystem::Periodic()
@@ -38,7 +39,15 @@ void LEDSubsystem::Periodic()
   else
   {
     // Robot is disabled, turn red
-    SetAnimation(c_colorRed, LEDSubsystem::kScanner);
+    if (m_alliance == frc::DriverStation::kBlue)
+    {
+      if (!IsSameColor(m_currentColor, c_colorBlue))
+        SetAnimation(c_colorBlue, LEDSubsystem::kFlow);
+    }
+    else if (!IsSameColor(m_currentColor, c_colorRed))
+    {
+      SetAnimation(c_colorRed, LEDSubsystem::kFlow);
+    }
   }
 
   // m_log.Append(add_data_here);
