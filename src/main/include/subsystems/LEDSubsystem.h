@@ -115,7 +115,7 @@ class LEDSubsystem : public frc2::SubsystemBase
 
     bool m_bAllianceSet = false;
 
-    static constexprble c_defaultSpeed = 0.5;
+    static constexpr double c_defaultSpeed = 0.5;
     static constexpr int c_ledNum = 16;
     static constexpr int c_ledOffset = 8;
 
