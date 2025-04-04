@@ -23,11 +23,14 @@ LEDSubsystem::LEDSubsystem()
 
   // printf("candle error: %d", error);
   // printf("candle fault: %d", faultsError);
-  m_alliance = frc::DriverStation::GetAlliance();
 }
 
 void LEDSubsystem::Periodic()
 {
+  if (!m_bAllianceSet){
+      m_bAllianceSet = true;
+      m_alliance = frc::DriverStation::GetAlliance();
+  }
   bool robotEnabled = frc::SmartDashboard::GetBoolean("Robot Enabled", false);
   if (robotEnabled)
   {

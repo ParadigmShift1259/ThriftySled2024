@@ -192,6 +192,7 @@ class RobotContainer : public ISubsystemAccess
   frc2::InstantCommand m_coralStop{[this] { m_coral.Stop(); }, {&m_coral} };
   frc2::InstantCommand m_coralRetract{[this] { m_coral.RetractCoral(L1); }, {&m_coral} };
   frc2::InstantCommand m_coralDeployManip{[this] {m_coral.DeployManipulator(); }, {&m_coral} };
+  frc2::InstantCommand m_coralDeployManipAlgae{[this] {m_coral.DeployManipulatorAlgae(); }, {&m_coral} };
   frc2::InstantCommand m_coralRetractManip{[this] {m_coral.RetractManipulator(); }, {&m_coral} };
   frc2::InstantCommand m_coralAlgaeRemove{[this] {m_coral.SetManipulator(0.9); }, {&m_coral} };
 

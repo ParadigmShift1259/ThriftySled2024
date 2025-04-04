@@ -39,6 +39,7 @@ public:
     void SetFeeder(double speed);
     /// Deploys the manipulator out of the robot
     void DeployManipulator() {double sp = frc::Preferences::GetDouble("ServoDeploy", c_servoDeployDefault); m_deployServo.Set(sp); }
+    void DeployManipulatorAlgae() {double sp = frc::Preferences::GetDouble("ServoDeployAlgae", 0.45); m_deployServo.Set(sp); }
     // Retracts the manipulator into the robot
     void RetractManipulator() {double sp = frc::Preferences::GetDouble("ServoRetract", c_servoRetractDefault);m_deployServo.Set(sp); }
     void GoToPosition(double turns);
