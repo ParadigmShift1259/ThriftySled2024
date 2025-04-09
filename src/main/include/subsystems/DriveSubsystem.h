@@ -172,7 +172,7 @@ private:
   frc::PIDController m_rotationPIDController{ 1.0, 0.0, 0.025 };
 
   bool m_bOverrideXboxInput = false;
-  bool m_bAdjustingWheelAngle = false;
+  int m_AdjustingWheelAngleCount = 0;
 
   DashBoardValue<double> m_dbvPitch{"Gyro", "Pitch", m_gyro.GetPitch().value()};
   DashBoardValue<double> m_dbvRoll{"Gyro", "Roll", m_gyro.GetRoll().value()};
