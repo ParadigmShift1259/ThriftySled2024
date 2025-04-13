@@ -702,7 +702,7 @@ void RobotContainer::ConfigPrimaryButtonBindings()
   primary.Y().OnTrue(InstantCommand{[this] { CommandScheduler::GetInstance().CancelAll(); }, {} }.ToPtr());
 
   primary.Back().OnTrue(ClimbRetractCommand(*this).ToPtr());
-  primary.Start().OnTrue(&m_toggleSlowSpeed);
+  // primary.Start().OnTrue(&m_toggleSlowSpeed);
   primary.LeftBumper().OnTrue(&m_toggleFieldRelative);
   primary.RightBumper().OnTrue(DeferredCommand(GetFollowPathCommand, {&m_drive} ).ToPtr());
 
@@ -1002,7 +1002,7 @@ std::shared_ptr<PathPlannerPath> RobotContainer::GetOnTheFlyPath()
 {
   std::shared_ptr<PathPlannerPath> path;
 
-  //m_drive.SetSlowSpeed(true);
+  m_drive.SetSlowSpeed(true);
 
   units::length::meter_t targetX;
   units::length::meter_t targetY;

@@ -70,7 +70,7 @@ class RobotContainer : public ISubsystemAccess
 
   // Stop all motors (currently elevator only)
   void StopAll();
-  void SetHighSpeed(){m_drive.SetSlowSpeed(false);}
+  void SetHighSpeed(){/*m_drive.SetSlowSpeed(false);*/}
 
   std::shared_ptr<PathPlannerPath> GetOnTheFlyPath();
 
@@ -155,7 +155,7 @@ class RobotContainer : public ISubsystemAccess
 
   frc2::InstantCommand m_toggleFieldRelative{[this] { m_fieldRelative = !m_fieldRelative; }, {}};
   frc2::InstantCommand m_toggleSlowSpeed{[this] { m_drive.ToggleSlowSpeed(); }, {}};
-  frc2::InstantCommand m_setHighSpeedCmd{[this] { m_drive.SetSlowSpeed(false); }, {&m_drive}};
+  frc2::InstantCommand m_setHighSpeedCmd{[this] { /*m_drive.SetSlowSpeed(false);*/ }, {&m_drive}};
 
   frc2::InstantCommand m_resetOdo{[this] 
   {

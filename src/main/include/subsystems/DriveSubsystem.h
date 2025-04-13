@@ -108,8 +108,8 @@ public:
 
   void SetSlowSpeed(bool slow) 
   {
-    m_currentMaxSpeed = (slow ? kSlowSpeed : kMaxSpeed);
-    m_currentMaxAngularSpeed = (slow ? kLowAngularSpeed : kMaxAngularSpeed);
+    m_currentMaxSpeed = kSlowSpeed; //(slow ? kSlowSpeed : kMaxSpeed);
+    m_currentMaxAngularSpeed = kLowAngularSpeed; //(slow ? kLowAngularSpeed : kMaxAngularSpeed);
 
     m_frontLeft.SetMaxSpeed(m_currentMaxSpeed);
     m_frontRight.SetMaxSpeed(m_currentMaxSpeed);
@@ -119,7 +119,7 @@ public:
 
   void ToggleSlowSpeed() override
   { 
-    SetSlowSpeed(m_currentMaxSpeed == kMaxSpeed);
+    //SetSlowSpeed(m_currentMaxSpeed == kMaxSpeed);
   }
 
   units::meters_per_second_t m_currentMaxSpeed = kSlowSpeed;//kMaxSpeed;
