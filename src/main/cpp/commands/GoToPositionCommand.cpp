@@ -68,7 +68,9 @@ GoToPositionCommand::GoToPositionCommand(ISubsystemAccess& subsystemAccess, EMov
 //GoToPositionCommand::GoToPositionCommand(ISubsystemAccess& subsystemAccess, EMoveDirection elmr)
     : m_driveSubsystem(subsystemAccess.GetDrive())
     , m_visionSubsystem(subsystemAccess.GetVision())
-    // , m_led(subsystemAccess.GetLED())
+#ifdef LED
+    , m_led(subsystemAccess.GetLED())
+#endif
     , m_targetX(0)
     , m_targetY(0)
     , m_targetRot(0)
@@ -76,8 +78,11 @@ GoToPositionCommand::GoToPositionCommand(ISubsystemAccess& subsystemAccess, EMov
     , m_bJogging(false)
     , m_path(path)
 {
-    // AddRequirements(frc2::Requirements{&subsystemAccess.GetDrive(), &subsystemAccess.GetVision(), &subsystemAccess.GetLED()});
+#ifdef LED
+    AddRequirements(frc2::Requirements{&subsystemAccess.GetDrive(), &subsystemAccess.GetVision(), &subsystemAccess.GetLED()});
+#else
     AddRequirements(frc2::Requirements{&subsystemAccess.GetDrive(), &subsystemAccess.GetVision()});
+#endif
 
     wpi::log::DataLog& log = subsystemAccess.GetLogger();
     m_logStartGoToPositionCommand = wpi::log::BooleanLogEntry(log, "/GoToPositionCommand/startCommand");
@@ -94,11 +99,11 @@ GoToPositionCommand::GoToPositionCommand(ISubsystemAccess& subsystemAccess, EMov
 
 void GoToPositionCommand::Initialize()
 {
-    // if (m_led.GetCurrentAction() == LEDSubsystem::CurrentAction::kReefPosition)
+    // if (m_led.GetCurrentAction() == LEDSubsystem::kReefPosition)
     // {
-    //     m_led.SetCurrentAction(LEDSubsystem::CurrentAction::kReefMovement);
+    //     m_led.SetCurrentAction(LEDSubsystem::kReefMovement);
     // }
-    // m_led.SetAnimation(c_colorWhite, LEDSubsystem::Animation::kFlow);
+    // m_led.SetAnimation(c_colorWhite, LEDSubsystem::kFlow);
     m_timer.Reset();
     m_timer.Start();
     // m_visionSubsystem.EnableReefLEDs();
@@ -114,7 +119,7 @@ void GoToPositionCommand::Execute()
     auto y = m_driveSubsystem.GetY();
     auto rotation = m_driveSubsystem.GetGyroAzimuthDeg().value();
 
-#define USEPATHPLANNER 
+//#define USEPATHPLANNER 
 #ifndef USEPATHPLANNER
     //const double c_maxX = 3.0;
     //const double c_maxY = 3.0;
@@ -158,24 +163,24 @@ void GoToPositionCommand::Execute()
         else if (m_elmr == eJogLeft && !m_bJogging)
         {
             m_targetX = (units::length::meter_t{x} - c_jogLength).value();
-            m_targetY = y;
+            m_targetY = y.value();
             m_bJogging = true;
         }
         else if (m_elmr == eJogRight && !m_bJogging)
         {
             m_targetX = (units::length::meter_t{x} + c_jogLength).value();
-            m_targetY = y;
+            m_targetY = y.value();
             m_bJogging = true;
         }
         else if (m_elmr == eJogForward && !m_bJogging)
         {
-            m_targetX = x;
+            m_targetX = x.value();
             m_targetY = (units::length::meter_t{y} + c_jogLength).value();
             m_bJogging = true;
         }
         else if (m_elmr == eJogBackward && !m_bJogging)
         {
-            m_targetX = x;
+            m_targetX = x.value();
             m_targetY = (units::length::meter_t{y} - c_jogLength).value();
             m_bJogging = true;
         }
@@ -186,8 +191,8 @@ void GoToPositionCommand::Execute()
         }
   
 #ifndef USEPATHPLANNER
-        xDiff = fabs(m_targetX - x);
-        yDiff = fabs(m_targetY - y);
+        xDiff = fabs(m_targetX - x.value());
+        yDiff = fabs(m_targetY - y.value());
         rotDiff = fabs(m_targetRot - rotation);
 #endif
 
@@ -198,7 +203,7 @@ void GoToPositionCommand::Execute()
 #ifdef USEPATHPLANNER
         auto xM = units::length::meter_t {x};
         auto yM = units::length::meter_t {y};
-        auto rotationDeg = frc::Rotation2d {units::angle::degree_t {rotation}};
+        //auto rotationDeg = frc::Rotation2d {units::angle::degree_t {rotation}};
 
         auto xTarget = units::length::meter_t {m_targetX};
         auto yTarget = units::length::meter_t {m_targetY};
@@ -273,7 +278,7 @@ void GoToPositionCommand::Execute()
 #else
         if (xDiff >= c_tolerance && xDiff < c_maxX)
         {
-            yInput = (m_targetX - x) / c_maxX;
+            yInput = (m_targetX - x.value()) / c_maxX;
 
             if (fabs(yInput) < c_minInput)
             {
@@ -290,7 +295,7 @@ void GoToPositionCommand::Execute()
 
         if (yDiff >= c_tolerance && yDiff < c_maxY)
         {
-            xInput = (y - m_targetY) / c_maxY;
+            xInput = (y.value() - m_targetY) / c_maxY;
             
             if (fabs(xInput) < c_minInput)
             {
@@ -345,16 +350,16 @@ bool GoToPositionCommand::IsFinished()
     auto x = m_driveSubsystem.GetX();
     auto y = m_driveSubsystem.GetY();
 
-    bool finished = fabs(m_targetY - y) < c_tolerance && fabs(m_targetX - x) < c_tolerance;
+    bool finished = fabs(m_targetY - y.value()) < c_tolerance && fabs(m_targetX - x.value()) < c_tolerance;
 
     if (!finished) 
     {
-        auto xDiff = fabs(m_targetX - x);
-        auto yDiff = fabs(m_targetY - y);
+        auto xDiff = fabs(m_targetX - x.value());
+        auto yDiff = fabs(m_targetY - y.value());
         printf("tv %s x %.3f y %.3f xDiff %.3f yDiff %.3f \n"
         , m_visionSubsystem.IsValidReef() ? "true" : "false"
-        , x
-        , y
+        , x.value()
+        , y.value()
         , xDiff
         , yDiff
         );

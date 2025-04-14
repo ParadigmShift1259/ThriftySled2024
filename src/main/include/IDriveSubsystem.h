@@ -36,14 +36,14 @@ public:
   
   virtual void UpdateOdometry() = 0;
   virtual void ResetOdometry(frc::Pose2d pose) = 0;
-  virtual void SetHeading(units::degree_t heading) = 0;
-  virtual double GetPitch() = 0;
+  //virtual void SetHeading(units::degree_t heading) = 0;
+  virtual units::degree_t GetPitch() = 0;
   virtual frc::Pose2d GetPose() = 0;
   virtual frc::ChassisSpeeds GetChassisSpeeds() = 0;
   virtual void SetModuleStates(SwerveModuleStates desiredStates) = 0;
 
-  virtual double GetX() = 0;
-  virtual double GetY() = 0;
+  virtual units::length::meter_t  GetX() = 0;
+  virtual units::length::meter_t  GetY() = 0;
 
   virtual void ResyncAbsRelEnc() = 0;
   virtual void SetOverrideXboxInput(bool bOverride) = 0;

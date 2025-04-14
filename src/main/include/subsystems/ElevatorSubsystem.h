@@ -5,6 +5,7 @@
 #include "Constants.h"
 #include "ConstantsDigitalInputs.h"
 #include "ConstantsCANIDs.h"
+#include "DashBoardValue.h"
 
 #include <frc/DigitalInput.h>
 
@@ -26,16 +27,22 @@ using namespace rev::spark;
 //All temporary values 1/18/25
 constexpr double c_defaultResetTurns = 0.0;
 constexpr double c_defaultParkTurns = 0.0;
-constexpr double c_defaultL1Turns = -0.0;
-constexpr double c_defaultL2Turns = -10.0;
-constexpr double c_defaultL3Turns = -63.0;
-constexpr double c_defaultL4Turns = -126.0;
-constexpr double c_defaultLoadTurns = -75.0;
+constexpr double c_defaultL1Turns = 0.0;
+constexpr double c_defaultL2Turns =  2.0; // originally 2.0
+constexpr double c_defaultL3Turns = 15.0; 
+
+constexpr double c_defaultL4Turns = 40.0;
+constexpr double c_defaultLoadTurns = 10.0;
+constexpr double c_algaeRemovalL3_4 = 15.1;
+
+constexpr double c_algaeRemovalL2_3 = 3.5;
+constexpr double c_algaeRemovalGripBall = -4.0;
+
+constexpr double c_elevToleranceTurns = 6.0;
 
 class ElevatorSubsystem : public frc2::SubsystemBase
 {
 public:
-
     ElevatorSubsystem();
 
     /// Will be called periodically whenever the CommandScheduler runs.
@@ -43,11 +50,23 @@ public:
 
     void Stop() { m_followMotor.StopMotor(); m_leadMotor.StopMotor(); }
 
-    void GoToPosition(double position);
+    void GoToPosition(ELevels eLevel);
 
     void ElevatorReset(){ m_leadRelativeEnc.SetPosition(0.0); m_followRelativeEnc.SetPosition(0.0);}
 
+    double GetCurrentPosition(){return m_leadRelativeEnc.GetPosition();}
     void GotoPositionRel(double relPos);
+
+    bool IsAtPosition(ELevels level);
+
+    bool GetUpperLimit(){return m_upperLimit.Get();}
+    bool GetLowerLimit(){return m_lowerLimit.Get();}
+
+    void SetPresetLevel(ELevels level);
+    ELevels GetPresetLevel() {return m_level;}
+    void GoToPresetLevel();
+    double GetPositionForLevel(ELevels eLevel);
+    void GoToPosition(double position);
 
     enum Position {
         kDefaultPosition,
@@ -65,12 +84,17 @@ private:
     SparkFlex m_followMotor;
     SparkRelativeEncoder m_followRelativeEnc = m_followMotor.GetEncoder();    
     SparkClosedLoopController m_followPIDController = m_followMotor.GetClosedLoopController();
-
+    SparkLimitSwitch m_lowerLimit = m_leadMotor.GetReverseLimitSwitch();
+    SparkLimitSwitch m_upperLimit = m_leadMotor.GetForwardLimitSwitch();
     wpi::log::DoubleLogEntry m_log;
 
     double m_leadDirection = 1.0;
     double m_followDirection = 1.0;
 
+    //DashBoardValue<double> m_dbvVelocity{"Elevator", "Velocity", 0.0};
+
     double m_position = 0.0;
     ClosedLoopSlot m_slot = ClosedLoopSlot::kSlot0;
+
+    ELevels m_level = L1;
 };

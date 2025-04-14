@@ -1,0 +1,113 @@
+﻿﻿﻿﻿﻿﻿  ﻿
+﻿﻿﻿﻿﻿﻿ 	at frc::ReportErrorV(int, char const*, int, char const*, fmt::v11::basic_string_view<char>, fmt::v11::basic_format_args<fmt::v11::context>) + 0x12c [0xb677e80c] ﻿
+﻿﻿﻿﻿﻿﻿ 	at  + 0x167314 [0xb6798314] ﻿
+﻿﻿﻿﻿﻿﻿ 	at pathplanner::PathPlannerTrajectory::forwardAccelPass(std::vector<pathplanner::PathPlannerTrajectoryState, std::allocator<pathplanner::PathPlannerTrajectoryState> >&, pathplanner::RobotConfig const&) + 0x44c [0x138e04] ﻿
+﻿﻿﻿﻿﻿﻿ 	at pathplanner::PathPlannerTrajectory::PathPlannerTrajectory(std::shared_ptr<pathplanner::PathPlannerPath>, frc::ChassisSpeeds const&, frc::Rotation2d const&, pathplanner::RobotConfig const&) + 0x170 [0x13bf88] ﻿
+﻿﻿﻿﻿﻿﻿ 	at pathplanner::PathPlannerPath::generateTrajectory(frc::ChassisSpeeds, frc::Rotation2d, pathplanner::RobotConfig const&) + 0x220 [0xfb494] ﻿
+﻿﻿﻿﻿﻿﻿ 	at pathplanner::FollowPathCommand::Initialize() + 0xe74 [0xf9394] ﻿
+﻿﻿﻿﻿﻿﻿ 	at frc2::CommandScheduler::Schedule(frc2::Command*) + 0x434 [0xb6ef8290] ﻿
+﻿﻿﻿﻿﻿﻿ 	at  + 0x37ea4 [0xb6edeea4] ﻿
+﻿﻿﻿﻿﻿﻿ 	at frc::EventLoop::Poll() + 0x4c [0xb673b490] ﻿
+﻿﻿﻿﻿﻿﻿ 	at frc2::CommandScheduler::Run() + 0x2a4 [0xb6ef8ca0] ﻿
+﻿﻿﻿﻿﻿﻿ 	at frc::IterativeRobotBase::LoopFunc() + 0x114 [0xb674f1a0] ﻿
+﻿﻿﻿﻿﻿﻿ 	at frc::TimedRobot::StartCompetition() + 0xfc [0xb6768298] ﻿
+﻿﻿﻿﻿﻿﻿ 	at void frc::impl::RunRobot<Robot>(wpi::priority_mutex&, Robot**) + 0x54 [0xc5bd4] ﻿
+﻿﻿﻿﻿﻿﻿ 	at int frc::StartRobot<Robot>() + 0x2c0 [0xc64a8] ﻿
+﻿﻿﻿﻿﻿﻿ 	at __libc_start_main + 0x10c [0xb4544624] ﻿
+﻿﻿﻿﻿﻿﻿  ﻿
+﻿﻿﻿﻿﻿﻿﻿﻿ERROR ﻿﻿ -111 ﻿﻿ Error: x and y components of Rotation2d are zero
+	at wpi::GetStackTrace[abi:cxx11](int) + 0x20 [0xb5e9674c]
+	at pathplanner::PathPlannerTrajectory::reverseAccelPass(std::vector<pathplanner::PathPlannerTrajectoryState, std::allocator<pathplanner::PathPlannerTrajectoryState> >&, pathplanner::RobotConfig const&) + 0x4c0 [0x139d00]
+	at pathplanner::PathPlannerTrajectory::PathPlannerTrajectory(std::shared_ptr<pathplanner::PathPlannerPath>, frc::ChassisSpeeds const&, frc::Rotation2d const&, pathplanner::RobotConfig const&) + 0x284 [0x13c09c]
+	at pathplanner::PathPlannerPath::generateTrajectory(frc::ChassisSpeeds, frc::Rotation2d, pathplanner::RobotConfig const&) + 0x220 [0xfb494]
+	at pathplanner::FollowPathCommand::Initialize() + 0xe74 [0xf9394]
+	at frc2::CommandScheduler::Schedule(frc2::Command*) + 0x434 [0xb6ef8290]
+	at  + 0x37ea4 [0xb6edeea4]
+	at frc::EventLoop::Poll() + 0x4c [0xb673b490]
+	at frc2::CommandScheduler::Run() + 0x2a4 [0xb6ef8ca0]
+	at frc::IterativeRobotBase::LoopFunc() + 0x114 [0xb674f1a0]
+	at frc::TimedRobot::StartCompetition() + 0xfc [0xb6768298]
+	at void frc::impl::RunRobot<Robot>(wpi::priority_mutex&, Robot**) + 0x54 [0xc5bd4]
+	at int frc::StartRobot<Robot>() + 0x2c0 [0xc64a8]
+	at __libc_start_main + 0x10c [0xb4544624]
+ ﻿﻿ ReportErrorV ﻿﻿﻿
+﻿﻿﻿﻿﻿﻿ Error at ReportErrorV: Error: x and y components of Rotation2d are zero ﻿
+﻿﻿﻿﻿﻿﻿ 	at wpi::GetStackTrace[abi:cxx11](int) + 0x20 [0xb5e9674c] ﻿
+﻿﻿﻿﻿﻿﻿ 	at pathplanner::PathPlannerTrajectory::reverseAccelPass(std::vector<pathplanner::PathPlannerTrajectoryState, std::allocator<pathplanner::PathPlannerTrajectoryState> >&, pathplanner::RobotConfig const&) + 0x4c0 [0x139d00] ﻿
+﻿﻿﻿﻿﻿﻿ 	at pathplanner::PathPlannerTrajectory::PathPlannerTrajectory(std::shared_ptr<pathplanner::PathPlannerPath>, frc::ChassisSpeeds const&, frc::Rotation2d const&, pathplanner::RobotConfig const&) + 0x284 [0x13c09c] ﻿
+﻿﻿﻿﻿﻿﻿ 	at pathplanner::PathPlannerPath::generateTrajectory(frc::ChassisSpeeds, frc::Rotation2d, pathplanner::RobotConfig const&) + 0x220 [0xfb494] ﻿
+﻿﻿﻿﻿﻿﻿ 	at pathplanner::FollowPathCommand::Initialize() + 0xe74 [0xf9394] ﻿
+﻿﻿﻿﻿﻿﻿ 	at frc2::CommandScheduler::Schedule(frc2::Command*) + 0x434 [0xb6ef8290] ﻿
+﻿﻿﻿﻿﻿﻿ 	at  + 0x37ea4 [0xb6edeea4] ﻿
+﻿﻿﻿﻿﻿﻿ 	at frc::EventLoop::Poll() + 0x4c [0xb673b490] ﻿
+﻿﻿﻿﻿﻿﻿ 	at frc2::CommandScheduler::Run() + 0x2a4 [0xb6ef8ca0] ﻿
+﻿﻿﻿﻿﻿﻿ 	at frc::IterativeRobotBase::LoopFunc() + 0x114 [0xb674f1a0] ﻿
+﻿﻿﻿﻿﻿﻿ 	at frc::TimedRobot::StartCompetition() + 0xfc [0xb6768298] ﻿
+﻿﻿﻿﻿﻿﻿ 	at void frc::impl::RunRobot<Robot>(wpi::priority_mutex&, Robot**) + 0x54 [0xc5bd4] ﻿
+﻿﻿﻿﻿﻿﻿ 	at int frc::StartRobot<Robot>() + 0x2c0 [0xc64a8] ﻿
+﻿﻿﻿﻿﻿﻿ 	at __libc_start_main + 0x10c [0xb4544624] ﻿
+﻿﻿﻿﻿﻿﻿  ﻿
+﻿﻿﻿﻿﻿﻿ 	at frc::ReportErrorV(int, char const*, int, char const*, fmt::v11::basic_string_view<char>, fmt::v11::basic_format_args<fmt::v11::context>) + 0x12c [0xb677e80c] ﻿
+﻿﻿﻿﻿﻿﻿ 	at  + 0x167314 [0xb6798314] ﻿
+﻿﻿﻿﻿﻿﻿ 	at pathplanner::PathPlannerTrajectory::reverseAccelPass(std::vector<pathplanner::PathPlannerTrajectoryState, std::allocator<pathplanner::PathPlannerTrajectoryState> >&, pathplanner::RobotConfig const&) + 0x524 [0x139d64] ﻿
+﻿﻿﻿﻿﻿﻿ 	at pathplanner::PathPlannerTrajectory::PathPlannerTrajectory(std::shared_ptr<pathplanner::PathPlannerPath>, frc::ChassisSpeeds const&, frc::Rotation2d const&, pathplanner::RobotConfig const&) + 0x284 [0x13c09c] ﻿
+﻿﻿﻿﻿﻿﻿ 	at pathplanner::PathPlannerPath::generateTrajectory(frc::ChassisSpeeds, frc::Rotation2d, pathplanner::RobotConfig const&) + 0x220 [0xfb494] ﻿
+﻿﻿﻿﻿﻿﻿ 	at pathplanner::FollowPathCommand::Initialize() + 0xe74 [0xf9394] ﻿
+﻿﻿﻿﻿﻿﻿ 	at frc2::CommandScheduler::Schedule(frc2::Command*) + 0x434 [0xb6ef8290] ﻿
+﻿﻿﻿﻿﻿﻿ 	at  + 0x37ea4 [0xb6edeea4] ﻿
+﻿﻿﻿﻿﻿﻿ 	at frc::EventLoop::Poll() + 0x4c [0xb673b490] ﻿
+﻿﻿﻿﻿﻿﻿ 	at frc2::CommandScheduler::Run() + 0x2a4 [0xb6ef8ca0] ﻿
+﻿﻿﻿﻿﻿﻿ 	at frc::IterativeRobotBase::LoopFunc() + 0x114 [0xb674f1a0] ﻿
+﻿﻿﻿﻿﻿﻿ 	at frc::TimedRobot::StartCompetition() + 0xfc [0xb6768298] ﻿
+﻿﻿﻿﻿﻿﻿ 	at void frc::impl::RunRobot<Robot>(wpi::priority_mutex&, Robot**) + 0x54 [0xc5bd4] ﻿
+﻿﻿﻿﻿﻿﻿ 	at int frc::StartRobot<Robot>() + 0x2c0 [0xc64a8] ﻿
+﻿﻿﻿﻿﻿﻿ 	at __libc_start_main + 0x10c [0xb4544624] ﻿
+﻿﻿﻿﻿﻿﻿  ﻿
+﻿﻿﻿﻿﻿﻿﻿﻿ERROR ﻿﻿ -111 ﻿﻿ Error: x and y components of Rotation2d are zero
+	at wpi::GetStackTrace[abi:cxx11](int) + 0x20 [0xb5e9674c]
+	at pathplanner::PathPlannerTrajectory::reverseAccelPass(std::vector<pathplanner::PathPlannerTrajectoryState, std::allocator<pathplanner::PathPlannerTrajectoryState> >&, pathplanner::RobotConfig const&) + 0x4c0 [0x139d00]
+	at pathplanner::PathPlannerTrajectory::PathPlannerTrajectory(std::shared_ptr<pathplanner::PathPlannerPath>, frc::ChassisSpeeds const&, frc::Rotation2d const&, pathplanner::RobotConfig const&) + 0x284 [0x13c09c]
+	at pathplanner::PathPlannerPath::generateTrajectory(frc::ChassisSpeeds, frc::Rotation2d, pathplanner::RobotConfig const&) + 0x220 [0xfb494]
+	at pathplanner::FollowPathCommand::Initialize() + 0xe74 [0xf9394]
+	at frc2::CommandScheduler::Schedule(frc2::Command*) + 0x434 [0xb6ef8290]
+	at  + 0x37ea4 [0xb6edeea4]
+	at frc::EventLoop::Poll() + 0x4c [0xb673b490]
+	at frc2::CommandScheduler::Run() + 0x2a4 [0xb6ef8ca0]
+	at frc::IterativeRobotBase::LoopFunc() + 0x114 [0xb674f1a0]
+	at frc::TimedRobot::StartCompetition() + 0xfc [0xb6768298]
+	at void frc::impl::RunRobot<Robot>(wpi::priority_mutex&, Robot**) + 0x54 [0xc5bd4]
+	at int frc::StartRobot<Robot>() + 0x2c0 [0xc64a8]
+	at __libc_start_main + 0x10c [0xb4544624]
+ ﻿﻿ ReportErrorV ﻿﻿﻿
+﻿﻿﻿﻿﻿﻿ Error at ReportErrorV: Error: x and y components of Rotation2d are zero ﻿
+﻿﻿﻿﻿﻿﻿ 	at wpi::GetStackTrace[abi:cxx11](int) + 0x20 [0xb5e9674c] ﻿
+﻿﻿﻿﻿﻿﻿ 	at pathplanner::PathPlannerTrajectory::reverseAccelPass(std::vector<pathplanner::PathPlannerTrajectoryState, std::allocator<pathplanner::PathPlannerTrajectoryState> >&, pathplanner::RobotConfig const&) + 0x4c0 [0x139d00] ﻿
+﻿﻿﻿﻿﻿﻿ 	at pathplanner::PathPlannerTrajectory::PathPlannerTrajectory(std::shared_ptr<pathplanner::PathPlannerPath>, frc::ChassisSpeeds const&, frc::Rotation2d const&, pathplanner::RobotConfig const&) + 0x284 [0x13c09c] ﻿
+﻿﻿﻿﻿﻿﻿ 	at pathplanner::PathPlannerPath::generateTrajectory(frc::ChassisSpeeds, frc::Rotation2d, pathplanner::RobotConfig const&) + 0x220 [0xfb494] ﻿
+﻿﻿﻿﻿﻿﻿ 	at pathplanner::FollowPathCommand::Initialize() + 0xe74 [0xf9394] ﻿
+﻿﻿﻿﻿﻿﻿ 	at frc2::CommandScheduler::Schedule(frc2::Command*) + 0x434 [0xb6ef8290] ﻿
+﻿﻿﻿﻿﻿﻿ 	at  + 0x37ea4 [0xb6edeea4] ﻿
+﻿﻿﻿﻿﻿﻿ 	at frc::EventLoop::Poll() + 0x4c [0xb673b490] ﻿
+﻿﻿﻿﻿﻿﻿ 	at frc2::CommandScheduler::Run() + 0x2a4 [0xb6ef8ca0] ﻿
+﻿﻿﻿﻿﻿﻿ 	at frc::IterativeRobotBase::LoopFunc() + 0x114 [0xb674f1a0] ﻿
+﻿﻿﻿﻿﻿﻿ 	at frc::TimedRobot::StartCompetition() + 0xfc [0xb6768298] ﻿
+﻿﻿﻿﻿﻿﻿ 	at void frc::impl::RunRobot<Robot>(wpi::priority_mutex&, Robot**) + 0x54 [0xc5bd4] ﻿
+﻿﻿﻿﻿﻿﻿ 	at int frc::StartRobot<Robot>() + 0x2c0 [0xc64a8] ﻿
+﻿﻿﻿﻿﻿﻿ 	at __libc_start_main + 0x10c [0xb4544624] ﻿
+﻿﻿﻿﻿﻿﻿  ﻿
+﻿﻿﻿﻿﻿﻿ 	at frc::ReportErrorV(int, char const*, int, char const*, fmt::v11::basic_string_view<char>, fmt::v11::basic_format_args<fmt::v11::context>) + 0x12c [0xb677e80c] ﻿
+﻿﻿﻿﻿﻿﻿ 	at  + 0x167314 [0xb6798314] ﻿
+﻿﻿﻿﻿﻿﻿ 	at pathplanner::PathPlannerTrajectory::reverseAccelPass(std::vector<pathplanner::PathPlannerTrajectoryState, std::allocator<pathplanner::PathPlannerTrajectoryState> >&, pathplanner::RobotConfig const&) + 0x524 [0x139d64] ﻿
+﻿﻿﻿﻿﻿﻿ 	at pathplanner::PathPlannerTrajectory::PathPlannerTrajectory(std::shared_ptr<pathplanner::PathPlannerPath>, frc::ChassisSpeeds const&, frc::Rotation2d const&, pathplanner::RobotConfig const&) + 0x284 [0x13c09c] ﻿
+﻿﻿﻿﻿﻿﻿ 	at pathplanner::PathPlannerPath::generateTrajectory(frc::ChassisSpeeds, frc::Rotation2d, pathplanner::RobotConfig const&) + 0x220 [0xfb494] ﻿
+﻿﻿﻿﻿﻿﻿ 	at pathplanner::FollowPathCommand::Initialize() + 0xe74 [0xf9394] ﻿
+﻿﻿﻿﻿﻿﻿ 	at frc2::CommandScheduler::Schedule(frc2::Command*) + 0x434 [0xb6ef8290] ﻿
+﻿﻿﻿﻿﻿﻿ 	at  + 0x37ea4 [0xb6edeea4] ﻿
+﻿﻿﻿﻿﻿﻿ 	at frc::EventLoop::Poll() + 0x4c [0xb673b490] ﻿
+﻿﻿﻿﻿﻿﻿ 	at frc2::CommandScheduler::Run() + 0x2a4 [0xb6ef8ca0] ﻿
+﻿﻿﻿﻿﻿﻿ 	at frc::IterativeRobotBase::LoopFunc() + 0x114 [0xb674f1a0] ﻿
+﻿﻿﻿﻿﻿﻿ 	at frc::TimedRobot::StartCompetition() + 0xfc [0xb6768298] ﻿
+﻿﻿﻿﻿﻿﻿ 	at void frc::impl::RunRobot<Robot>(wpi::priority_mutex&, Robot**) + 0x54 [0xc5bd4] ﻿
+﻿﻿﻿﻿﻿﻿ 	at int frc::StartRobot<Robot>() + 0x2c0 [0xc64a8] ﻿
+﻿﻿﻿﻿﻿﻿ 	at __libc_start_main + 0x10c [0xb4544624] ﻿
+﻿﻿﻿﻿﻿﻿  ﻿

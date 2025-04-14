@@ -5,11 +5,12 @@
 
 #include "ISubsystemAccess.h"
 
+constexpr bool c_bUsePresetLevel = true;
 
 class ElevatorGoToCommand: public frc2::CommandHelper<frc2::Command, ElevatorGoToCommand>
 {
     public:
-        explicit ElevatorGoToCommand(ISubsystemAccess& subsystemAccess, double position);
+        explicit ElevatorGoToCommand(ISubsystemAccess& subsystemAccess, ELevels eLevel, bool bUsePresetLevel = false);
         void Initialize() override;
         void Execute() override;
         bool IsFinished() override;
@@ -18,11 +19,14 @@ class ElevatorGoToCommand: public frc2::CommandHelper<frc2::Command, ElevatorGoT
     private:
 
         ElevatorSubsystem&        m_elevatorSubsystem;
+#ifdef LED
+        LEDSubsystem&                     m_ledSubsystem;
+#endif
 
-        double m_position = 0.0;
+        ELevels m_level = L1;
 
         frc::Timer m_timer;
+        bool m_bUsePresetLevel = false;
 
-		wpi::log::BooleanLogEntry m_logStartElevatorGoToCommand;
-		wpi::log::BooleanLogEntry m_logElevatorGoToCommandFlipped;
+		wpi::log::BooleanLogEntry m_logStartCommand;
 };

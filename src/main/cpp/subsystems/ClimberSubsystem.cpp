@@ -1,19 +1,14 @@
 #include "Constants.h"
-
 #include "subsystems/ClimberSubsystem.h"
 
 #include <frc/SmartDashBoard/SmartDashboard.h>
-#include <frc/shuffleboard/Shuffleboard.h>
-
 #include <frc/Preferences.h>
-
-double c_defaultDirection;
 
 constexpr ClosedLoopSlot c_defaultClimbDownPIDSlot = rev::spark::ClosedLoopSlot::kSlot0;
 constexpr ClosedLoopSlot c_defaultClimbUpPIDSlot = rev::spark::ClosedLoopSlot::kSlot1;
 
 constexpr double c_defaultClimbDownP = 0.006;
-constexpr double c_defaultClimbUpP = 0.07;
+constexpr double c_defaultClimbUpP = 0.1;
 constexpr double c_defaultClimbI = 0.0;
 constexpr double c_defaultClimbD = 0.0;
 constexpr double c_defaultClimbFF = 0.00000;
@@ -32,30 +27,14 @@ ClimberSubsystem::ClimberSubsystem()
 
     m_relativeEnc.SetPosition(0.0);
 
-    c_defaultDirection = m_direction;
-
-    //m_motor.SetStatusFramePeriod(StatusFrameEnhanced::Status_13_Base_PIDF0, 10.0, 1.0);
-    //m_motor.SetStatusFramePeriod(StatusFrameEnhanced::Status_10_MotionMagic, 10.0, 1.0);
-
-    // m_motor.ConfigNeutralDeadband(0);
-    // m_motor.ConfigNominalOutputForward(kNominal);
-    // m_motor.ConfigNominalOutputReverse(kNominal * -1.0);
-    // m_motor.ConfigPeakOutputForward(kMaxOut);
-    // m_motor.ConfigPeakOutputReverse(kMaxOut * -1.0);
-    frc::SmartDashboard::PutNumber("ClimbmotorDirection", c_defaultDirection);
-
-    frc::SmartDashboard::PutNumber("ClimbHiTurns", c_defaultHighTurns);
-    frc::SmartDashboard::PutNumber("ClimbParkTurns", c_defaultParkTurns);
-    frc::SmartDashboard::PutNumber("ClimbResetTurns", c_defaultResetTurns);
+    frc::SmartDashboard::PutNumber("ClimbPosEcho", 1.0);
+    frc::SmartDashboard::PutNumber("ClimbRel", c_defaultClimbDeployRelTurns);
 
     frc::Preferences::InitDouble("kClimbPosDownP", c_defaultClimbDownP);
     frc::Preferences::InitDouble("kClimbPosUpP", c_defaultClimbUpP);
     frc::Preferences::InitDouble("kClimbPosI", c_defaultClimbI);
     frc::Preferences::InitDouble("kClimbPosD", c_defaultClimbD);
     frc::Preferences::InitDouble("kClimbPosFF", c_defaultClimbFF);
-
-    frc::SmartDashboard::PutNumber("ClimbmotorPos", 1.0);
-
 }
 
 void ClimberSubsystem::Periodic()
@@ -116,18 +95,28 @@ void ClimberSubsystem::Periodic()
     lastD = d;
     lastFF = ff;
 
-    frc::SmartDashboard::PutNumber("ClimbmotorPos Echo", m_relativeEnc.GetPosition());
+    frc::SmartDashboard::PutNumber("ClimbPosEcho", m_relativeEnc.GetPosition());
   }
+}
+
+void ClimberSubsystem::GoToPositionRel(double relPos)
+{
+    //relPos = frc::SmartDashboard::GetNumber("ClimbRel", c_defaultClimbDeployRelTurns);
+    GoToPosition(m_relativeEnc.GetPosition() + relPos);
 }
 
 void ClimberSubsystem::GoToPosition(double position)
 {
-    ClosedLoopSlot slot = position < -70.0 ? c_defaultClimbUpPIDSlot : c_defaultClimbDownPIDSlot;
+    ClosedLoopSlot slot = c_defaultClimbUpPIDSlot;
     m_closedLoopController.SetReference(position, SparkBase::ControlType::kPosition, slot);
-
 }
 
 void ClimberSubsystem::Set(double speed) 
 {
     m_motor.Set(speed);
+}
+
+double ClimberSubsystem::GetPosition() 
+{
+    return m_relativeEnc.GetPosition();
 }

@@ -27,14 +27,23 @@
 #include "ConstantsCANIDs.h"
 #include "subsystems/SwerveModule.h"
 #include "PigeonGyro.h"
-#include "LimelightHelpers.h"
+#include "DashBoardValue.h"
 
-static constexpr units::meters_per_second_t kMaxSpeed = 18.9_fps;  // L3 Gear Ratio Falcon Max Speed
-static constexpr units::meters_per_second_t kLowSpeed = 4.0_fps;  // L3 Gear Ratio Falcon Max Speed
-static constexpr units::radians_per_second_t kMaxAngularSpeed{2.5 * std::numbers::pi};  // 1/2 rotation per second
-static constexpr units::radians_per_second_squared_t kMaxAngularAcceleration{10.0 * std::numbers::pi};  // 4 rotations per second squared
+//#define SIMULATION
+#ifndef SIMULATION
+#include "LimelightHelpers.h"
+#endif
+
+// TODO These speeds should be divided by the drive gear ratio 
+static constexpr units::meters_per_second_t kMaxSpeed = 16.8_fps;  // Thrifty 18P13 Gear Ratio Kraken Max Speed
+static constexpr units::meters_per_second_t kSlowSpeed = 1.0_fps;
+
+static constexpr units::radians_per_second_t kMaxAngularSpeed{2.5 * std::numbers::pi};  // 2 1/2 radians per second
+static constexpr units::radians_per_second_t kLowAngularSpeed{ std::numbers::pi/3.0};  // 1/2 radian per second
+
 static constexpr units::radians_per_second_t kRotationDriveMaxSpeed = 7.5_rad_per_s;
 static constexpr units::radians_per_second_t kRotationDriveDirectionLimit = 7.0_rad_per_s;
+
 static constexpr units::radians_per_second_t kAimingRotationDriveMaxSpeed = 7.5_rad_per_s;
 static constexpr units::radians_per_second_t kAimingRotationDriveDirectionLimit = 7.0_rad_per_s;
 
@@ -68,33 +77,38 @@ public:
 
   void UpdateOdometry() override;
   void ResetOdometry(frc::Pose2d pose) override;
-  void SetHeading(units::degree_t heading) override;
   void Periodic() override;
-  double GetPitch() override { return m_gyro.GetPitch(); }
+  units::degree_t GetPitch() override { return m_gyro.GetPitch(); }
   frc::Pose2d GetPose() override;
   frc::ChassisSpeeds GetChassisSpeeds() override;
+  units::velocity::meters_per_second_t GetSpeed();
   void SetModuleStates(SwerveModuleStates desiredStates) override;
 
-  double GetX() override { return m_poseEstimator.GetEstimatedPosition().X().value(); }
-  double GetY() override { return m_poseEstimator.GetEstimatedPosition().Y().value(); }
+  frc::Pose2d GetCurrentPose() { return m_poseEstimator.GetEstimatedPosition(); }
+  units::length::meter_t GetX() override { return m_poseEstimator.GetEstimatedPosition().X(); }
+  units::length::meter_t GetY() override { return m_poseEstimator.GetEstimatedPosition().Y(); }
 
   void ResyncAbsRelEnc() override;
   void SetOverrideXboxInput(bool bOverride) override { m_bOverrideXboxInput = bOverride; }
+  void JogRotate(bool bClockwise);
+  void DriveBack();
   void WheelsForward() override;
   void WheelsLeft() override;
   void WheelsBackward() override;
   void WheelsRight() override;
 
+  void Stop() {m_bOverrideXboxInput = false;}
+
   TalonFX& GetTalon(int module);
 
-  units::angle::radian_t GetGyroAzimuth() { return m_gyro.GetRotation2d().Radians(); }
   units::angle::degree_t GetGyroAzimuthDeg() { return m_gyro.GetRotation2d().Degrees(); }
 
   RobotConfig GetRobotCfg() { return m_robotConfig; }
 
-  void ToggleSlowSpeed() override
-  { 
-    m_currentMaxSpeed = (m_currentMaxSpeed == kMaxSpeed ? kLowSpeed : kMaxSpeed);
+  void SetSlowSpeed(bool slow) 
+  {
+    m_currentMaxSpeed = (slow ? kSlowSpeed : kMaxSpeed);
+    m_currentMaxAngularSpeed = (slow ? kLowAngularSpeed : kMaxAngularSpeed);
 
     m_frontLeft.SetMaxSpeed(m_currentMaxSpeed);
     m_frontRight.SetMaxSpeed(m_currentMaxSpeed);
@@ -102,14 +116,17 @@ public:
     m_rearRight.SetMaxSpeed(m_currentMaxSpeed);
   }
 
-  units::meters_per_second_t m_currentMaxSpeed = kMaxSpeed;
+  void ToggleSlowSpeed() override
+  { 
+    SetSlowSpeed(m_currentMaxSpeed == kMaxSpeed);
+  }
 
-// Safer sppeds for lab testing
-  // static constexpr units::meters_per_second_t kMaxSpeed = 1.0_mps;
-  // static constexpr units::radians_per_second_t kMaxAngularSpeed{0.25 * std::numbers::pi};
+  units::meters_per_second_t m_currentMaxSpeed = kSlowSpeed;//kMaxSpeed;
+  units::radians_per_second_t m_currentMaxAngularSpeed = kMaxAngularSpeed;
 
 private:
   void SetAllDesiredState(frc::SwerveModuleState& sms);
+  wpi::array<frc::SwerveModuleState, 4> GetModuleStates() { return {m_frontLeft.GetState(), m_frontRight.GetState(), m_rearLeft.GetState(), m_rearRight.GetState()}; }
 
   static constexpr auto kTrackWidth = 24_in;
   static constexpr auto kWheelBase = 24_in;
@@ -140,25 +157,23 @@ private:
   ModuleConfig m_moduleCfg;
   RobotConfig m_robotConfig;
 
-  // frc::SwerveDriveOdometry<4> m_odometry{
-  //     m_kinematics,
-  //     m_gyro.GetRotation2d(),
-  //     {m_frontLeft.GetPosition(), m_frontRight.GetPosition(),
-  //      m_rearLeft.GetPosition(), m_rearRight.GetPosition()}};
-
   frc::SwerveDrivePoseEstimator<4> m_poseEstimator
   {
       m_kinematics
     , m_gyro.GetRotation2d()
     , { m_frontLeft.GetPosition() , m_frontRight.GetPosition(), m_rearLeft.GetPosition(), m_rearRight.GetPosition() }
     , frc::Pose2d{}
-    , { 0.1, 0.1, 0.1 }
-    , { 0.7, 0.7, 9999999.0 }
+    , { 0.1, 0.1, 0.1 }       // std deviations of the pose estimate; increase these numbers to trust your state estimate less.
+    , { 0.7, 0.7, 9999999.0 } // std deviations of the vision pose measurement; increase these numbers to trust the vision pose measurement less.
   };
 
   frc::PIDController m_rotationPIDController{ 1.0, 0.0, 0.025 };
 
   bool m_bOverrideXboxInput = false;
+  int m_AdjustingWheelAngleCount = 0;
+
+  DashBoardValue<double> m_dbvPitch{"Gyro", "Pitch", m_gyro.GetPitch().value()};
+  DashBoardValue<double> m_dbvRoll{"Gyro", "Roll", m_gyro.GetRoll().value()};
 
   // Logging Member Variables
   wpi::log::DoubleLogEntry m_logRobotPoseX;
@@ -171,8 +186,6 @@ private:
   wpi::log::DoubleLogEntry m_logDriveInputX;
   wpi::log::DoubleLogEntry m_logDriveInputY;
   wpi::log::DoubleLogEntry m_logDriveInputRot;
-
-  nt::StructPublisher<frc::Pose2d> m_publisher = nt::NetworkTableInstance::GetDefault().GetStructTopic<frc::Pose2d>("OdoPose").Publish();
 };
 
 #endif  //ndef __DRIVESUBSYSTEM_H__

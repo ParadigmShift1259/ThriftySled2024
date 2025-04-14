@@ -21,7 +21,7 @@ public:
   void RobotPeriodic() override;
   void DisabledInit() override;
   void DisabledPeriodic() override;
-  //void DisabledExit() override;
+  void DisabledExit() override;
   void AutonomousInit() override;
   void AutonomousPeriodic() override;
   //void AutonomousExit() override;
@@ -37,7 +37,8 @@ public:
  private:
   // Have it empty by default so that if testing teleop it
   // doesn't have undefined behavior and potentially crash.
-  std::optional<frc2::CommandPtr> m_autonomousCommand;
+//  std::optional<frc2::CommandPtr> m_autonomousCommand;
+  Command* m_autonomousCommand;
   
   RobotContainer m_container;
   bool m_hasAutoRun = false;

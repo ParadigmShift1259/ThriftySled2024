@@ -21,6 +21,14 @@ SwerveModule::SwerveModule(const int driveMotorCanId, const int turningMotorCanI
   , m_driveMotorReversed(driveMotorReversed)
   , m_absEnc((turningMotorCanId / 2) - 1)
   , m_offset(offset)
+  , m_dbvOther{"Drive", "stkOther" + m_id, false}
+  , m_dbvMotorType{"Drive", "stkMotorType" + m_id, false}
+  , m_dbvSensor{"Drive", "stkSensor" + m_id, false}
+  , m_dbvCan{"Drive", "stkCan" + m_id, false}
+  , m_dbvTemperature{"Drive", "stkTemperature" + m_id, false}
+  , m_dbvGateDriver{"Drive", "stkGateDriver" + m_id, false}
+  , m_dbvEscEeprom{"Drive", "stkEscEeprom" + m_id, false}
+  , m_dbvFirmware{"Drive", "stkFirmware" + m_id, false}
 {
   wpi::log::DataLog& log = frc::DataLogManager::GetLog();
 
@@ -48,6 +56,7 @@ SwerveModule::SwerveModule(const int driveMotorCanId, const int turningMotorCanI
   currentLimitConfigs.WithSupplyCurrentLimitEnable(true);
   currentLimitConfigs.WithSupplyCurrentLowerLimit(70.0_A); //Will do nothing right now, larger than SupplyCurrentLimit
   currentLimitConfigs.WithSupplyCurrentLowerTime(0.85_s);
+
   m_driveMotor.SetPosition(units::angle::turn_t(0.0));
 
   constexpr double kDriveP = 0.0025; // 0.1;
@@ -87,7 +96,7 @@ SwerveModule::SwerveModule(const int driveMotorCanId, const int turningMotorCanI
   frc::SmartDashboard::PutNumber("SwrvI", m_turnI);
   frc::SmartDashboard::PutNumber("SwrvD", m_turnD);
   m_turningConfig.closedLoop.Pid(m_turnP, m_turnI, m_turnD);
-  m_turningConfig.SmartCurrentLimit(20).SetIdleMode(SparkBaseConfig::IdleMode::kBrake);
+  m_turningConfig.SmartCurrentLimit(40).SetIdleMode(SparkBaseConfig::IdleMode::kBrake);
   
   m_turningMotor.Configure(m_turningConfig, SparkFlex::ResetMode::kNoResetSafeParameters, SparkFlex::PersistMode::kPersistParameters); // TODO: VERIFY CONFIGURATION
   m_timer.Reset();
@@ -113,23 +122,17 @@ SwerveModule::SwerveModule(const int driveMotorCanId, const int turningMotorCanI
     .WithWidget(frc::BuiltInWidgets::kVoltageView)
     .GetEntry();
 #endif
-  frc::SmartDashboard::PutNumber("NewRef", 0.0);
+  //frc::SmartDashboard::PutNumber("NewRef", 0.0);
   frc::SmartDashboard::PutNumber("Offset" + m_id, 0.0);
+
+  // auto pos = m_driveMotor.GetPosition().GetValue().value();
+  // frc::SmartDashboard::PutNumber("DrvTurns" + m_id, pos);
+  // frc::SmartDashboard::PutNumber("DrvMtrs" + m_id, kWheelCircumfMeters.value() * pos);
+  // frc::SmartDashboard::PutNumber("DrvGrRt" + m_id, kWheelCircumfMeters.value() * pos / units::angle::turn_t(kDriveGearRatio).value());
 }
 
 void SwerveModule::Periodic()
 {
-  // auto time = m_timer.Get();
-  // if (time < 5.0_s)
-  // {
-  //   ResyncAbsRelEnc();
-  // }
-
-  //static int count = 0;
-  // if (count++ % 50)
-  // {
-  //   ResyncAbsRelEnc();
-  // }
   double turnP = frc::SmartDashboard::GetNumber("SwrvP", m_turnP);
   double turnI = frc::SmartDashboard::GetNumber("SwrvI", m_turnI);
   double turnD = frc::SmartDashboard::GetNumber("SwrvD", m_turnD);
@@ -162,9 +165,24 @@ void SwerveModule::Periodic()
   frc::SmartDashboard::PutNumber("Abs Pos" + m_id, absPos);
   frc::SmartDashboard::PutNumber("Abs Pos Offset" + m_id, m_offset);  
   frc::SmartDashboard::PutNumber("Turn Enc Pos" + m_id, GetTurnPosition().to<double>());
-  
-  m_logTurningEncoderPosition.Update(GetTurnPosition().to<double>());
-  m_logAbsoluteEncoderPosition.Update(absPos);
+
+  // auto pos = m_driveMotor.GetPosition().GetValue().value();
+  // frc::SmartDashboard::PutNumber("DrvTurns" + m_id, pos);
+  // frc::SmartDashboard::PutNumber("DrvMtrs" + m_id, kWheelCircumfMeters.value() * pos);
+  // frc::SmartDashboard::PutNumber("DrvGrRt" + m_id, kWheelCircumfMeters.value() * pos / units::angle::turn_t(kDriveGearRatio).value());
+
+  auto faults = m_turningMotor.GetStickyFaults();
+  m_dbvOther.Put(faults.other);
+  m_dbvMotorType.Put(faults.motorType);
+  m_dbvSensor.Put(faults.sensor);
+  m_dbvCan.Put(faults.can);
+  m_dbvTemperature.Put(faults.temperature);
+  m_dbvGateDriver.Put(faults.gateDriver);
+  m_dbvEscEeprom.Put(faults.escEeprom);
+  m_dbvFirmware.Put(faults.firmware);
+
+  m_logTurningEncoderPosition.Append(GetTurnPosition().to<double>());
+  m_logAbsoluteEncoderPosition.Append(absPos);
 }
 
 void SwerveModule::ResyncAbsRelEnc()
@@ -200,17 +218,21 @@ units::radian_t SwerveModule::GetTurnPosition()
 
 units::meters_per_second_t SwerveModule::CalcMetersPerSec()
 {
-  return kWheelCircumfMeters * m_driveMotor.GetVelocity().GetValue() / units::angle::turn_t(1.0);
+  // We multiply by -1 if the motor is reversed so that velocity is calculated in the same direction
+  double reverse = m_driveMotorReversed ? 1.0 : -1.0;
+  return reverse * kWheelCircumfMeters * m_driveMotor.GetVelocity().GetValue() / units::angle::turn_t(kDriveGearRatio);
 }
 
 frc::SwerveModulePosition SwerveModule::GetPosition()
 {
-  return {CalcMeters(), GetTurnPosition() };
+  return { CalcMeters(), GetTurnPosition() };
 }
 
 units::meter_t SwerveModule::CalcMeters()
 {
-  return kWheelCircumfMeters * m_driveMotor.GetPosition().GetValue() / units::angle::turn_t(1.0);
+  // We multiply by -1 if the motor is reversed so that distance is calculated in the same direction
+  double reverse = m_driveMotorReversed ? 1.0 : -1.0;
+  return reverse * kWheelCircumfMeters * m_driveMotor.GetPosition().GetValue() / units::angle::turn_t(kDriveGearRatio);
 }
 
 void SwerveModule::SetDesiredState(frc::SwerveModuleState& referenceState)
@@ -229,7 +251,7 @@ void SwerveModule::SetDesiredState(frc::SwerveModuleState& referenceState)
 #ifdef DISABLE_DRIVE
     m_driveMotor.Set(TalonFXControlMode::Velocity, 0.0);
 #else
-    auto spd = (referenceState.speed / m_currentMaxSpeed).to<double>();
+    auto spd = (referenceState.speed).to<double>();
     spd *= m_driveMotorReversed ? -1.0 : 1.0;
     m_driveMotor.Set(spd);  
 #endif
@@ -247,7 +269,7 @@ void SwerveModule::SetDesiredState(frc::SwerveModuleState& referenceState)
   m_logDriveNewSpeed.Update(referenceState.speed.to<double>());
   m_logDriveNormalizedSpeed.Update((referenceState.speed / m_currentMaxSpeed).to<double>());
 
-  frc::SmartDashboard::PutNumber("Turn Ref Motor" + m_id, newRef);
+  //frc::SmartDashboard::PutNumber("Turn Ref Motor" + m_id, newRef);
   m_turningPIDController.SetReference(newRef, SparkBase::ControlType::kPosition);
 }
 

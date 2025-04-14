@@ -6,7 +6,12 @@
 
 #include <frc2/command/CommandScheduler.h>
 
-void Robot::RobotInit() {}
+#include <cameraserver/CameraServer.h>
+
+void Robot::RobotInit()
+{
+  frc::CameraServer::StartAutomaticCapture();  
+}
 
 /**
  * This function is called every 20 ms, no matter the mode. Use
@@ -19,6 +24,7 @@ void Robot::RobotInit() {}
 void Robot::RobotPeriodic()
 {
   frc2::CommandScheduler::GetInstance().Run();
+  m_container.Periodic();
 }
 
 /**
@@ -30,9 +36,19 @@ void Robot::DisabledInit()
 {
   m_container.StopAll();
   DataLogManager::Stop();
+  m_enabled = false;
+  frc::SmartDashboard::PutBoolean("Robot Enabled", m_enabled);
+  m_container.ConfigureRobotLEDs();
 }
 
 void Robot::DisabledPeriodic() {}
+
+void Robot::DisabledExit()
+{
+  m_enabled = true;
+  frc::SmartDashboard::PutBoolean("Robot Enabled", m_enabled);
+  m_container.ConfigureRobotLEDs();
+}
 
 /**
  * This autonomous runs the autonomous command selected by your {@link
@@ -46,9 +62,12 @@ void Robot::AutonomousInit()
   // Record both DS control and joystick data
   DriverStation::StartDataLog(DataLogManager::GetLog());
 
-  //m_autonomousCommand = m_container.GetAutonomousCommand();
+  m_container.SetHighSpeed();
+  m_container.StartUp();
 
-  if (m_autonomousCommand) {
+  m_autonomousCommand = m_container.GetAutonomousCommand();
+  if (m_autonomousCommand)
+  {
     m_autonomousCommand->Schedule();
   }
 }
@@ -67,7 +86,8 @@ void Robot::TeleopInit()
   // teleop starts running. If you want the autonomous to
   // continue until interrupted by another command, remove
   // this line or comment it out.
-  if (m_autonomousCommand) {
+  if (m_autonomousCommand)
+  {
     m_autonomousCommand->Cancel();
   }
 }

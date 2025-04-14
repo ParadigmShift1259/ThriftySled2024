@@ -16,6 +16,7 @@
 #include <frc/AnalogInput.h>
 #include <frc/Timer.h>
 #include <frc/DataLogManager.h>
+#include "DashBoardValue.h"
 
 #include <networktables/NetworkTableEntry.h>
 
@@ -72,7 +73,7 @@ public:
     static constexpr double kDriveGearRatio2ndStage16P13 = 5.54; //!< Thrifty Swerve modules 16T 13P gearing w/Kraken 18.9 ft/s (5.76 m/s)
     static constexpr double kDriveGearRatio2ndStage16P14 = 5.14; //!< Thrifty Swerve modules 16T 14P gearing w/Kraken 20.4 ft/s (6.22 m/s)
 
-    static constexpr double kDriveGearRatio = kDriveGearRatio2ndStage16P13;
+    static constexpr double kDriveGearRatio = kDriveGearRatio2ndStage18P13;
 
 private:
     units::meters_per_second_t CalcMetersPerSec();
@@ -105,6 +106,17 @@ private:
 
     /// Timer used to sync absolute and relative encoders on robot turn on
     frc::Timer m_timer;
+
+    DashBoardValue<bool> m_dbvOther;
+    DashBoardValue<bool> m_dbvMotorType;
+    DashBoardValue<bool> m_dbvSensor;
+    DashBoardValue<bool> m_dbvCan;
+    DashBoardValue<bool> m_dbvTemperature;
+    DashBoardValue<bool> m_dbvGateDriver;
+    DashBoardValue<bool> m_dbvEscEeprom;
+    DashBoardValue<bool> m_dbvFirmware;
+
+    // DashBoardValue<bool> m_dbvFieldRelative{"Drive", "other", other};
 
     // Logging Member Variables
     wpi::log::DoubleLogEntry m_logTurningEncoderPosition;

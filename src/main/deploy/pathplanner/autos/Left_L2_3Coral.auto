@@ -1,0 +1,91 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "RaiseL2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "FirstPlace"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ShootCoral"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.2
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "StopCoral"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "FirstIntake.0"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Intake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "TheRightSecondPlace.0"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "PlaceL4"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "SecondIntake.0"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Intake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "ThirdPlace.0"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "PlaceL4"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": true
+}

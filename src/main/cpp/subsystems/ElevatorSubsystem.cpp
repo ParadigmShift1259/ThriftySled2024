@@ -15,9 +15,13 @@ constexpr ClosedLoopSlot c_defaultElevatorUpPIDSlot = ClosedLoopSlot::kSlot1;
 
 constexpr double c_defaultElevatorDownP = 0.01;
 constexpr double c_defaultElevatorUpP = 0.1;
-constexpr double c_defaultElevatorI = 0.00005;
+constexpr double c_defaultElevatorI = 0.00003;
 constexpr double c_defaultElevatorD = 0.0;
 constexpr double c_defaultElevatorFF = 0.00000;
+
+// constexpr double c_maxVelocity = 4000.0;        // RPM
+// constexpr double c_maxAcceleration = 8000.0;   // RPM/s
+// constexpr double c_allowedError = 1.0;          // Turns
 
 ElevatorSubsystem::ElevatorSubsystem()
     : m_leadMotor(kElevatorLeadMotorCANID, SparkLowLevel::MotorType::kBrushless)
@@ -28,6 +32,9 @@ ElevatorSubsystem::ElevatorSubsystem()
         .Inverted(true);
     m_leadConfig.ClosedLoopRampRate(0.0);
     m_leadConfig.closedLoop.OutputRange(kMinOut, kMaxOut);
+    // m_leadConfig.closedLoop.maxMotion.MaxVelocity(c_maxVelocity);
+    // m_leadConfig.closedLoop.maxMotion.MaxAcceleration(c_maxAcceleration);
+    // m_leadConfig.closedLoop.maxMotion.AllowedClosedLoopError(c_allowedError);
     m_leadMotor.Configure(m_leadConfig, SparkBase::ResetMode::kNoResetSafeParameters, SparkBase::PersistMode::kPersistParameters);
 
     m_followConfig
@@ -35,6 +42,9 @@ ElevatorSubsystem::ElevatorSubsystem()
         .Inverted(false);
     m_followConfig.ClosedLoopRampRate(0.0);
     m_followConfig.closedLoop.OutputRange(kMinOut, kMaxOut);
+    // m_followConfig.closedLoop.maxMotion.MaxVelocity(c_maxVelocity);
+    // m_followConfig.closedLoop.maxMotion.MaxAcceleration(c_maxAcceleration);
+    // m_followConfig.closedLoop.maxMotion.AllowedClosedLoopError(c_allowedError);
     m_followMotor.Configure(m_followConfig, SparkBase::ResetMode::kNoResetSafeParameters, SparkBase::PersistMode::kPersistParameters);
 
     m_leadRelativeEnc.SetPosition(0.0);
@@ -63,11 +73,23 @@ ElevatorSubsystem::ElevatorSubsystem()
     frc::Preferences::InitDouble("ElevatorPosI", c_defaultElevatorI);
     frc::Preferences::InitDouble("ElevatorPosD", c_defaultElevatorD);
     frc::Preferences::InitDouble("ElevatorPosFF", c_defaultElevatorFF);
+    frc::Preferences::InitDouble("ElevatorL4", c_defaultL4Turns);
+
+    frc::Preferences::InitDouble("ElevatorPosRR", 0.0);
+
+    // frc::Preferences::InitDouble("ElevatorL3", c_defaultL3Turns);
+    // frc::Preferences::InitDouble("ElevatorL2", c_defaultL2Turns);
+    // frc::Preferences::InitDouble("ElevatorL1", c_defaultL1Turns);
 
     frc::SmartDashboard::PutNumber("ElevatorLeadMotorPos", 1.0);
     frc::SmartDashboard::PutNumber("ElevatorFollowMotorPos", 1.0);
 
-    frc::SmartDashboard::PutNumber("ElevatorGoToRel", 0.0);
+    frc::SmartDashboard::PutNumber("ElevatorGoToRel", 1.0);
+
+    frc::SmartDashboard::PutBoolean("L1", false);
+    frc::SmartDashboard::PutBoolean("L2", false);
+    frc::SmartDashboard::PutBoolean("L3", false);
+    frc::SmartDashboard::PutBoolean("L4", false);
 }
 
 void ElevatorSubsystem::Periodic()
@@ -80,12 +102,23 @@ void ElevatorSubsystem::Periodic()
     static double lastI = 0.0;
     static double lastD = 0.0;
     static double lastFF = 0.0;
+    //static double lastRampRate = 0.0;
 
     auto pDown = frc::Preferences::GetDouble("ElevatorPosDownP", c_defaultElevatorDownP);
     auto pUp = frc::Preferences::GetDouble("ElevatorPosUpP", c_defaultElevatorUpP);
     auto i = frc::Preferences::GetDouble("ElevatorPosI", c_defaultElevatorI);
     auto d = frc::Preferences::GetDouble("ElevatorPosD", c_defaultElevatorD);
     auto ff = frc::Preferences::GetDouble("ElevatorPosFF", c_defaultElevatorFF);
+
+    //auto rampRate = frc::Preferences::GetDouble("ElevatorPosRR", 0.0);
+
+    // if (rampRate != lastRampRate)
+    // {
+    //     m_leadConfig.ClosedLoopRampRate(rampRate);
+    //     m_followConfig.ClosedLoopRampRate(rampRate);;
+    //     m_leadMotor.Configure(m_leadConfig, SparkBase::ResetMode::kNoResetSafeParameters, SparkBase::PersistMode::kPersistParameters);
+    //     m_followMotor.Configure(m_followConfig, SparkBase::ResetMode::kNoResetSafeParameters, SparkBase::PersistMode::kPersistParameters);
+    // }
 
     if (pDown != lastDownP)
     {
@@ -103,8 +136,8 @@ void ElevatorSubsystem::Periodic()
     }
     if (i != lastI)
     {
-        m_leadConfig.closedLoop.I(i, c_defaultElevatorDownPIDSlot).I(i, c_defaultElevatorUpPIDSlot);
-        m_followConfig.closedLoop.I(i, c_defaultElevatorDownPIDSlot).I(i, c_defaultElevatorUpPIDSlot);
+        m_leadConfig.closedLoop.I(i, c_defaultElevatorDownPIDSlot); // Only apply I to down motion .I(i, c_defaultElevatorUpPIDSlot);
+        m_followConfig.closedLoop.I(i, c_defaultElevatorDownPIDSlot); // Only apply I to down motion .I(i, c_defaultElevatorUpPIDSlot);
         m_leadMotor.Configure(m_leadConfig, SparkBase::ResetMode::kNoResetSafeParameters, SparkBase::PersistMode::kPersistParameters);
         m_followMotor.Configure(m_followConfig, SparkBase::ResetMode::kNoResetSafeParameters, SparkBase::PersistMode::kPersistParameters);
     }
@@ -127,50 +160,87 @@ void ElevatorSubsystem::Periodic()
     lastI = i;
     lastD = d;
     lastFF = ff;
+    //lastRampRate = rampRate;
+
+    //m_dbvVelocity.Put(m_leadRelativeEnc.GetVelocity());
 
     double currentPos = m_leadRelativeEnc.GetPosition();
     bool bGoingToBottom = currentPos < 10.0 && m_position < 1.0;
     bool bGoingToTop = currentPos > 30.0 && m_position > 39.0;
     if (( bGoingToBottom || bGoingToTop ) && m_slot == c_defaultElevatorUpPIDSlot)
     {
-        m_slot = c_defaultElevatorDownPIDSlot;
-        m_leadPIDController.SetReference(m_position, SparkBase::ControlType::kPosition, m_slot);
-        m_followPIDController.SetReference(m_position, SparkBase::ControlType::kPosition, m_slot);
-    }
+       m_slot = c_defaultElevatorDownPIDSlot;
+       m_leadPIDController.SetReference(m_position, SparkBase::ControlType::kPosition, m_slot);
+       m_followPIDController.SetReference(m_position, SparkBase::ControlType::kPosition, m_slot);
+   }
 
-    if (fabs(m_position - currentPos) < 0.25) 
-    {
-        Stop();
-    }
+    // if (fabs(m_position - currentPos) < 0.25) 
+    // {
+    //     Stop();
+    // }
 
     frc::SmartDashboard::PutNumber("ElevatorLeadMotorPos Echo", m_leadRelativeEnc.GetPosition());
     frc::SmartDashboard::PutNumber("ElevatorFollowMotorPos Echo", m_followRelativeEnc.GetPosition());
+    frc::SmartDashboard::PutBoolean("ElevatorUpperLimit", m_upperLimit.Get());
+    frc::SmartDashboard::PutBoolean("ElevatorLowerLimit", m_lowerLimit.Get());
   }
+}
+
+double ElevatorSubsystem::GetPositionForLevel(ELevels eLevel)
+{
+    static double positions[] = { c_defaultL1Turns, c_defaultL2Turns, c_defaultL3Turns, c_defaultL4Turns, c_algaeRemovalL3_4, c_algaeRemovalL2_3 };
+    double position;
+    if (eLevel == L4)
+    {
+        position = frc::Preferences::GetDouble("ElevatorL4", c_defaultL4Turns);
+    }
+    else
+    {
+        position = positions[eLevel]; 
+    }
+     return position;
+}
+
+void ElevatorSubsystem::GoToPosition(ELevels eLevel)
+{
+    if (eLevel != algaeRemovalL3_4)
+    {
+        SetPresetLevel(eLevel);
+    }
+
+    auto transition = GetPositionForLevel(L3) + c_elevToleranceTurns;
+    if (eLevel == L1 && (GetCurrentPosition() > transition))
+    {
+        // Too high, will slam; caller needs to wait and re-go to L1
+        eLevel = L3;
+    }
+
+    GoToPosition(GetPositionForLevel(eLevel));  
 }
 
 void ElevatorSubsystem::GoToPosition(double position)
 {
-    std::clamp(position, 0.0, 40.0);
-    m_position = position;
+    m_position = std::clamp(position, 0.0, c_defaultL4Turns);
     
     frc::SmartDashboard::PutNumber("ElevatorLeadMotorPos", position);
     frc::SmartDashboard::PutNumber("ElevatorFollowMotorPos", position);
 
     m_slot = c_defaultElevatorUpPIDSlot;
-    if(position < 1.5)
+    if (m_position < 1.5)
     {
         m_slot = c_defaultElevatorDownPIDSlot;
     }
     m_leadPIDController.SetReference(position, SparkBase::ControlType::kPosition, m_slot);
     m_followPIDController.SetReference(position, SparkBase::ControlType::kPosition, m_slot);
-
+    // m_leadPIDController.SetReference(m_position, SparkBase::ControlType::kMAXMotionPositionControl, m_slot);
+    // m_followPIDController.SetReference(m_position, SparkBase::ControlType::kMAXMotionPositionControl, m_slot);
 }
 
 void ElevatorSubsystem::GotoPositionRel(double relPos)
 {
     bool bDown = relPos < 0.0;
-    relPos = frc::SmartDashboard::GetNumber("ElevatorGoToRel", 0.0);
-    std::clamp(relPos, -10.0, 10.0);
+    relPos = frc::SmartDashboard::GetNumber("ElevatorGoToRel", 1.0);
+    relPos = std::clamp(relPos, -10.0, 10.0);
     if(bDown)
     {
         relPos *= -1.0;
@@ -179,3 +249,23 @@ void ElevatorSubsystem::GotoPositionRel(double relPos)
     GoToPosition(m_leadRelativeEnc.GetPosition() + relPos);
 }
 
+bool ElevatorSubsystem::IsAtPosition(ELevels level)
+{
+    double levelPos = GetPositionForLevel(level);
+    double difference = fabs(m_leadRelativeEnc.GetPosition() - levelPos);
+    return difference > -c_elevToleranceTurns && difference < c_elevToleranceTurns;
+}
+
+void ElevatorSubsystem::SetPresetLevel(ELevels level)
+{
+    m_level = level;
+    frc::SmartDashboard::PutBoolean("L1", (m_level == L1));
+    frc::SmartDashboard::PutBoolean("L2", (m_level == L2));
+    frc::SmartDashboard::PutBoolean("L3", (m_level == L3));
+    frc::SmartDashboard::PutBoolean("L4", (m_level == L4));
+}
+
+void ElevatorSubsystem::GoToPresetLevel()
+{
+    GoToPosition(m_level);
+}
