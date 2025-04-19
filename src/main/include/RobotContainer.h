@@ -5,13 +5,13 @@
 #pragma once
 
 #include <frc/filter/SlewRateLimiter.h>
-#include <frc/smartdashboard/SmartDashboard.h>
+//#include <frc/smartdashboard/SmartDashboard.h>
 #include <frc/smartdashboard/SendableChooser.h>
-#include <frc/GenericHID.h>
+//#include <frc/GenericHID.h>
 #include <frc/Timer.h>
 
 #include <frc2/command/button/CommandXboxController.h>
-#include <frc2/command/button/CommandJoystick.h>
+//#include <frc2/command/button/CommandJoystick.h>
 #include <frc2/command/CommandPtr.h>
 #include <frc2/command/RunCommand.h>
 #include <frc2/command/InstantCommand.h>
@@ -22,7 +22,7 @@
 
 #include "ISubsystemAccess.h"
 
-#include "subsystems/ElevatorSubsystem.h"
+//#include "subsystems/ElevatorSubsystem.h"
 
 using namespace frc;
 using namespace frc2;
@@ -81,8 +81,8 @@ class RobotContainer : public ISubsystemAccess
 //#define USE_SECOND_XBOX_CONTROLLER
 #ifdef USE_SECOND_XBOX_CONTROLLER
   void ConfigSecondaryButtonBindings();
-  void SetUpLogging();
 #endif
+  void SetUpLogging();
 #define USE_BUTTON_BOX
 // #define USE_POSITION_PID
 #ifdef USE_BUTTON_BOX
@@ -225,4 +225,8 @@ class RobotContainer : public ISubsystemAccess
 	wpi::log::DoubleLogEntry m_logTargetPoseX;
 	wpi::log::DoubleLogEntry m_logTargetPoseY;
 	wpi::log::DoubleLogEntry m_logTargetPoseRot;
+
+  using TranslationLog = wpi::log::StructLogEntry<frc::Translation2d>;
+  TranslationLog m_logPoses;
+  TranslationLog m_logPath;
 };

@@ -1056,6 +1056,7 @@ std::shared_ptr<PathPlannerPath> RobotContainer::GetOnTheFlyPath()
   // Prevent the path from being flipped if the coordinates are already correct
   path->preventFlipping = true;
 
+#ifdef PRINT_PATH
   printf("path waypoints x y angle\n");
   for (auto& wp : poses)
   {
