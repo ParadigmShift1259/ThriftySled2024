@@ -187,7 +187,7 @@ class RobotContainer : public ISubsystemAccess
   frc2::InstantCommand m_elevRelPosUp{[this] { m_elevator.GotoPositionRel(1.0); }, {&m_elevator} };
   frc2::InstantCommand m_elevRelPosDown{[this] { m_elevator.GotoPositionRel(-1.0); }, {&m_elevator} };
 
-  frc2::InstantCommand m_intakeAlign{[this] { m_intake.AlignIntake(); }, {&m_intake} };
+  frc2::InstantCommand m_intakeAlign{[this] { m_intake.ParkIntakeForLoad(); }, {&m_intake} };
 
   frc2::InstantCommand m_coralStop{[this] { m_coral.Stop(); }, {&m_coral} };
   frc2::InstantCommand m_coralRetract{[this] { m_coral.RetractCoral(L1); }, {&m_coral} };
