@@ -1002,7 +1002,7 @@ std::shared_ptr<PathPlannerPath> RobotContainer::GetOnTheFlyPath()
 {
   std::shared_ptr<PathPlannerPath> path;
 
-  //m_drive.SetSlowSpeed(true);
+  m_drive.SetSlowSpeed(true);
 
   units::length::meter_t targetX;
   units::length::meter_t targetY;

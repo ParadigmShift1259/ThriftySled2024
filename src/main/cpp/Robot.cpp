@@ -8,6 +8,8 @@
 
 #include <cameraserver/CameraServer.h>
 
+#include <ISubsystemAccess.h>
+
 void Robot::RobotInit()
 {
   frc::CameraServer::StartAutomaticCapture();  
@@ -40,7 +42,8 @@ void Robot::DisabledInit()
   m_container.ConfigureRobotLEDs();
 }
 
-void Robot::DisabledPeriodic() {}
+void Robot::DisabledPeriodic() {
+}
 
 void Robot::DisabledExit()
 {
@@ -65,7 +68,8 @@ void Robot::AutonomousInit()
   }
 }
 
-void Robot::AutonomousPeriodic() {}
+void Robot::AutonomousPeriodic() {
+}
 
 void Robot::TeleopInit()
 {

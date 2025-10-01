@@ -25,7 +25,7 @@ using namespace ctre::phoenix::motorcontrol;
 using namespace rev::spark;
 
 constexpr double c_defaultClimbResetTurns = -20.0;
-constexpr double c_defaultClimbDeployTurns = 370.0; // 370 ~35 degrees 500.0; ~ 90 degrees (parallel with floor)
+constexpr double c_defaultClimbDeployTurns = 460;//370.0; // 370 ~35 degrees 500.0; ~ 90 degrees (parallel with floor)
 constexpr double c_defaultClimbDeployRelTurns = 10.0;
 constexpr double c_defaultClimbSpringTensionTurns = 100.0;    // Move the climb partway out to relieve the spring tension
 
